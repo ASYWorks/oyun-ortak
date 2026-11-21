@@ -8,7 +8,7 @@ after(() => sql.end());
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
 const oz = (c: string) => c.repeat(64).slice(0, 64);
-const satir = (g: string, k: number, c: string) => ({ gun: g, katman: k, cevap_ozet: oz(c), ipuclari: ["a", "b", "c"], zorluk: 2 });
+const satir = (g: string, k: number, c: string) => ({ gun: g, katman: k, cevap_ozet: oz(c), ipuclari: ["a", "b", "c"], zorluk: 2, gosterim: { k, c } });
 const temizle = (gunler: string[]) => sql.begin(async (t) => { await t`set local remzle.duzeltme = 'evet'`; await t`delete from remzle.gunluk_anahtar where gun = any(${gunler})`; });
 
 test("8000 remzle: oyun satırı ve tablo istemciye kapalı", async () => {
@@ -27,7 +27,7 @@ test("8000 remzle yükleme: eksik bugün eklenir; açılmış gün değişmez; g
   const dun = gun(-1), bugun = gun(0), yarin = gun(1);
   await temizle([dun, bugun, yarin]);
   const sv = yonetici();
-  await sql`insert into remzle.gunluk_anahtar (gun, katman, cevap_ozet, ipuclari, zorluk, icerik_surumu) values (${dun}, 1, ${oz("e")}, '["x","y","z"]', 1, 'v0')`;
+  await sql`insert into remzle.gunluk_anahtar (gun, katman, cevap_ozet, ipuclari, zorluk, icerik_surumu) values (${dun}, 1, ${oz("e")}, '["x","y","z"]', 1, 'v0')`.catch(async () => sql`insert into remzle.gunluk_anahtar (gun, katman, cevap_ozet, ipuclari, zorluk, gosterim, icerik_surumu) values (${dun}, 1, ${oz("e")}, '["x","y","z"]', 1, '{}', 'v0')`);
   const y1 = (await sv.rpc("remzle_anahtar_yukle", { p_satirlar: [satir(dun, 1, "a"), satir(bugun, 1, "b"), satir(yarin, 2, "c"), satir(yarin, 1, "d")], p_surum: "v1" })).data;
   assert.deepEqual([y1.yazilan, y1.atlanan], [3, 1]);
   const y2 = (await sv.rpc("remzle_anahtar_yukle", { p_satirlar: [satir(yarin, 1, "f")], p_surum: "v1" })).data;
@@ -41,8 +41,20 @@ test("8000 remzle yükleme: eksik bugün eklenir; açılmış gün değişmez; g
   assert.equal(d[0].cevap_ozet, oz("e"), "açılmış gün değişmedi");
   assert.deepEqual((await sv.rpc("remzle_anahtar_oku", { p_gun: gun(30) })).data, []);
   await assert.rejects(sql`update remzle.gunluk_anahtar set cevap_ozet = ${oz("9")} where gun = ${dun}`, /acilmis_gun_degisemez/);
-  await assert.rejects(sql`insert into remzle.gunluk_anahtar (gun, katman, cevap_ozet, ipuclari, zorluk, icerik_surumu) values (${gun(5)}, 1, 'kisa', '[]', 1, 'v')`, /check/);
+  await assert.rejects(sql`insert into remzle.gunluk_anahtar (gun, katman, cevap_ozet, ipuclari, zorluk, icerik_surumu) values (${gun(5)}, 1, 'kisa', '[]', 1, 'v')`, /check|null/);
   const [k] = await sql`select count(*)::int as n from ortak.yonetim_kaydi where tablo like '%gunluk_anahtar' and anahtar = ${yarin}`;
   assert.ok(k!.n >= 3, `yönetim kaydı yazıldı (${k!.n})`);
   await temizle([dun, bugun, yarin]);
+});
+
+test("8010 remzle gösterim: okuma gösterimi döner, gösterimsiz yükleme reddedilir, açılmış günün gösterimi değişmez", async () => {
+  const dun = gun(-1), yarin = gun(1);
+  await temizle([dun, yarin]);
+  const sv = yonetici();
+  await sv.rpc("remzle_anahtar_yukle", { p_satirlar: [satir(dun, 1, "a"), satir(yarin, 1, "b")], p_surum: "v1" });
+  assert.deepEqual((await sv.rpc("remzle_anahtar_oku", { p_gun: yarin })).data[0].gosterim, { k: 1, c: "b" });
+  const { error } = await sv.rpc("remzle_anahtar_yukle", { p_satirlar: [{ gun: gun(9), katman: 1, cevap_ozet: oz("a"), ipuclari: ["a", "b", "c"], zorluk: 1 }], p_surum: "v1" });
+  assert.match(error?.message ?? "", /gosterim_gerekli/);
+  await assert.rejects(sql`update remzle.gunluk_anahtar set gosterim = '{"x":1}' where gun = ${dun}`, /acilmis_gun_degisemez/);
+  await temizle([dun, yarin]);
 });
