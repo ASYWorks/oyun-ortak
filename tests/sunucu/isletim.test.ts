@@ -99,8 +99,8 @@ test("7500 panel_durumu: yanlış anahtar null, doğru anahtar durum + son yedek
   await sql`insert into ortak.panel_ayar (anahtar_ozet) values (extensions.digest('test-anahtar', 'sha256'))`;
   const anon = istemci().schema("ortak");
   assert.equal((await anon.rpc("panel_durumu", { p_anahtar: "yanlis" })).data, null, "yanlış anahtar");
-  assert.equal((await anon.rpc("yedek_kaydet", { p_anahtar: "yanlis", p_proje: "canli", p_basarili: true, p_boyut: 1, p_not: null })).error?.message.includes("anahtar"), true, "yanlış anahtarla yedek yazılmaz");
-  assert.equal((await anon.rpc("yedek_kaydet", { p_anahtar: "test-anahtar", p_proje: "canli", p_basarili: true, p_boyut: 123, p_not: "deneme" })).error, null);
+  assert.equal((await anon.rpc("yedek_kaydet", { p_anahtar: "yanlis", p_proje: "canli", p_basarili: true, p_boyut: 1, p_not: null })).data, false, "yanlış anahtarla yedek yazılmaz, hata fırlatmaz (sayaç geri alınmasın)");
+  assert.equal((await anon.rpc("yedek_kaydet", { p_anahtar: "test-anahtar", p_proje: "canli", p_basarili: true, p_boyut: 123, p_not: "deneme" })).data, true);
   const { data: d } = await anon.rpc("panel_durumu", { p_anahtar: "test-anahtar" });
   assert.ok(d && Array.isArray(d.isler), "isletim alanları");
   assert.equal(d.son_yedek.basarili, true);
