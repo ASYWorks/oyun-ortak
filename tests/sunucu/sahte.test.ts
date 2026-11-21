@@ -9,7 +9,8 @@ after(() => sql.end());
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
 const saat = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Istanbul", hour: "2-digit", hour12: false }).format(new Date()));
 const deste = (g: string, no: number, ozet: string) => ({ gun: g, no, surum: 1, tam: { cevap: no }, acik: { soru: no }, ozet });
-const temizle = () => sql.begin(async (t) => { await t`set local sahte.duzeltme = 'evet'`; await t`delete from sahte.desteler where no >= 900000`; });
+// Yerel yığında oyunun gerçek desteleri de olabilir (oyun oturumu yükler): sınanan günler ve test numaraları temizlenir.
+const temizle = () => sql.begin(async (t) => { await t`set local sahte.duzeltme = 'evet'`; await t`delete from sahte.desteler where no >= 900000 or gun between ${gun(-2)}::date and ${gun(1)}::date`; });
 
 test("7900 sahte: oyun satırı; tablo ve servis uçları istemciye kapalı", async () => {
   const [o] = await sql`select ayarlar from ortak.oyunlar where id = 'sahte'`;

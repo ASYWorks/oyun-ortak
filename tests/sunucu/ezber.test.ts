@@ -8,7 +8,8 @@ after(() => sql.end());
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
 const satir = (g: string, id: string) => ({ gun: g, challenge_id: id, bulmaca: { b: id }, en_kisa: 4, ilk_hamle: { h: 1 }, hedef_beklenti: null, aile: "A", kaynak_sinif: "k", motor_surumu: "1.0.0" });
-const temizle = () => sql.begin(async (t) => { await t`set local ezber.duzeltme = 'evet'`; await t`delete from ezber.gunluk where challenge_id like 'test-%'`; });
+// Yerel yığında oyunun gerçek içeriği de olabilir (oyun oturumu yükler): sınanan günler ve test kimlikleri temizlenir.
+const temizle = () => sql.begin(async (t) => { await t`set local ezber.duzeltme = 'evet'`; await t`delete from ezber.gunluk where challenge_id like 'test-%' or gun between ${gun(-1)}::date and ${gun(1)}::date`; });
 
 test("8100 ezber: oyun satırı, ürün; tablolar ve servis uçları istemciye kapalı", async () => {
   const [o] = await sql`select ayarlar from ortak.oyunlar where id = 'ezber'`;
