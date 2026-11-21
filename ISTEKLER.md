@@ -360,3 +360,26 @@ Aşağıdakiler Halka'da 15–17 Kasım'da yaşandı. Her maddede Halka commit'i
    tıklama engeli okun kendi tıklamasını yutmamalı. Kanıt: Halka 0bd94b9, e2e `lig.spec.ts` "sola kaydırınca…".
 10. **e2e kanıtı: test düzeltmesiz düşmeli.** Yeni testi özellik kapalıyken bir kez çalıştırıp düştüğü görülür; Halka'da
     "girişten sonra profil" testi ilk yazılışında özellik olmadan da geçiyordu (yanlış başlangıç sayfası). a884a5f.
+
+## Ense Nasıl Olsun: denetim ve envanter (2026-11-21)
+
+Bağlam: `ense-nasil-olsun/docs/DENETIM.md` (commit 777379e). Arka uç Upstash (canlıda bağlı değil, sunucuda veri yok), Vercel 8 işlev, Resend. Taşıma sırasında karşılanacak.
+
+| # | Paket | İstek | Neden | Kabul ölçütü |
+|---|---|---|---|---|
+| EN-1 | `siralama` | Puan ölçeği kararı: oyunda 0–10.000 tamsayı, süre sonuca girmiyor (oyunun değişmez kuralı); ADIL_PUAN 0–100 ve sunucu süresi istiyor | O13 çelişkisi; `skor_yaz` aralığı buna bağlı | Kurucu kararı yazılı; dogrula-ense ve ayar ona göre |
+| EN-2 | `siralama` | Günlük görevin gizli verisi sunucuda: soru ucu `c.deneme` ile, yalnız kalıcı hesapla | /api/gunluk cevabı istemciye veriyor (ÖG-23) | İstemci paketinde ve cevaplarda gizli veri yok; testle |
+| EN-3 | `siralama` | Gece yarısından sonra 3 saat dünün sonucunu kabul (server/ortak.ts:14) ile gün kapanışının uyumu | Ortak gün kapanışı ve lig hesabı | Kapanış sonrası gönderimin davranışı testle sabit |
+| EN-4 | `kayit` | Gerçek kayıt boyutunun ölçümü: oyun 400 KB'a kadar yazıyor, `bulutKaydi` sınırı 256 KB | Sınır aşılırsa yedek düşer | Ölçülen en büyük kayıt < 256 KB ya da oyunda küçültme |
+| EN-5 | `siralama`/`olcum` | Kapalı test görevinin sunucuda yeniden oynatılmış özeti: dogrula-ense dalı mı, ham olay ölçüme mi; /api/test hız sınırı x-forwarded-for kullanıyor (ÖG-25) | Pakette karşılığı yok | Karar yazılı; hız sınırı ortak.hiz_siniri ile |
+
+## Şifre Bürosu (Remzle): denetim ve envanter (2026-11-21)
+
+Bağlam: `sifre-burosu/docs/DENETIM.md` (commit 15cf7bc, arayuz dalı). Arka uç Neon (daily_keys, plays, users, sessions, login_codes, rate_limits), Vercel, Resend. Alt alan adı `remzle.asyworks.com`. Gerçek veri yok sayılacak kadar az; taşıma planı gerekmez.
+
+| # | Paket | İstek | Neden | Kabul ölçütü |
+|---|---|---|---|---|
+| RZ-1 | `siralama` | `dogrula-remzle`: gün başına 3 katmanlı durum (katman başına yanlış, ipucu kademesi, çözülme zamanı); cevap özeti ve ipuçları istemciye gitmeyen gizli tabloda; 3 kademeli, sunucunun sınırladığı ipucu; katman zinciri sunucuda | Bugün check/hint uçları hesapsız ve cevap verisi Neon'da düz | İstemci paketinde cevap/ipucu metni yok; kademe sınırı sunucu testinde |
+| RZ-2 | göç | Gizli içerik yükleme: yerel betik servis rolüyle `remzle` şemasına yalnız ekleyerek yazar; açılmış gün koruması (Halka/sezgi gibi) ve yönetim kaydı; `isletim_durumu`'nda kalan gün | server/keys.ts her derlemede daily_keys'i üzerine yazıyor | Açılmış gün değişmez testi; kalan gün panelde |
+| RZ-3 | `siralama` | Puan/sıralama kararı: 3×100 katman puanı (−10 yanlış, −15 ipucu, taban 20) ADIL_PUAN 0–100'e nasıl eşlenir; günlükte sıralama olacak mı | O13; sıralama türü planda yok | Kurucu kararı yazılı |
+| RZ-4 | `hesap` | Misafir günlüğü: "oynar ama denetim/ipucu yok" mu, "giriş iste" mi (A17 günlüğü hesaba bağlıyor; Remzle'nin ana modu günlük) | Ürün kararı | Kurucu kararı yazılı |
