@@ -1,0 +1,20 @@
+name: test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      # oyun-test: yerel Supabase yığını GitHub'ın makinesinde (Docker) kurulur; göçler ve tohum baştan uygulanır.
+      # Webhook testleri için yalnız CI'da kullanılan sahte sır (gerçek sır bulut projelerinde).
+      - run: echo "ODEME_WEBHOOK_SIRRI=yerel-test-sirri" > supabase/functions/.env
+      # Runner'ın geçici giden bağlantıları 553xx portlarından birini anlık tutabiliyor; bir kez yeniden dene.
+      - run: npx supabase start || (npx supabase stop --no-backup; sleep 5; npx supabase start)
+      - run: npm run test:sunucu

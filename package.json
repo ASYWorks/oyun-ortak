@@ -1,0 +1,75 @@
+{
+  "name": "@oyun/ortak",
+  "version": "0.21.2",
+  "description": "ASYWorks'ün mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum, odeme, etkinlik, geri-bildirim, bildirim.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    "./kayit": {
+      "types": "./dist/kayit/index.d.ts",
+      "default": "./dist/kayit/index.js"
+    },
+    "./olcum": {
+      "types": "./dist/olcum/index.d.ts",
+      "default": "./dist/olcum/index.js"
+    },
+    "./hesap": {
+      "types": "./dist/hesap/index.d.ts",
+      "default": "./dist/hesap/index.js"
+    },
+    "./siralama": {
+      "types": "./dist/siralama/index.d.ts",
+      "default": "./dist/siralama/index.js"
+    },
+    "./odeme": {
+      "types": "./dist/odeme/index.d.ts",
+      "default": "./dist/odeme/index.js"
+    },
+    "./etkinlik": {
+      "types": "./dist/etkinlik/index.d.ts",
+      "default": "./dist/etkinlik/index.js"
+    },
+    "./geri-bildirim": {
+      "types": "./dist/geri-bildirim/index.d.ts",
+      "default": "./dist/geri-bildirim/index.js"
+    },
+    "./bildirim": {
+      "types": "./dist/bildirim/index.d.ts",
+      "default": "./dist/bildirim/index.js"
+    },
+    "./sunucu-node": {
+      "types": "./dist/sunucu-node/index.d.ts",
+      "default": "./dist/sunucu-node/index.js"
+    }
+  },
+  "scripts": {
+    "prepare": "tsc -p tsconfig.json",
+    "test": "node --test \"src/**/*.test.ts\" \"supabase/functions/**/*.test.ts\"",
+    "test:sunucu": "node --test --test-concurrency=1 \"tests/sunucu/*.test.ts\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset"
+  },
+  "peerDependencies": {
+    "@supabase/supabase-js": "^2.119.0"
+  },
+  "peerDependenciesMeta": {
+    "@supabase/supabase-js": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "@types/node": "^24.19.2",
+    "postgres": "^3.4.9",
+    "supabase": "^3.1.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,218 @@
+/* asyworks.com: tek ekran, sekmeli. Kurallar: docs/SITE_ARAYUZ.md
+   Sayfa kaydırılmaz: kök 100dvh, bölümler sekme (#ana, #oyunlar …), oyunlar pencerede tek tek.
+   Sekme ve oyun seçimi yalnız CSS ile (:target + :has); JavaScript yok, geri tuşu ve bağlantılar çalışır.
+   Bölüm içi kaydırma (overflow:auto) yalnız son çare: 360×640'tan küçük ekran, büyük yakınlaştırma. */
+@import url("/yazi/yazi.css");
+
+:root {
+  --tezgah: #17283b; --derin: #0f1d2c; --kabarik: #1f3650; --kagit: #f5f1e8;
+  --kehribar: #f2b544; --kehribar-kenar: #b9831e; --soluk-koyu: #a9b6c4;
+  --zemin: var(--kagit); --yazi: var(--tezgah); --soluk: #55606d;
+  --secili-zemin: #f5e9d1; /* kâğıt üstünde %14 kehribar, düz renk (saydamlık token'da) */
+  --ust: 64px; --kenar: clamp(16px, 3vw, 40px);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --zemin: var(--derin); --yazi: var(--kagit); --soluk: var(--soluk-koyu); --secili-zemin: #2f322f; }
+}
+* { box-sizing: border-box; }
+html { height: 100%; }
+body {
+  margin: 0; height: 100dvh; overflow: hidden;
+  display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: var(--ust) minmax(0, 1fr);
+  grid-template-areas: "logo sekme dil" "ana ana ana";
+  background: var(--zemin); color: var(--yazi);
+  font: 400 17px/1.5 "Archivo", sans-serif; font-stretch: 100%; -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; grid-area: 1 / 1 / 2 / -1; background: var(--tezgah); }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--kehribar); outline-offset: 3px; border-radius: 4px; }
+.genis { font-stretch: 125%; font-weight: 800; letter-spacing: -.01em; }
+
+/* ---------- üst çubuk ---------- */
+.logo { grid-area: logo; align-self: center; margin-left: max(var(--kenar), env(safe-area-inset-left)); }
+.logo img { height: 36px; width: auto; }
+.sekmeler { grid-area: sekme; align-self: center; display: flex; justify-content: center; gap: 4px; }
+.sekmeler a { display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 10px;
+  color: var(--soluk-koyu); text-decoration: none; font-size: 16px; font-weight: 600; }
+.sekmeler a:hover { color: var(--kagit); }
+.dil { grid-area: dil; align-self: center; margin-right: max(var(--kenar), env(safe-area-inset-right));
+  display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box;
+  color: var(--kagit); font-size: 15px; font-weight: 600; text-decoration: none; padding: 0 14px;
+  border: 1.5px solid var(--kabarik); border-radius: 10px; }
+.dil:hover { border-color: var(--kehribar); }
+
+/* Etkin sekme: hedef yoksa Ana sayfa */
+body:not(:has(.pano:not(.ana):target, .oyun:target)) .s-ana,
+body:has(.oyunlar:target, .oyun:target) .s-oyunlar,
+body:has(.studyo:target) .s-studyo,
+body:has(.iletisim:target) .s-iletisim { color: var(--kagit); background: var(--kabarik); box-shadow: inset 0 -3px 0 var(--kehribar); }
+
+/* ---------- bölümler ---------- */
+main { grid-area: ana; position: relative; min-height: 0; overflow: clip; }
+.pano { position: absolute; inset: 0; display: none; overflow: auto; container-type: size; }
+.pano.ana, .pano:target, .pano.oyunlar:has(.oyun:target) { display: block; }
+main:has(.pano:not(.ana):target, .oyun:target) .pano.ana { display: none; }
+.pano > .ic { height: 100%; min-height: 0; padding: clamp(14px, 3.5cqh, 48px) max(var(--kenar), env(safe-area-inset-right)) clamp(14px, 3.5cqh, 48px) max(var(--kenar), env(safe-area-inset-left)); }
+
+/* Birincil düğme: kehribar kamanın biçimi */
+.dugme { display: inline-block; position: relative; text-decoration: none; color: var(--tezgah);
+  font-size: 17px; font-weight: 800; font-stretch: 125%; padding: 13px 28px 15px; isolation: isolate; white-space: nowrap; }
+.dugme::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--kehribar);
+  clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%); box-shadow: inset 0 -4px 0 var(--kehribar-kenar); }
+.dugme:hover::before { background: #f6c25f; }
+.dugme:active { transform: translateY(2px); }
+
+/* ---------- ana sayfa: başlık ve kehribar raf ----------
+   Raf HTML listesidir: simgeler eşit sütunlara kendiliğinden bölünür, oyun eklemek tek <li> eklemektir
+   (masaüstünde 6, telefonda 5 oyuna kadar adıyla sığar; fazlası olursa raf "öne çıkanlar" olur). */
+.ana { background: var(--tezgah); color: var(--kagit); }
+.ana .ic { display: grid; grid-template-columns: 1.15fr 1fr; grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas: "metin raf" "yasal yasal"; align-items: center; column-gap: clamp(16px, 4cqw, 56px); row-gap: clamp(8px, 1.6cqh, 16px); }
+.ana .metin { grid-area: metin; }
+.ana h1 { font-size: clamp(30px, min(5.2cqw, 9.4cqh), 80px); line-height: .98; margin: 0 0 .4em; text-wrap: balance; }
+.ana p { max-width: 30em; margin: 0 0 .7em; color: #d3dae2; font-size: clamp(16px, min(1.5cqw, 2.6cqh), 20px); }
+.ana .soz { color: var(--kehribar); font-weight: 600; margin-bottom: clamp(16px, 4cqh, 36px); }
+.yasal { grid-area: yasal; justify-self: end; display: flex; gap: 4px 8px; margin: 0; font-size: 14px; }
+.yasal a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; color: var(--soluk-koyu); }
+.yasal a:hover { color: var(--kagit); }
+
+.raf { grid-area: raf; position: relative; align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; min-height: 0;
+  --simge: clamp(56px, min(9cqw, 15cqh), 132px); --ad: clamp(12px, min(1.25cqw, 2.2cqh), 16px); --ad-pay: clamp(14px, 2.2cqh, 22px); }
+.raf-a { position: absolute; left: 8%; top: 4%; width: 84%; height: calc(96% - var(--simge) * .45); }
+.raf ul { position: relative; list-style: none; margin: 0; padding: 0 5%; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: clamp(8px, 1.6cqw, 22px); }
+.raf ul::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--ad) * 2.5 + var(--ad-pay) * 2);
+  background: var(--kehribar); clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%); }
+.raf li { position: relative; }
+.raf a { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--tezgah); border-radius: 14px; }
+.raf img { width: min(100%, var(--simge)); height: auto; aspect-ratio: 1; border-radius: 22%; box-shadow: 0 calc(var(--simge) * .08) 0 rgba(0, 0, 0, .28);
+  transition: transform .18s; }
+/* Ad gerekirse iki satıra bölünür; kama her zaman iki satırlık, böylece raf yüksekliği oyun adına göre oynamaz */
+.raf span { display: flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: calc(var(--ad) * 2.5); width: 100%;
+  text-align: center; text-wrap: balance; font-weight: 800; font-stretch: 112%; line-height: 1.25; font-size: var(--ad); padding: var(--ad-pay) 0; }
+.raf a:hover img { transform: translateY(-5%); }
+@media (prefers-reduced-motion: no-preference) {
+  .raf img { animation: hop .7s cubic-bezier(.3, 1.6, .5, 1) both; }
+  .raf li:nth-child(2) img { animation-delay: .15s; }
+  .raf li:nth-child(3) img { animation-delay: .3s; }
+  .raf li:nth-child(4) img { animation-delay: .45s; }
+  .raf li:nth-child(n+5) img { animation-delay: .6s; }
+  @keyframes hop { from { transform: translateY(-140%); opacity: 0; } 30% { opacity: 1; } to { transform: none; } }
+}
+@container (orientation: portrait) {
+  .ana .ic { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "metin" "raf" "yasal"; align-items: start; }
+  .raf { --simge: clamp(48px, min(17cqw, 11cqh), 120px); --ad: clamp(12px, 3.2cqw, 16px); }
+  .yasal { justify-self: center; }
+  .ana h1 { font-size: clamp(28px, min(8.6cqw, 6.4cqh), 64px); }
+  .ana p { font-size: clamp(15px, min(4.2cqw, 2.6cqh), 20px); }
+}
+
+/* ---------- oyunlar: seçici ve pencere ---------- */
+.oyunlar .ic { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: clamp(10px, 2cqh, 20px); }
+.secici { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; }
+.secici a { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 4px 16px 4px 4px; border-radius: 14px;
+  text-decoration: none; font-weight: 700; font-size: 15px; color: var(--soluk); border: 1.5px solid transparent; }
+.secici a:hover { color: var(--yazi); }
+.secici img { width: 44px; height: 44px; border-radius: 22%; }
+.oyunlar:not(:has(.oyun:target)) .secici .hop,
+.oyunlar:has(.oyun.hop:target) .secici .hop,
+.oyunlar:has(.oyun.halka:target) .secici .halka,
+.oyunlar:has(.oyun.sticky:target) .secici .sticky,
+.oyunlar:has(.oyun.greedy:target) .secici .greedy { color: var(--yazi); border-color: var(--kehribar); background: var(--secili-zemin); }
+
+.pencere { position: relative; min-height: 0; container-type: size; }
+.oyun { --bant: #ccc; --bant-yazi: #111; position: absolute; inset: 0; display: none;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); grid-template-rows: minmax(0, 1fr) auto auto auto auto minmax(0, 1fr);
+  grid-template-areas: ". tel" "ad tel" "ozet tel" "bilgi tel" "eylem tel" ". tel"; column-gap: clamp(20px, 4cqw, 56px);
+  background: var(--bant); color: var(--bant-yazi); border-radius: clamp(20px, 3cqmin, 32px); box-shadow: inset 0 0 0 1.5px var(--bant-kenar, transparent);
+  padding: clamp(18px, 5cqh, 56px) clamp(18px, 5cqw, 64px) 0; overflow: auto; }
+.oyun:target, .pencere:not(:has(.oyun:target)) .oyun.hop { display: grid; }
+.oyun h2 { grid-area: ad; font-size: clamp(26px, min(4.4cqw, 8cqh), 56px); line-height: 1; margin: 0 0 .45em; }
+.oyun .ozet { grid-area: ozet; font-size: clamp(16px, min(1.9cqw, 3.2cqh), 23px); line-height: 1.42; margin: 0 0 1.1em; max-width: 26em; }
+.oyun dl { grid-area: bilgi; display: grid; grid-template-columns: max-content 1fr; gap: .35em 1.1em; margin: 0 0 1.6em;
+  font-size: clamp(14px, min(1.35cqw, 2.4cqh), 17px); align-content: start; }
+.oyun dt { font-weight: 700; }
+.oyun dd { margin: 0; }
+.oyun .eylem { grid-area: eylem; padding-bottom: clamp(18px, 5cqh, 56px); }
+.oyun .yakinda { font-size: clamp(15px, min(1.35cqw, 2.4cqh), 17px); font-weight: 700; margin: 12px 0 0; max-width: 30em; }
+.oyun .yakinda a { color: inherit; }
+/* Telefon: gerçek ekran görüntüsü, koyu çerçeve, altında kehribar kama. Genişte yüksekliğe sığar, dikeyde tam genişlikte üstten gösterilir. */
+.oyun .tel { grid-area: tel; align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-height: 0; --kama: clamp(18px, 4cqh, 44px); }
+.oyun .tel img { min-height: 0; max-height: calc(100% - var(--kama)); width: auto; max-width: 86%; aspect-ratio: 390 / 844; object-fit: cover; object-position: top;
+  background: #0c1620; border: clamp(5px, .9cqh, 8px) solid #0c1620; border-radius: clamp(22px, 4cqh, 40px); }
+.oyun .tel::after { content: ""; align-self: stretch; flex: none; height: var(--kama); background: var(--kehribar); clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%); }
+
+.oyun.hop { --bant: #ff8a1e; --bant-yazi: #2a1600; }
+.oyun.halka { --bant: #e9eef8; --bant-yazi: #1b2f6e; --bant-kenar: #c9d3e6; }
+.oyun.sticky { --bant: #3a2116; --bant-yazi: #f7e3c4; }
+.oyun.greedy { --bant: #12293d; --bant-yazi: #f4f0e6; }
+@media (prefers-color-scheme: dark) { .oyun.greedy { --bant-kenar: #1f3650; } .oyun.halka { --bant-kenar: transparent; } }
+
+/* Dikey pencere (telefon, dikey tablet): metin üstte tam genişlik, telefon altta büyük ve üstten görünür */
+@container (orientation: portrait) {
+  .oyun { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr); column-gap: 0;
+    grid-template-areas: "ad" "ozet" "bilgi" "eylem" "tel"; }
+  .oyun h2 { font-size: clamp(24px, min(8cqw, 5.4cqh), 52px); }
+  .oyun .ozet { font-size: clamp(15px, min(4.4cqw, 2.8cqh), 23px); margin-bottom: .6em; }
+  .oyun dl { display: block; font-size: clamp(14px, min(3.8cqw, 2.3cqh), 18px); margin: 0; }
+  .oyun dt { display: inline; }
+  .oyun dt::after { content: ":"; margin-right: .35em; }
+  .oyun dd { display: inline; }
+  .oyun dd::after { content: ""; display: block; margin-bottom: .35em; }
+  .oyun .eylem { padding-bottom: 0; }
+  .oyun .yakinda { font-size: clamp(14px, min(3.8cqw, 2.3cqh), 17px); margin: .5em 0 .8em; }
+  .oyun .tel { justify-content: flex-start; overflow: hidden; }
+  .oyun .tel img { flex: 1 1 auto; height: 0; max-height: none; width: min(78%, 340px); max-width: none; aspect-ratio: auto;
+    border-bottom: 0; border-radius: clamp(22px, 6cqw, 36px) clamp(22px, 6cqw, 36px) 0 0; }
+  .oyun .tel::after { display: none; }
+}
+/* Kısa dikey pencere: daha sıkı */
+@container (orientation: portrait) and (max-height: 560px) {
+  .oyun h2 { margin-bottom: .3em; }
+  .oyun .ozet { margin-bottom: .45em; line-height: 1.36; }
+}
+
+/* ---------- stüdyo ---------- */
+.studyo .ic { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(20px, 5cqw, 72px); align-content: center; align-items: center;
+  max-width: 1200px; margin-inline: auto; }
+.studyo h2 { font-size: clamp(28px, min(4.4cqw, 9cqh), 60px); line-height: 1.02; margin: 0; text-wrap: balance; }
+.studyo dl { margin: 0; font-size: clamp(15px, min(1.5cqw, 2.8cqh), 19px); }
+.studyo dt { font-weight: 800; font-stretch: 125%; font-size: 1.12em; margin-top: 1.4em; }
+.studyo dt:first-child { margin-top: 0; }
+.studyo dd { margin: .3em 0 0; color: var(--soluk); max-width: 34em; }
+.studyo dd a { color: var(--yazi); }
+@container (orientation: portrait) {
+  .studyo .ic { grid-template-columns: 1fr; align-content: center; }
+  .studyo h2 { font-size: clamp(26px, min(8.4cqw, 6cqh), 56px); }
+  .studyo dl { font-size: clamp(15px, min(4.2cqw, 2.6cqh), 20px); }
+}
+
+/* ---------- iletişim ---------- */
+.iletisim { background: var(--tezgah); color: var(--soluk-koyu); }
+.iletisim .ic { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: clamp(10px, 2.4cqh, 24px); }
+.iletisim img { width: clamp(56px, 10cqh, 96px); height: auto; border-radius: 14px; }
+.iletisim p { margin: 0; }
+.iletisim .eposta { color: var(--kagit); font-size: clamp(22px, min(6cqw, 6cqh), 48px); text-decoration: none; overflow-wrap: anywhere; }
+.iletisim .eposta:hover { color: var(--kehribar); }
+.baglantilar { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; }
+.baglantilar a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 14px; border: 1.5px solid var(--kabarik); border-radius: 10px;
+  text-decoration: none; color: var(--kagit); font-weight: 600; font-size: 15px; }
+.baglantilar a:hover { border-color: var(--kehribar); }
+.telif { font-size: 14px; }
+
+/* ---------- telefon: sekmeler alta ---------- */
+@media (max-width: 699px) {
+  :root { --ust: 56px; }
+  body { grid-template-rows: var(--ust) minmax(0, 1fr) auto; grid-template-areas: "logo . dil" "ana ana ana" "sekme sekme sekme"; }
+  .logo img { height: 30px; }
+  .sekmeler { align-self: stretch; gap: 0; background: var(--tezgah); padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  .sekmeler a { flex: 1; justify-content: center; min-height: 56px; padding: 0 2px; border-radius: 0; font-size: 14px; white-space: nowrap; }
+  .sekmeler:has(a:nth-child(5)) a { font-size: 13px; } /* beş sekmeye (ileride Uygulamalar) hazır */
+  body:not(:has(.pano:not(.ana):target, .oyun:target)) .s-ana,
+  body:has(.oyunlar:target, .oyun:target) .s-oyunlar,
+  body:has(.studyo:target) .s-studyo,
+  body:has(.iletisim:target) .s-iletisim { background: none; box-shadow: inset 0 3px 0 var(--kehribar); }
+  .secici { gap: 4px; }
+  .secici a { flex: 1 1 64px; flex-direction: column; gap: 3px; padding: 4px 2px; min-height: 0; font-size: 13px; line-height: 1.15; text-align: center; }
+  .secici img { width: 36px; height: 36px; }
+}
