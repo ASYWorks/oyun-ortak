@@ -324,3 +324,7 @@ Bu depo:
 Yeni bir RPC eklendiğinde `tests/sunucu/yetki.test.ts` içindeki izin listesine bilerek eklenir.
 
 Yerelde geliştiren için not: Edge çalıştırıcısı fonksiyon kodunu önbellekte tutar. Kod değişince `docker restart supabase_edge_runtime_oyun-ortak` gerekir.
+
+## Sunucu süresi ve yinelenen teslim (21 Kasım 2026)
+
+`aktifSureMs` teslimde `durdu`yu yok sayar ve `simdi − son_nabiz`'i ekler (bilinçli: duraklatıp bekleyerek süre kısaltılamasın). Sonuç: teslim `ad_gerekli` döner ya da yanıt kaybolur da oyuncu ad seçip teslimi yinelerse aradaki süre de sayılır. Doğrusu: ilk sayılan teslimde süreyi denemenin durumuna yaz (`teslim: { aktifMs, ... }`), yinelenen teslim bu değeri kullansın (Ezber Bozan `dogrula-ezber`, Ense ve Remzle aynı kalıp). Yeni oyunda dogrula yazarken bu satırı denetle; testine "ad_gerekli sonrası yineleme aynı süreyi verir" senaryosu girsin.
