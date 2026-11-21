@@ -411,4 +411,5 @@ Bağlam: `ezber-bozan/docs/DENETIM.md`. Arka uç Neon (yalnız olay tablosu; öl
 - **Puan/sıralama (EN-1, RZ-3, SM-2, EZ-3):** her oyunda ayrı karar; oyun oturumu taşımadan önce ADIL_PUAN çerçevesinde seçenekli sorar, oyunun mevcut ölçütü seçeneklerden biridir.
 - **Günlük ve misafir (A17; RZ-4, SM-2):** ortak kural geçerli. Günlük oyun giriş ister; misafir seviyeleri/arşivi oynar, sıralamaya girmez. Sahte Masası'nın "her zaman hesapsız" kuralı buna göre değişir.
 - **Ezber Bozan A5:** ortak kural; yakınlaştırma ve sistem yazı büyütmesi kapalı, akış düzeni kaldırılır.
-- **Ad ve alt alan adı:** her oyunun oturumunda; Remzle (`remzle.asyworks.com`) kesin, ötekiler sürüyor.
+- **Ense puanı (EN-1, kapandı):** tam ADIL_PUAN; 0–100 tamsayı, ana eksen sunucuda ölçülen süre, eski 0–10.000 motor puanı girdi. dogrula-ense nabız ve süre ölçer.
+- **Ad ve alt alan adı:** her oyunun oturumunda; Remzle (`remzle.asyworks.com`) kesin, ötekiler ad kesinleşene kadar proje adıyla (`<proje>.asyworks.com`).
