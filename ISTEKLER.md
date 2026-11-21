@@ -405,3 +405,10 @@ Bağlam: `ezber-bozan/docs/DENETIM.md`. Arka uç Neon (yalnız olay tablosu; öl
 | EZ-3 | `siralama` | Sıralama: artan tur, eşitler aynı sırada (yön artan, eşitlik ortak) + ayrı yardımlı liste; ADIL_PUAN kararına bağlı (O13) | Oyunun ölçütü "en az tur" | Kurucu kararı; eşitlik testi |
 | EZ-4 | `odeme` | Ürün eşlemesi `ezber_tam_acilim` → hak `tam_acilim`, aile paylaşımı açık | RevenueCat ürün tanımı | Hak eşlemesi testi |
 | EZ-5 | `olcum` | Her hamle bir olay: PostHog kotası için örnekleme ya da özet olay; anket notu 500 karakter serbest metin (kişisel veri riski) | Ücretsiz kota (aylık 1 M olay) | Olay bütçesi hesaplanmış; serbest metin kısaltılmış ya da kaldırılmış |
+
+### Kurucu kararları: dört taşınacak oyun (2026-11-21)
+
+- **Puan/sıralama (EN-1, RZ-3, SM-2, EZ-3):** her oyunda ayrı karar; oyun oturumu taşımadan önce ADIL_PUAN çerçevesinde seçenekli sorar, oyunun mevcut ölçütü seçeneklerden biridir.
+- **Günlük ve misafir (A17; RZ-4, SM-2):** ortak kural geçerli. Günlük oyun giriş ister; misafir seviyeleri/arşivi oynar, sıralamaya girmez. Sahte Masası'nın "her zaman hesapsız" kuralı buna göre değişir.
+- **Ezber Bozan A5:** ortak kural; yakınlaştırma ve sistem yazı büyütmesi kapalı, akış düzeni kaldırılır.
+- **Ad ve alt alan adı:** her oyunun oturumunda; Remzle (`remzle.asyworks.com`) kesin, ötekiler sürüyor.
