@@ -372,7 +372,7 @@ Bağlam: `ense-nasil-olsun/docs/DENETIM.md` (commit 777379e). Arka uç Upstash (
 | EN-3 | `siralama` | Gece yarısından sonra 3 saat dünün sonucunu kabul (server/ortak.ts:14) ile gün kapanışının uyumu | Ortak gün kapanışı ve lig hesabı | Kapanış sonrası gönderimin davranışı testle sabit |
 | EN-4 | `kayit` | Gerçek kayıt boyutunun ölçümü: oyun 400 KB'a kadar yazıyor, `bulutKaydi` sınırı 256 KB | Sınır aşılırsa yedek düşer | Ölçülen en büyük kayıt < 256 KB ya da oyunda küçültme |
 | EN-5 | `siralama`/`olcum` | Kapalı test görevinin sunucuda yeniden oynatılmış özeti: dogrula-ense dalı mı, ham olay ölçüme mi; /api/test hız sınırı x-forwarded-for kullanıyor (ÖG-25) | Pakette karşılığı yok | Karar yazılı; hız sınırı ortak.hiz_siniri ile |
-| EN-6 | `odeme` | Ücretli kariyer içeriği (Kalfa 52. görevden sonrası, Sınıf 3–8) pakette açık dosya; Ezber EZ gibi hak denetimli sunucu işlemiyle verilsin, pakette yalnız ücretsiz kısım kalsın. Kurucu kararı 21 Kasım: önce yayın, sonra kapat | Ezber `ezber_icerik` örneği | Haksıza 403, hakla tam içerik; canlı pakette sinif-3..8 yok |
+| EN-6 | `odeme` | Ücretli kariyer içeriği (Çırak + Kalfa ilk 52 görevden sonrası) pakette açık dosya; Ezber EZ gibi hak denetimli sunucu işlemiyle verilsin, pakette yalnız ücretsiz kısım kalsın. Kurucu kararı 21 Kasım: önce yayın, sonra kapat | Ezber `ezber_icerik` örneği | Haksıza 403, hakla tam içerik; canlı pakette ücretli görev yok |
 
 ## Şifre Bürosu (Remzle): denetim ve envanter (2026-11-21)
 
