@@ -415,5 +415,5 @@ Bağlam: `ezber-bozan/docs/DENETIM.md`. Arka uç Neon (yalnız olay tablosu; öl
 - **Sahte Masası (SM-2, kapandı):** günlük sıralama, lig yok; ADIL_PUAN 0–100, ana eksen doğru karar ve ipucu, sunucu süresi eşitlik bozucu; cevaplar vaka başına sunucudan açılır (`dogrula-sahte-masasi` vaka açma ucu; gövde sözleşmesi taşıma başında). Bölümler hesapsız, günlük deste ve sıralama hesapla. SM-3 (açılmış deste) derleme denetimiyle karşılandı.
 - **Remzle (RZ-3, kapandı):** tam ADIL_PUAN, sıralama türü puan. RZ-4: ortak kural (günlük hesapla, bölüm modu hesapsız).
 - **RZ-5 (Remzle, not):** kelime listesi CC BY-SA 4.0; `dogrula-remzle` sözlüğü sunucuda kullanırsa atıf orada da (lisans dosyası ve dogrula belgesi).
-- **A8 istisnası (açık, kurucu kararı):** uzun metinli bulmacada (kriptogram) harf kutuları 44 px kalamıyor; ortak kurala "oyun nesnesi" istisnası tanımlansın mı (Remzle, Sahte Masası benzer)?
+- **A8 istisnası (kapandı, kurucu):** yalnız oyun nesneleri (harf kutusu, bulmaca hücresi) uzun metinde ≥ 32 px olabilir; vurgulu seçim, geri alınabilir dokunma, oyunun ARAYUZ.md gerekçesi. Düğme, sekme, menü ≥ 44 px. `_ortak/OYUN_DENETIMI.md` A8, `ARAYUZ_KURALLARI.md`, şablon güncellendi.
 - **Ad ve alt alan adı:** her oyunun oturumunda; Remzle (`remzle.asyworks.com`) kesin, ötekiler ad kesinleşene kadar proje adıyla (`<proje>.asyworks.com`).
