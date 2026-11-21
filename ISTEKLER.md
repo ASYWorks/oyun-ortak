@@ -416,4 +416,5 @@ Bağlam: `ezber-bozan/docs/DENETIM.md`. Arka uç Neon (yalnız olay tablosu; öl
 - **Remzle (RZ-3, kapandı):** tam ADIL_PUAN, sıralama türü puan. RZ-4: ortak kural (günlük hesapla, bölüm modu hesapsız).
 - **RZ-5 (Remzle, not):** kelime listesi CC BY-SA 4.0; `dogrula-remzle` sözlüğü sunucuda kullanırsa atıf orada da (lisans dosyası ve dogrula belgesi).
 - **A8 istisnası (kapandı, kurucu):** yalnız oyun nesneleri (harf kutusu, bulmaca hücresi) uzun metinde ≥ 32 px olabilir; vurgulu seçim, geri alınabilir dokunma, oyunun ARAYUZ.md gerekçesi. Düğme, sekme, menü ≥ 44 px. `_ortak/OYUN_DENETIMI.md` A8, `ARAYUZ_KURALLARI.md`, şablon güncellendi.
+- **Ezber Bozan (EZ-3, kapandı):** tur puanı 0–100; en kısa çözüm 100, fazla tur düşürür; tur sunucuda yeniden oynatmayla bulunur; süre yalnız eşitlik bozucu (yön azalan puan, ikincil süre). İpucu ücretsiz; 1. ve 2. basamak puandan düşer, 3. basamak yardımlı yapar ve sıralama dışı bırakır; hak sunucuda (EZ-2 ile).
 - **Ad ve alt alan adı:** her oyunun oturumunda; Remzle (`remzle.asyworks.com`) kesin, ötekiler ad kesinleşene kadar proje adıyla (`<proje>.asyworks.com`).
