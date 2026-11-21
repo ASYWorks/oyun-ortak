@@ -29,7 +29,7 @@
     <div class="panel">
       <section class="bolum" id="genel" data-karsi="en-overview">
         <h1>Gizlilik politikası ve KVKK aydınlatma metni</h1>
-  <p class="soluk">Son güncelleme: 14 Kasım 2026</p>
+  <p class="soluk">Son güncelleme: 21 Kasım 2026</p>
 
   <p><span data-genel>Bu metin, kişisel verilerinizin şu oyunlarda nasıl işlendiğini açıklar: <strong>Halka Kelime, Sticky Ten, Beat Greedy</strong> ve bu sayfaya bağlantı veren diğer oyunlar. </span><span data-oyun hidden>Bu metin, kişisel verilerinizin <strong class="oyun-adi"></strong> oyununda nasıl işlendiğini açıklar. </span>Açıklama, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) çerçevesinde yapılır. <span data-genel>Hop Koala hiçbir kişisel veri toplamaz, onun için ayrı metin geçerlidir.</span></p>
 <h2>1. Veri sorumlusu</h2>
@@ -62,10 +62,10 @@
     <tr><th>Hizmet sağlayıcı</th><th>Görev</th><th>Yer</th></tr>
     <tr><td>Supabase</td><td>Hesap ve oyun verisi (veritabanı)</td><td>Almanya (Frankfurt, Avrupa Birliği)</td></tr>
     <tr><td>PostHog</td><td>Kullanım ölçümü</td><td>Avrupa Birliği</td></tr>
-    <tr><td>Resend</td><td>Giriş kodu e-postası gönderimi</td><td>Avrupa Birliği (İrlanda)</td></tr>
+    <tr><td>Brevo (yedek: Resend)</td><td>Giriş kodu e-postası gönderimi</td><td>Avrupa Birliği (Fransa; yedek İrlanda)</td></tr>
     <tr><td>Google, Apple</td><td>"Google ile / Apple ile giriş", mağaza ve ödeme, uygulama bildirimleri (Firebase Cloud Messaging, Apple Push)</td><td>ABD ve diğer ülkeler</td></tr>
     <tr><td>RevenueCat</td><td>Satın alma haklarının doğrulanması</td><td>ABD</td></tr>
-    <tr><td>Cloudflare</td><td>Web sitelerinin sunulması</td><td>Küresel</td></tr>
+    <tr><td>Cloudflare</td><td>Web sitelerinin sunulması; giriş ve misafir oturumunda otomatik bot denetimi (Turnstile, görünmez; <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener">Turnstile gizlilik eki</a>)</td><td>Küresel</td></tr>
     <tr data-yalniz="sticky"><td>Render</td><td>Sticky Ten'in canlı oyun sunucusu</td><td>Sağlayıcının veri merkezi</td></tr>
   </table>
   <p>Google, Apple ve RevenueCat'e aktarım, bu hizmetleri seçtiğinizde (ör. Google ile giriş, uygulama içi satın alma) hizmetin sunulması için yapılır. Verileriniz satılmaz ve reklam amacıyla paylaşılmaz.</p>
@@ -105,7 +105,7 @@
     <div class="panel">
       <section class="bolum" id="en-overview" data-karsi="genel">
         <h1>Privacy policy</h1>
-    <p class="soluk">Last updated: 14 November 2026</p>
+    <p class="soluk">Last updated: 21 November 2026</p>
     <p>This policy explains how personal data is processed in <span data-genel><strong>Halka Kelime, Sticky Ten, Beat Greedy</strong> and other games that link here</span><span data-oyun hidden><strong class="oyun-adi"></strong></span>, under the Turkish Personal Data Protection Law (KVKK) and the European Union General Data Protection Regulation (GDPR). <span data-genel>Hop Koala collects no personal data and has its own notice.</span></p>
 <h2>Controller</h2>
     <p>Ali Serdar Yavuz (individual developer). The games are published under the name ASYWorks. Contact: <a href="mailto:support@asyworks.com">support@asyworks.com</a></p>
@@ -126,7 +126,7 @@
       </section>
       <section class="bolum" id="en-processors" data-karsi="isleyenler">
         <h2>Processors and location</h2>
-    <p>Supabase (database, Frankfurt, European Union), PostHog (analytics, European Union), Resend (sign-in emails, European Union), Google and Apple (sign-in, stores, app notifications), RevenueCat (purchase validation, United States), Cloudflare (websites)<span data-yalniz="sticky">, Render (Sticky Ten game server)</span>. I do not sell your data or share it for advertising.</p>
+    <p>Supabase (database, Frankfurt, European Union), PostHog (analytics, European Union), Brevo, with Resend as backup (sign-in emails, European Union), Google and Apple (sign-in, stores, app notifications), RevenueCat (purchase validation, United States), Cloudflare (websites, and an invisible automated bot check at sign-in and guest sessions with Turnstile; <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener">Turnstile Privacy Addendum</a>)<span data-yalniz="sticky">, Render (Sticky Ten game server)</span>. I do not sell your data or share it for advertising.</p>
 <h2>Retention</h2>
     <p>Unlinked random player IDs are deleted after 90 days of inactivity, score details after 90 days, usage analytics records and error reports after 1 year, payment notifications after 180 days, device notification tokens when you turn notifications off, sign out, or the token becomes invalid. Each game has its own account. Deleting your account in a game removes that game's data immediately, and your sign-in details (email, Google/Apple link) too if no other game uses them, backups are cleared shortly after. A hashed (pseudonymised) form of your email and sign-in ID is kept for that game for 2 days so that an account deleted and reopened on the same day does not enter that day's leaderboard. If you changed your nickname in the last 30 days, deleting your account keeps your nickname and the name-change lock with this hash for that game until the lock ends (at most 30 days): the name is not given to anyone else, and if you reopen the account you return with the same name. When you submit a daily score, a hash of the app's or browser's random installation ID is kept for 3 days so that only one account per installation enters each day's leaderboard, store purchase records remain with Google and Apple.</p>
       </section>
