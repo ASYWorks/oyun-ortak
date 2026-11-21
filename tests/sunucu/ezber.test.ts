@@ -57,11 +57,12 @@ test("8100 ezber ipucu: sırayla, aynı istek aynı sonuç; hesap silinince kay�
   assert.equal(n!.n, 0, "hesap silinince iz kalmaz");
 });
 
-test("8120 ezber lig ayarı: dört kademe, en iyi 5 gün, %10 çıkış/iniş", async () => {
+test("8120+8130 ezber lig ayarı: dört kademe, en iyi 5 gün, 20 kişi, %20 çıkış, iniş yok, kademe ödülü", async () => {
   const [o] = await sql`select ayarlar->'lig' as lig from ortak.oyunlar where id = 'ezber'`;
   assert.deepEqual(o!.lig.kademeler, ["Çırak", "Kalfa", "Usta", "Hayalî"]);
   assert.equal(o!.lig.en_iyi_gun, 5);
-  assert.equal(o!.lig.grup_boyu, 50);
-  assert.equal(o!.lig.cikis_orani, 0.1);
-  assert.equal(o!.lig.inis_orani, 0.1);
+  assert.equal(o!.lig.grup_boyu, 20);
+  assert.equal(o!.lig.cikis_orani, 0.2);
+  assert.equal(o!.lig.inis_orani, 0);
+  assert.equal(o!.lig.kademe_odulu, true);
 });
