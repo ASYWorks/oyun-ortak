@@ -60,3 +60,18 @@ test("7800 ense sarmalayıcıları: yalnız servis rolü; yükleme açılmış g
   }
   await sql.begin(async (t) => { await t`set local ense.duzeltme = 'evet'`; await t`delete from ense.gunluk where gun in (${dun}, ${yarin})`; });
 });
+
+test("7810 ense_gunluk_yukle: eksik bugün eklenir, var olan açılmış gün değişmez", async () => {
+  const bugun = gun(0), dun = gun(-1);
+  const sv = yonetici();
+  await sql.begin(async (t) => { await t`set local ense.duzeltme = 'evet'`; await t`delete from ense.gunluk where gun in (${bugun}, ${dun})`; });
+  await sql`insert into ense.gunluk (gun, resmi, prova, icerik_surumu) values (${dun}, '{"eski":1}', '{}', 'v0')`;
+  const { data: y, error } = await sv.rpc("ense_gunluk_yukle", { p_satirlar: [{ gun: bugun, resmi: { b: 1 }, prova: {} }, { gun: dun, resmi: { yeni: 1 }, prova: {} }], p_surum: "v2" });
+  assert.ifError(error);
+  assert.deepEqual([y.yazilan, y.atlanan], [1, 1]);
+  const { data: b } = await sv.rpc("ense_gunluk_oku", { p_gun: bugun });
+  assert.deepEqual(b.resmi, { b: 1 }, "eksik bugün eklendi");
+  const { data: d } = await sv.rpc("ense_gunluk_oku", { p_gun: dun });
+  assert.deepEqual(d.resmi, { eski: 1 }, "var olan açılmış gün değişmedi");
+  await sql.begin(async (t) => { await t`set local ense.duzeltme = 'evet'`; await t`delete from ense.gunluk where gun in (${bugun}, ${dun})`; });
+});
