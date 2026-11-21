@@ -4,7 +4,7 @@ import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import { hesapBaslat } from "../../src/hesap/index.ts";
 import { bellekDepo } from "../../src/kayit/index.ts";
-import { istemci, kaliciGir, sql } from "./yardimci.ts";
+import { istemci, kaliciGir, kaliciKullanici, sql } from "./yardimci.ts";
 
 after(() => sql.end());
 
@@ -106,5 +106,38 @@ test("7500 panel_durumu: yanlış anahtar null, doğru anahtar durum + son yedek
   assert.equal(d.son_yedek.basarili, true);
   assert.equal(typeof d.auth_kullanici, "number");
   for (const t of ["panel_ayar", "yedek_kayitlari"]) assert.ok((await anon.from(t).select("*").limit(1)).error, `${t} istemciye kapalı`);
+  await sql`delete from ortak.panel_ayar`;
+});
+
+test("7700 aktif oyuncular: yalnız API yazımı ve kendi satırı sayılır; panel_durumu oyun başına sayı ve 30 günlük seri verir", async () => {
+  const a = await kaliciKullanici();
+  const b = await kaliciKullanici();
+  const yaz = (claims: string | null, kim: string) => sql.begin(async (t) => {
+    if (claims) await t`select set_config('request.jwt.claims', ${claims}, true)`;
+    await t`insert into ortak.kayitlar (oyun_id, kullanici_id, veri) values ('halka', ${kim}, '{}')
+            on conflict (oyun_id, kullanici_id) do update set veri = '{"x":1}', guncelleme = now()`;
+  });
+  const say = async (kim: string) => Number((await sql`select count(*) from ortak.aktif_oyuncular where kullanici_id = ${kim}`)[0]!.count);
+  await yaz(null, b.id);
+  assert.equal(await say(b.id), 0, "cron/göç yazımı sayılmaz");
+  await yaz(JSON.stringify({ role: "authenticated", sub: a.id }), b.id);
+  assert.equal(await say(b.id), 0, "başka oyuncunun isteğiyle değişen satır sayılmaz");
+  await yaz(JSON.stringify({ role: "authenticated", sub: a.id }), a.id);
+  await yaz(JSON.stringify({ role: "authenticated", sub: a.id }), a.id);
+  assert.equal(await say(a.id), 1, "kendi yazımı günde tek satır");
+  await yaz(JSON.stringify({ role: "service_role" }), b.id);
+  assert.equal(await say(b.id), 1, "sunucu (service_role) yazımı sayılır");
+
+  await sql`delete from ortak.panel_ayar`;
+  await sql`insert into ortak.panel_ayar (anahtar_ozet) values (extensions.digest('test-anahtar', 'sha256'))`;
+  const anon = istemci().schema("ortak");
+  const { data: d, error } = await anon.rpc("panel_durumu", { p_anahtar: "test-anahtar" });
+  assert.ifError(error);
+  const h = d.oyuncular.find((o: { oyun: string }) => o.oyun === "halka");
+  assert.ok(h.gun >= 2 && h.anlik >= 2 && h.hafta >= h.gun && h.yil >= h.ay, JSON.stringify(h));
+  assert.equal(h.seri.length, 30);
+  assert.equal(h.seri[29].n, h.gun, "serinin son günü bugün");
+  assert.equal(typeof d.aylik_aktif_hesap, "number");
+  assert.ok((await anon.from("aktif_oyuncular").select("*").limit(1)).error, "tablo istemciye kapalı");
   await sql`delete from ortak.panel_ayar`;
 });

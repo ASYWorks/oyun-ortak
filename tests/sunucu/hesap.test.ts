@@ -271,7 +271,8 @@ test("silme: hesaplar oyun oyun ayrı; son oyun silinince giriş kaydı da gider
     select (select count(*) from ortak.skorlar where kullanici_id = ${k.id} and oyun_id = 'deneme')
          + (select count(*) from ortak.kayitlar where kullanici_id = ${k.id} and oyun_id = 'deneme')
          + (select count(*) from ortak.oyuncular where kullanici_id = ${k.id} and oyun_id = 'deneme')
-         + (select count(*) from ortak.lig_uyeleri where kullanici_id = ${k.id} and oyun_id = 'deneme')::int as n`;
+         + (select count(*) from ortak.lig_uyeleri where kullanici_id = ${k.id} and oyun_id = 'deneme')
+         + (select count(*) from ortak.aktif_oyuncular where kullanici_id = ${k.id} and oyun_id = 'deneme')::int as n`;
   assert.equal(Number(kalan[0]!.n), 0);
   assert.equal((await sql`select count(*)::int as n from ortak.oyuncular where kullanici_id = ${k.id} and oyun_id = 'halka'`)[0]!.n, 1);
   assert.equal(await kullaniciSayisi(), 1);
