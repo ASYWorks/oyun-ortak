@@ -442,3 +442,45 @@ test("7100: nabız boşluğu bayraklı deneme tablodan ve lig toplamından çık
   await sql`delete from sezgi.daily_puzzles where id = ${ileri}`;
   await bulmacaSil((tx) => tx`delete from sezgi.daily_puzzles where id = ${pid}`);
 });
+
+test("7400: kapalı bölüm (yeni deneme ve lig ret, başlamış deneme sürer); board_*_v ben; lig üye kimliği", async () => {
+  const n = Math.floor(Math.random() * 1e8);
+  const [a, b] = [await oyuncu(), await oyuncu()];
+  for (const [o, ad] of [[a, `kp_a${n}`], [b, `kp_b${n}`]] as const)
+    assert.equal((await o.sezgi().from("profiles").insert({ id: o.id, username: ad })).error, null);
+  const [{ id: pid }] = await sql`insert into sezgi.daily_puzzles (kind, game, day, engine_version, params, instance, target_value, target_proven, greedy_value)
+    values ('daily', ${"kp" + n}, (now() at time zone 'Europe/Istanbul')::date, 1, '{}', '{}', 1, true, 1) returning id`;
+  const bayrak = (kapali: string[]) => sql`update ortak.oyunlar set ayarlar = jsonb_set(coalesce(ayarlar, '{}'), '{bayraklar}', ${sql.json({ kapali })}) where id = 'sezgi'`;
+  const onceki = (await sql`select ayarlar -> 'bayraklar' as b from ortak.oyunlar where id = 'sezgi'`)[0]!.b;
+  try {
+    const basla = async (u: string) => (await sql`select sezgi.start_attempt_tx(${u}, ${"kp" + n}, 1, 1, 'daily') as r`)[0]!.r;
+    assert.ok((await basla(a.id)).attempt_id, "açıkken A başlar");
+    await bayrak(["kesif", "lig"]);
+    assert.equal((await basla(b.id)).error, "kapali", "kapalıyken yeni deneme yok");
+    assert.ok((await basla(a.id)).attempt_id, "başlamış deneme sürer");
+    assert.match((await a.sezgi().from("leagues").insert({ name: `kl${n}`, owner_id: a.id })).error?.message ?? "", /kapali/);
+    await bayrak([]);
+    // board_week_v / board_all_time_v: ben sütunu, user_id yok
+    const { data: hafta, error } = await a.sezgi().from("board_week_v").select("*").limit(1);
+    assert.equal(error, null);
+    if (hafta?.length) assert.ok(!("user_id" in hafta[0]) && "ben" in hafta[0]);
+    // lig üye kimliği: A lig kurar, B katılır; B, A'nın user_id'sini görmez; A, B'yi uye ile çıkarır
+    const { data: lig } = await a.sezgi().from("leagues").insert({ name: `kl${n}`, owner_id: a.id }).select("id, invite_code").single();
+    assert.ok(lig, "lig kuruldu");
+    await bayrak(["lig"]);
+    assert.match((await b.sezgi().rpc("join_league", { p_code: lig!.invite_code })).error?.message ?? "", /kapali/);
+    await bayrak([]);
+    assert.equal((await b.sezgi().rpc("join_league", { p_code: lig!.invite_code })).error, null);
+    const { data: uyeler } = await b.sezgi().from("league_members_v").select("*").eq("league_id", lig!.id);
+    assert.equal(uyeler!.length, 2);
+    assert.ok(!JSON.stringify(uyeler).includes(a.id), "B, A'nın kimliğini görmez");
+    assert.deepEqual(uyeler!.filter((u: { ben: boolean }) => u.ben).length, 1);
+    const bUye = uyeler!.find((u: { ben: boolean }) => u.ben)!.uye;
+    assert.match((await b.sezgi().rpc("remove_league_uye", { p_league: lig!.id, p_uye: bUye })).error?.message ?? "", /not_owner|owner_cannot_leave/);
+    assert.equal((await a.sezgi().rpc("remove_league_uye", { p_league: lig!.id, p_uye: bUye })).error, null);
+    assert.equal((await sql`select count(*)::int as n from sezgi.league_members where league_id = ${lig!.id}`)[0]!.n, 1);
+  } finally {
+    await sql`update ortak.oyunlar set ayarlar = jsonb_set(coalesce(ayarlar, '{}'), '{bayraklar}', ${sql.json(onceki ?? {})}) where id = 'sezgi'`;
+    await bulmacaSil((tx) => tx`delete from sezgi.daily_puzzles where id = ${pid}`);
+  }
+});

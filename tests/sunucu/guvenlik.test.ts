@@ -201,3 +201,20 @@ test("servis rolüne özel yeni işlevler istemciye kapalı (6400)", async () =>
   assert.equal(r2.veri?.durum, "tekrar");
   assert.equal(r2.veri?.sira?.sira, r1.veri?.sira?.sira);
 });
+
+test("7300: profil deseni yalnız kazanılan ödül; hesap bağlama ödülü istemciden yazılamaz", async () => {
+  const a = await oyuncu();
+  const r = (p: Record<string, unknown>) => a.c.schema("ortak").rpc("profil_ayari", { p_oyun: "deneme", ...p });
+  await sql`insert into ortak.oyuncular (oyun_id, kullanici_id) values ('deneme', ${a.id}) on conflict do nothing`;
+  assert.match((await r({ p_desen: "desen-kazanilmamis" })).error?.message ?? "", /desen_yok/, "kazanılmamış desen ret");
+  assert.equal((await r({ p_desen: "" })).error, null, "varsayılana dönüş serbest");
+  await sql`insert into ortak.oduller (oyun_id, kullanici_id, odul, kaynak) values ('deneme', ${a.id}, 'desen-kazanilan', 'test')`;
+  assert.equal((await r({ p_desen: "desen-kazanilan" })).data?.desen, "desen-kazanilan");
+  // Halka'nın bağlama ödülü: sunucu vermeden istemci yazamaz (sessizce atlanır), verince yazılır
+  const halka = (o: unknown) => a.c.schema("ortak").rpc("odul_kaydet", { p_oyun: "halka", p_oduller: o });
+  const bag = (await sql`select ayarlar -> 'hesap' ->> 'baglama_odulu' as b from ortak.oyunlar where id = 'halka'`)[0]!.b as string;
+  assert.ok(bag, "halka bağlama ödülü tanımlı");
+  assert.equal((await halka([{ odul: bag }, { odul: "desen-sezon-test" }])).data, 1, "yalnız sezon ödülü yazıldı");
+  await a.c.schema("ortak").rpc("baglama_odulu_al", { p_oyun: "halka" });
+  assert.equal((await halka([{ odul: bag }])).data, 1, "sunucu verdikten sonra yazılır");
+});
