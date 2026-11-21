@@ -214,7 +214,28 @@ test("7300: profil deseni yalnız kazanılan ödül; hesap bağlama ödülü ist
   const halka = (o: unknown) => a.c.schema("ortak").rpc("odul_kaydet", { p_oyun: "halka", p_oduller: o });
   const bag = (await sql`select ayarlar -> 'hesap' ->> 'baglama_odulu' as b from ortak.oyunlar where id = 'halka'`)[0]!.b as string;
   assert.ok(bag, "halka bağlama ödülü tanımlı");
-  assert.equal((await halka([{ odul: bag }, { odul: "desen-sezon-test" }])).data, 1, "yalnız sezon ödülü yazıldı");
+  assert.equal((await halka([{ odul: bag }, { odul: "rozet-ozel-test" }])).data, 1, "yalnız serbest ödül yazıldı");
   await a.c.schema("ortak").rpc("baglama_odulu_al", { p_oyun: "halka" });
   assert.equal((await halka([{ odul: bag }])).data, 1, "sunucu verdikten sonra yazılır");
+});
+
+test("7600: Halka sunucu ödülleri istemciden yazılamaz; sezon ödülü sunucu sayacından", async () => {
+  const a = await oyuncu();
+  const yaz = (o: unknown) => a.c.schema("ortak").rpc("odul_kaydet", { p_oyun: "halka", p_oduller: o });
+  assert.equal((await yaz([{ odul: "desen-2027-bahar" }, { odul: "cerceve-x" }, { odul: "rozet-etkinlik-y" }, { odul: "rozet-usta-2026-12-05" }, { odul: "rozet-serbest" }])).data, 1, "yalnız önek dışı ödül yazılır");
+  // sezon: eşik 2 gün; nabız boşluklu gün sayılmaz
+  const n = Math.floor(Math.random() * 1e6);
+  await sql`insert into halka.sezonlar (id, basla, bitir, yarim, tam, yarim_esik, tam_esik) values (${"s" + n}, '2031-03-01', '2031-03-31', ${"desen-s" + n}, ${"cerceve-s" + n}, 2, 3)`;
+  const skor = (gun: string, bayrak: string[] = []) => sql`insert into ortak.skorlar (oyun_id, kullanici_id, tur, donem, puan, run_id, bayraklar) values ('halka', ${a.id}, 'gunluk', ${gun}, 1, gen_random_uuid(), ${bayrak})`;
+  await skor("2031-03-02"); await skor("2031-03-03", ["nabiz_boslugu"]);
+  const hesapla = async () => (await sql`select public.halka_odul_hesapla(${a.id}, 'gunluk', '2031-03-03') as r`)[0]!.r as string[];
+  assert.deepEqual(await hesapla(), [], "1 geçerli gün: ödül yok");
+  await skor("2031-03-04");
+  assert.deepEqual(await hesapla(), ["desen-s" + n], "2 geçerli gün: yarım albüm deseni");
+  assert.deepEqual(await hesapla(), [], "tekrar yazılmaz");
+  const [{ kaynak }] = await sql`select kaynak from ortak.oduller where oyun_id = 'halka' and kullanici_id = ${a.id} and odul = ${"desen-s" + n}`;
+  assert.equal(kaynak, "sunucu");
+  for (const f of ["halka_odul_hesapla", "halka_etkinlik_cozum", "halka_odul_yukle"])
+    assert.ok((await a.c.rpc(f, {})).error, `${f} istemciye kapalı`);
+  await sql`delete from halka.sezonlar where id = ${"s" + n}`;
 });
