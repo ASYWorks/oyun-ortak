@@ -383,3 +383,13 @@ Bağlam: `sifre-burosu/docs/DENETIM.md` (commit 15cf7bc, arayuz dalı). Arka uç
 | RZ-2 | göç | Gizli içerik yükleme: yerel betik servis rolüyle `remzle` şemasına yalnız ekleyerek yazar; açılmış gün koruması (Halka/sezgi gibi) ve yönetim kaydı; `isletim_durumu`'nda kalan gün | server/keys.ts her derlemede daily_keys'i üzerine yazıyor | Açılmış gün değişmez testi; kalan gün panelde |
 | RZ-3 | `siralama` | Puan/sıralama kararı: 3×100 katman puanı (−10 yanlış, −15 ipucu, taban 20) ADIL_PUAN 0–100'e nasıl eşlenir; günlükte sıralama olacak mı | O13; sıralama türü planda yok | Kurucu kararı yazılı |
 | RZ-4 | `hesap` | Misafir günlüğü: "oynar ama denetim/ipucu yok" mu, "giriş iste" mi (A17 günlüğü hesaba bağlıyor; Remzle'nin ana modu günlük) | Ürün kararı | Kurucu kararı yazılı |
+
+## Sahte Masası: denetim ve envanter (2026-11-21)
+
+Bağlam: `sahte-masasi/docs/DENETIM.md`. Arka uç Upstash (canlıda bağlı değil, 0 kayıtlı hesap), Vercel tek işlev `api/hesap.js`, Resend. Taşımadan sonra oyunda sunucu kodu kalmaz. Ad ve alt alan adı çalışması sürüyor.
+
+| # | Paket | İstek | Neden | Kabul ölçütü |
+|---|---|---|---|---|
+| SM-1 | `hesap` (`bulutKaydi`) | "İlerlemeyi sıfırla" bulut kaydını da boşaltmalı. Yanıt (yeni API yok): `birlestir(bos, () => ({ kayit: bos }))` ile iyimser kilitle boş kayıt yazılır; kayda `sifirlandi: <ISO zaman>` alanı konur ve oyunun birleştirme işlevi bu zamandan eski yerel ilerlemeyi almaz (yoksa başka cihazın yerel kaydı ilerlemeyi geri getirir) | Sıfırlama başka cihazdan geri dönmemeli | İki cihaz testi: A sıfırlar, B'nin eski yerel kaydı birleşince ilerleme geri gelmez |
+| SM-2 | `siralama`/`hesap` | A17 çatışması: oyunun kuralı "her zaman hesapsız oynanabilir", ortak kural günlüğü hesaba bağlıyor; sıralama olacak mı, türü ne (O13) | Kurucu kararı | Karar PLAN'da yazılı |
+| SM-3 | göç | 90 deste (son gün 2027-02-03): açılmış destenin değiştirilmesine karşı koruma ve kalan gün izlemesi (deste statik kalırsa derleme denetimi, sunucuya taşınırsa açılmış gün koruması) | P3/O22 | Açılmış deste değişince derleme ya da sunucu reddeder |
