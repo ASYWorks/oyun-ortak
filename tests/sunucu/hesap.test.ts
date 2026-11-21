@@ -326,6 +326,8 @@ test("silip aynı gün yeniden açan hesap açabilir ama o gün günlük sırala
   // ertesi gün girer
   await sql`update ortak.silinen_kimlikler set silindi = now() - interval '1 day' where oyun_id = 'deneme'`;
   assert.equal(await yaz("gunluk"), "yeni");
+  // 8200: dün silinen hesap, geç kabul penceresinde dünün dönemine de giremez (eski kural yalnız bugüne bakıyordu)
+  assert.equal(((await sql`select ortak.skor_yaz('deneme', ${yeni}, 'gunluk', ${dun}, 10, gen_random_uuid()) as r`)[0]!.r as { durum: string }).durum, "prova");
 });
 
 
