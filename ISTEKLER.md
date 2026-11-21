@@ -393,3 +393,15 @@ Bağlam: `sahte-masasi/docs/DENETIM.md`. Arka uç Upstash (canlıda bağlı değ
 | SM-1 | `hesap` (`bulutKaydi`) | "İlerlemeyi sıfırla" bulut kaydını da boşaltmalı. Yanıt (yeni API yok): `birlestir(bos, () => ({ kayit: bos }))` ile iyimser kilitle boş kayıt yazılır; kayda `sifirlandi: <ISO zaman>` alanı konur ve oyunun birleştirme işlevi bu zamandan eski yerel ilerlemeyi almaz (yoksa başka cihazın yerel kaydı ilerlemeyi geri getirir) | Sıfırlama başka cihazdan geri dönmemeli | İki cihaz testi: A sıfırlar, B'nin eski yerel kaydı birleşince ilerleme geri gelmez |
 | SM-2 | `siralama`/`hesap` | A17 çatışması: oyunun kuralı "her zaman hesapsız oynanabilir", ortak kural günlüğü hesaba bağlıyor; sıralama olacak mı, türü ne (O13) | Kurucu kararı | Karar PLAN'da yazılı |
 | SM-3 | göç | 90 deste (son gün 2027-02-03): açılmış destenin değiştirilmesine karşı koruma ve kalan gün izlemesi (deste statik kalırsa derleme denetimi, sunucuya taşınırsa açılmış gün koruması) | P3/O22 | Açılmış deste değişince derleme ya da sunucu reddeder |
+
+## Ezber Bozan: denetim ve envanter (2026-11-21)
+
+Bağlam: `ezber-bozan/docs/DENETIM.md`. Arka uç Neon (yalnız olay tablosu; ölçüm PostHog'a gidecek), hesap/kayıt/skor Vercel /tmp'de (kalıcı veri yok), Vercel tek işlev. Ad ve alt alan adı ertelendi. Veri taşıma gerekmiyor.
+
+| # | Paket | İstek | Neden | Kabul ölçütü |
+|---|---|---|---|---|
+| EZ-1 | göç + `siralama` | Günlük perde dağıtımı: çözümsüz bulmaca + challengeId + kalan süre; açılmış gün koruması (`ezber` şeması ya da statik JSON + `dogrula-ezber`). Havuz 2027-11-11'de başa dönüyor: kalan gün izlemesi | Bugün koruma ve uyarı yok | Açılmış gün değişmez testi; kalan gün panelde |
+| EZ-2 | `siralama` | İpucu RPC'si: ilk hamle yalnız kalıcı hesaba; alan kişi "yardımlı" işaretlenir; yardımlı çözüm resmi listeye girmez, ayrı listede görünür. Misafirken alınan ipucu işareti girişte hesaba taşınır | /api/gunluk/ipucu misafire ilk hamleyi veriyor | İşaret sunucuda; misafir → hesap devrinde korunur |
+| EZ-3 | `siralama` | Sıralama: artan tur, eşitler aynı sırada (yön artan, eşitlik ortak) + ayrı yardımlı liste; ADIL_PUAN kararına bağlı (O13) | Oyunun ölçütü "en az tur" | Kurucu kararı; eşitlik testi |
+| EZ-4 | `odeme` | Ürün eşlemesi `ezber_tam_acilim` → hak `tam_acilim`, aile paylaşımı açık | RevenueCat ürün tanımı | Hak eşlemesi testi |
+| EZ-5 | `olcum` | Her hamle bir olay: PostHog kotası için örnekleme ya da özet olay; anket notu 500 karakter serbest metin (kişisel veri riski) | Ücretsiz kota (aylık 1 M olay) | Olay bütçesi hesaplanmış; serbest metin kısaltılmış ya da kaldırılmış |
