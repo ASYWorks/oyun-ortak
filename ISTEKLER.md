@@ -406,6 +406,7 @@ Bağlam: `ezber-bozan/docs/DENETIM.md`. Arka uç Neon (yalnız olay tablosu; öl
 | EZ-3 | `siralama` | Sıralama: artan tur, eşitler aynı sırada (yön artan, eşitlik ortak) + ayrı yardımlı liste; ADIL_PUAN kararına bağlı (O13) | Oyunun ölçütü "en az tur" | Kurucu kararı; eşitlik testi |
 | EZ-4 | `odeme` | Ürün eşlemesi `ezber_tam_acilim` → hak `tam_acilim`, aile paylaşımı açık | RevenueCat ürün tanımı | Hak eşlemesi testi |
 | EZ-5 | `olcum` | Her hamle bir olay: PostHog kotası için örnekleme ya da özet olay; anket notu 500 karakter serbest metin (kişisel veri riski) | Ücretsiz kota (aylık 1 M olay) | Olay bütçesi hesaplanmış; serbest metin kısaltılmış ya da kaldırılmış |
+| EZ-6 | `etkinlik`/`lig` | Lig kapanışında grup içi sıra ödülü: ilk 10 `sira:lig-ilk10-<hafta başı>`, ilk 3 `sira:lig-ilk3-<hafta başı>`; eşitlerin hepsi dahil, bant ayarlanabilir (sticky.haftalik_odul'ün lig grubu hâli). Ayrıca ezber lig ayarında `kademe_odulu: true` (`sira:lig-<n>-<hafta>`; sunucuda zaten var, yalnız ayar) | Albüm yuvaları; acil değil | Kapanış testinde eşitlikli ilk 3/10 ödülü; kademe_odulu canlıya kurucu onayıyla |
 
 ### Kurucu kararları: dört taşınacak oyun (2026-11-21)
 
