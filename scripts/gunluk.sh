@@ -9,6 +9,17 @@ mkdir -p "$(dirname "$GUNLUK")"
   sh scripts/yedek.sh canli > "$GUNLUK.yedek" 2>&1 && Y=0 || { Y=$?; tail -n 5 "$GUNLUK.yedek"; }
   rm -f "$GUNLUK.yedek"
   echo "yedek: çıkış $Y"
+  # Panel (panel.asyworks.com) son yedeği buradan görür: ~/.oyun-ortak/panel.env'de PANEL_ANAHTAR_CANLI ve SB_ANON_CANLI.
+  # Anahtar ekrana ve günlüğe yazılmaz; çağrı başarısızsa yedek başarısız sayılmaz.
+  if [ -f "$HOME/.oyun-ortak/panel.env" ]; then
+    . "$HOME/.oyun-ortak/panel.env"
+    BOYUT=$(du -sb "$(ls -1d "$HOME/.oyun-ortak/yedek/canli"/*/ 2>/dev/null | sort | tail -1)" 2>/dev/null | cut -f1)
+    BASARILI=$([ "$Y" = 0 ] && echo true || echo false)
+    K=$(curl -s -o /dev/null -w '%{http_code}' -X POST "https://qzxchutjzhyzzaoxzroh.supabase.co/rest/v1/rpc/yedek_kaydet" \
+      -H "apikey: $SB_ANON_CANLI" -H "Content-Type: application/json" -H "Content-Profile: ortak" \
+      -d "{\"p_anahtar\":\"$PANEL_ANAHTAR_CANLI\",\"p_proje\":\"canli\",\"p_basarili\":$BASARILI,\"p_boyut\":${BOYUT:-0},\"p_not\":\"gunluk.sh\"}")
+    echo "panel yedek kaydı: $K"
+  fi
   node scripts/saglik.ts canli; S=$?
   echo "sağlık: çıkış $S"
 } >> "$GUNLUK" 2>&1

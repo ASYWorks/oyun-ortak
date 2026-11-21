@@ -93,3 +93,18 @@ test("ödül işi iki kez çalışınca çift ödül yok (turnuva ve Sticky haft
   await sql`select sticky.haftalik_odul()`;
   assert.equal(await say(), a);
 });
+
+test("7500 panel_durumu: yanlış anahtar null, doğru anahtar durum + son yedek; tablolar istemciye kapalı", async () => {
+  await sql`delete from ortak.panel_ayar`;
+  await sql`insert into ortak.panel_ayar (anahtar_ozet) values (extensions.digest('test-anahtar', 'sha256'))`;
+  const anon = istemci().schema("ortak");
+  assert.equal((await anon.rpc("panel_durumu", { p_anahtar: "yanlis" })).data, null, "yanlış anahtar");
+  assert.equal((await anon.rpc("yedek_kaydet", { p_anahtar: "yanlis", p_proje: "canli", p_basarili: true, p_boyut: 1, p_not: null })).error?.message.includes("anahtar"), true, "yanlış anahtarla yedek yazılmaz");
+  assert.equal((await anon.rpc("yedek_kaydet", { p_anahtar: "test-anahtar", p_proje: "canli", p_basarili: true, p_boyut: 123, p_not: "deneme" })).error, null);
+  const { data: d } = await anon.rpc("panel_durumu", { p_anahtar: "test-anahtar" });
+  assert.ok(d && Array.isArray(d.isler), "isletim alanları");
+  assert.equal(d.son_yedek.basarili, true);
+  assert.equal(typeof d.auth_kullanici, "number");
+  for (const t of ["panel_ayar", "yedek_kayitlari"]) assert.ok((await anon.from(t).select("*").limit(1)).error, `${t} istemciye kapalı`);
+  await sql`delete from ortak.panel_ayar`;
+});
