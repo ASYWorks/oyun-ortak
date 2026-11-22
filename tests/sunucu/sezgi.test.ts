@@ -484,3 +484,42 @@ test("7400: kapalı bölüm (yeni deneme ve lig ret, başlamış deneme sürer);
     await bulmacaSil((tx) => tx`delete from sezgi.daily_puzzles where id = ${pid}`);
   }
 });
+
+test("8170: eski yollar kapalı (materyalize tablolar, görünümde user_id, league_members başkası, user_id'li lig işlevleri)", async () => {
+  const n = Math.floor(Math.random() * 1e8);
+  const [a, b] = [await oyuncu(), await oyuncu()];
+  for (const [o, ad] of [[a, `ey_a${n}`], [b, `ey_b${n}`]] as const)
+    assert.equal((await o.sezgi().from("profiles").insert({ id: o.id, username: ad })).error, null);
+  const anon = istemci().schema("sezgi");
+  for (const t of ["board_week", "board_all_time"]) {
+    assert.ok((await anon.from(t).select("username").limit(1)).error, `${t}: misafire kapalı`);
+    assert.ok((await a.sezgi().from(t).select("username").limit(1)).error, `${t}: girişliye kapalı`);
+  }
+  for (const t of ["board_game_day", "board_day", "board_race", "board_race_day", "board_levels",
+                   "league_board_game_day", "league_board_day", "league_board_week", "league_board_all_time"]) {
+    assert.equal((await a.sezgi().from(t).select("username,rank,ben").limit(1)).error, null, `${t}: ben okunur`);
+    assert.ok((await a.sezgi().from(t).select("user_id").limit(1)).error, `${t}: user_id kapalı`);
+  }
+  // submit_attempt Edge Function service_role ile board_day'i user_id'yle süzer: açık kalmalı
+  assert.equal((await yonetici().schema("sezgi").from("board_day").select("total").eq("user_id", a.id)).error, null);
+  // board_levels ben: kendi satırı
+  await sql`insert into sezgi.level_verified (user_id, game, level, raw_stars, value, verified_at) values (${a.id}, ${"ey" + n}, 0, 3, 1, now())`;
+  assert.deepEqual((await a.sezgi().from("board_levels").select("ben").eq("game", "ey" + n)).data, [{ ben: true }]);
+  // league_members: B yalnız kendi satırını görür; diğer üyeler league_members_v'de
+  const { data: lig } = await a.sezgi().from("leagues").insert({ name: `ey${n}`, owner_id: a.id }).select("id, invite_code").single();
+  assert.equal((await b.sezgi().rpc("join_league", { p_code: lig!.invite_code })).error, null);
+  const { data: kendi } = await b.sezgi().from("league_members").select("user_id, role, leagues(name)").eq("league_id", lig!.id);
+  assert.deepEqual(kendi, [{ user_id: b.id, role: "member", leagues: { name: `ey${n}` } }]);
+  assert.equal((await b.sezgi().from("league_members_v").select("uye").eq("league_id", lig!.id)).data!.length, 2);
+  // user_id'li eski işlevler kapalı; uye'li olanlar çalışır
+  assert.ok((await a.sezgi().rpc("transfer_league", { p_league: lig!.id, p_user: b.id })).error);
+  assert.ok((await a.sezgi().rpc("remove_league_member", { p_league: lig!.id, p_user: b.id })).error);
+  const bUye = (await b.sezgi().from("league_members_v").select("uye").eq("league_id", lig!.id).eq("ben", true).single()).data!.uye;
+  assert.equal((await a.sezgi().rpc("transfer_league_uye", { p_league: lig!.id, p_uye: bUye })).error, null);
+  assert.equal((await sql`select owner_id from sezgi.leagues where id = ${lig!.id}`)[0]!.owner_id, b.id);
+  // my_daily_stats girişli oyuncuda çalışır
+  const { data: ist, error } = await a.sezgi().rpc("my_daily_stats");
+  assert.equal(error, null);
+  assert.equal(typeof ist.days, "number");
+  await sql`delete from sezgi.leagues where id = ${lig!.id}`;
+});
