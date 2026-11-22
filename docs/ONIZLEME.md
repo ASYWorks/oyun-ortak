@@ -31,6 +31,10 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 6. **Takvim kaydırma:** günlük üretici ya da yükleyici bir başlangıç tarihi alabilmeli (ör. `--baslangic <yayin_tarihi>`). Komut oyunun belgesinde yazılı olsun; yayın tarihi gelince oyun-ortak oturumu ya da oyun oturumu çalıştırır.
 7. **Yayın günü adımları** oyunun belgesine yazılır: `yayin-temizligi.ts`, oyuna özgü tablolar (varsa), noindex'in kaldırılması (`yayin.json` içinde `dizinlenebilir`), mağaza.
 
+## İstisna: Hop Koala
+
+Hop Koala'da (çocuk oyunu; günlük, lig ve sıralama yok) önizlemede de bütün içerik açık kalır. Vitrin ve kilit, mağazalara yüklenince kurulur (kurucu, 22 Kasım).
+
 ## Sınırlar
 
 - Okuma RPC'leri (`siralama`, `lig_durumu`) önizlemede ayrıca kapatılmadı. İstemci göstermez; tabloya yalnız testçi yazabildiği için içinde yalnız testçi satırı olur. Yayın günü temizliği bunları siler.
