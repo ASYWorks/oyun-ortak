@@ -51,6 +51,15 @@ test("8280 önizleme: halka kapalı (eski kapali korunur), testçi açık; yayı
   assert.deepEqual((await a.h.acilis()).bayraklar, { kapali: [] });
   assert.deepEqual((await t.h.acilis()).bayraklar, { kapali: [], testci: true }, "8300: yayından sonra da testçi");
 
+  // 8310: oturumsuz ziyaretçi de halka açık bayrakları alır (önizlemede kilitli görünüm)
+  await ayarla("onizleme", { kapali: ["turnuva"] });
+  const oturumsuz = hesapBaslat({ supabase: istemci(), oyunId: OYUN, depo: bellekDepo() });
+  const ob = await oturumsuz.oyunBayraklari();
+  assert.equal(ob.onizleme, true);
+  assert.ok(ob.kapali!.includes("gunluk") && ob.kapali!.includes("turnuva"));
+  assert.equal(ob.testci, undefined);
+  assert.equal((await t.h.oyunBayraklari()).testci, undefined, "testçi bilgisi yalnız acilis'te");
+
   // 8290: yayın tarihi herkese döner (önizlemede de)
   await sql`update ortak.oyunlar set ayarlar = ayarlar || '{"yayin": "onizleme", "yayin_tarihi": "2027-01-15"}'::jsonb where id = ${OYUN}`;
   assert.equal((await a.h.acilis()).bayraklar.yayin_tarihi, "2027-01-15");

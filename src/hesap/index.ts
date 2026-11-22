@@ -194,6 +194,12 @@ export function hesapBaslat(a: HesapAyari) {
 
     ben: () => rpc<Ben>("ben", { p_oyun: a.oyunId }),
     /**
+     * Oturum gerekmeden oyunun halka açık bayrakları (göç 8310): testçi olmayan birinin göreceği `kapali`, `onizleme`,
+     * `yayin_tarihi`, `duyuru`, `asgari_surum`. Oturumu olmayan misafir önizleme kilidini buradan uygular; oturum varsa
+     * `acilis().bayraklar` kullanılır (testçi bilgisi orada).
+     */
+    oyunBayraklari: () => rpc<Acilis["bayraklar"]>("oyun_bayraklari", { p_oyun: a.oyunId }),
+    /**
      * Açılışta tek istek (göç 20261120006500): `ben` ile aynı işi yapar ve her bilgi için sürüm damgası döner. İstemci
      * cihazdaki kopyanın damgası aynıysa o bilgiyi istemez. Önbellek hesap kimliğine göre ayrılmalı (çıkışta başkası görmesin).
      */

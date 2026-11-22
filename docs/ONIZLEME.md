@@ -9,6 +9,7 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 | `ortak.oyunlar.ayarlar.yayin` | `"onizleme"` ya da `"acik"`; alan yoksa `"acik"` sayılır. Oyunun oturumu hazır olunca oyun-ortak oturumu `"onizleme"` yapar. Yayın günü `"acik"` olur. |
 | `ortak.testciler` | Önizlemede her şeyi gören hesaplar. Yalnız servis rolü okur. Liste oyun-ortak oturumunda tutulur (şimdilik yalnız kurucu). |
 | `hesap.acilis().bayraklar` | Testçi olmayana `onizleme: true` döner; `kapali` listesine `gunluk`, `lig`, `etkinlik`, `siralama`, `duello` eklenir. Testçiye `onizleme: true, testci: true, lig_acik: true` döner; elle kapatılanlar dışında her şey açık. Yayından sonra da testçiye `testci: true` döner (göç 8300): bütün seviyeler her zaman açık. |
+| `hesap.oyunBayraklari()` (göç 8310) | Oturum gerekmez. Testçi olmayan birinin göreceği bayraklar. Oturumu olmayan misafir (ilk açılış) önizleme kilidini ve gizlemeyi buradan uygular; oturum açılınca `acilis().bayraklar` geçerlidir (testçi bilgisi orada). |
 | `c.ozellikAcik(ad)` (ortak-sunucu) | `dogrula-<oyun>` aynı kuralı sunucuda sorar: kapalıysa `c.hata(403, "kapali")`. |
 | `scripts/yayin-temizligi.ts` | Yayın günü yayından önceki ortak skor, deneme, kurulum ve lig satırlarını siler (yalnız testçiler yazmış olur) ve `yayin`'ı `"acik"` yapar. Önce kuru koşu, sonra kurucu onayıyla `uygula`. |
 

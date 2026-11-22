@@ -2,6 +2,12 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.22.2 (22 Kasım 2026)
+
+- `hesap.oyunBayraklari()` (göç 8310): oturumsuz ziyaretçi için oyunun halka açık bayrakları (önizleme, kapali, yayin_tarihi). Testçi bilgisi yine `acilis()`'te.
+- Göç 8300: testçiye yayından sonra da `testci: true`.
+- **Oyunlar ne yapmalı:** oturum yokken açılışta `oyunBayraklari()`, oturum varken `acilis().bayraklar`; bütün seviyeleri yalnız `testci`'ye bağla.
+
 ## v0.22.1 (22 Kasım 2026)
 
 - Yayın tarihi (göç 8290): `ayarlar.yayin_tarihi`; `Acilis.bayraklar.yayin_tarihi` herkese döner.
