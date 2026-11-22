@@ -14,7 +14,7 @@ const temizle = () => sql.begin(async (t) => { await t`set local sahte.duzeltme 
 
 test("7900 sahte: oyun satırı; tablo ve servis uçları istemciye kapalı", async () => {
   const [o] = await sql`select ayarlar from ortak.oyunlar where id = 'sahte'`;
-  assert.equal(o!.ayarlar.siralama.esitlik, "ikincil");
+  assert.equal(o!.ayarlar.siralama.esitlik, "ortak", "SM-4 (göç 8140)");
   for (const rol of ["anon", "authenticated"]) {
     await assert.rejects(sql.begin(async (t) => { await t.unsafe(`set local role ${rol}`); await t`select * from sahte.desteler limit 1`; }), /permission denied/, rol);
   }
