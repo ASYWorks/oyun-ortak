@@ -29,6 +29,7 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
 6. **Remzle haftalık rapor:** `PG_URL=<canlı> npx tsx scripts/haftalik-rapor.ts --cikti C:\Projeler\oyunlar\sifre-burosu\docs\rapor\<YYYY-AA-GG>.md` (sifre-burosu; salt okur). Commit edilmez, Remzle oturumu açılınca okur ve commit eder. "## Alarmlar" bölümünde madde varsa kurucuya ayrıca bir satırla bildirilir; hücre <30 iken alarm çıkmaz. İlki 29 Kasım.
 7. **Ense haftalık:** `npm run tampon` (havuz ve etkinlik takvimi kaç gün yetiyor, 6 ayın altında uyarır) ve `npm run olcum:rapor -- olaylar.csv [gün=30]` (D1/D7 tutma, kayıp kaynağı, terk noktaları; JSONL de okur, Ense b527c07'den itibaren). Dosya: kurucu PostHog'a tarayıcıyla girer, SQL `select event, distinct_id, timestamp, properties from events where timestamp > now() - interval 30 day` çalıştırır, CSV indirir (kişisel API anahtarı gerekmez).
 8. **Sahte Masası haftalık deste partisi:** oyun oturumu 21 deste üretir ve ön incelemeyi yazar (`docs/inceleme/parti-NN-MM.md`); yükleme buradan `node scripts/yukle.mjs` (SAHTE_SUPABASE_URL, SAHTE_SERVICE_KEY ya da ~/.oyun-ortak/sahte.env), kurucu onayıyla. Partiyle birlikte çoğu zaman Pages yayını da gerekir (kurum defteri, kurallar); istek bunu belirtir. 14 gün uyarısı `node scripts/acilmis.mjs`. Oturum kapalıysa parti beklemede kalır; tampon 14 günün altına inmeden açılmalı.
+8b. **Ezber haftalık (elle, PostHog):** İlk Perde hunisi (`perde_basla`/`perde_sonuc`, IP-1…IP-5), takılma (`perde_sonuc` kazandi=false en yüksek sınıf perdeleri, ilk 10), günlük perde deneme dağılımı, misafirden hesaba (`hesap_acildi`), terk (`terk` tur dağılımı). Lig açma ölçütü: son 7 günde ezber günlük sıralamasına giren benzersiz kalıcı hesap sayısı (`ortak.skorlar`); iki hafta üst üste 20'yi geçerse kurucuya sor (açmak oyun oturumu işi: `LIG_ACIK = true` + Pages).
 9. **oyun-test'i uyanık tut:** ücretsiz plan 1 hafta boşta kalan projeyi duraklatır; testte herhangi bir sorgu ya da yayın yeter.
 10. **Yedeği makine dışına kopyala:** şifreli arşiv, dış disk ya da bulut (henüz kurulmadı; kurucu kararı bekliyor).
 
@@ -41,7 +42,7 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
 | Halka (günlük) | 2027-11-30 | ~373 | `npm run daily` + `node scripts/upload_daily.ts` (+ KV: `scripts/kenar_kv.ts`) |
 | Beat Greedy | 2027-11-13 | ~356 | `pnpm levelgen upload --from … --days N` (DAILY_SEED_SECRET gerekir) |
 | Ense | 2028-02-28 | 463 | `node tools/gunluk-yukle.ts` (ENSE_SUPABASE_URL, ENSE_SERVICE_KEY). Ense kuralı L-4: 183 gün kala yeni yıl üretilir (~2027-08-29). Havuz yeniden üretilip yüklenince `node tools/gunluk-referans.ts` + Pages yayını (ölçü puanları) |
-| Sahte Masası | 2027-04-07 | 136 | `node scripts/yukle.mjs` (haftalık parti) |
+| Sahte Masası | 2027-04-07 (23–25. parti yüklenince 2027-04-28, 157) | 136 | `node scripts/yukle.mjs` (haftalık parti; oyun oturumunda "Haftalık parti" komutu) |
 | Remzle | 2027-12-26 | 399 | `npx tsx scripts/anahtar-yukle.ts` (REMZLE_* + pepper) |
 | Ezber Bozan | 2027-11-20 | 363 | `node tools/gunluk-yukle.ts` (EZBER_SUPABASE_URL, EZBER_SERVICE_KEY) |
 
@@ -52,7 +53,7 @@ Sağlık betiği şimdilik yalnız Halka ve Beat Greedy'yi denetler; diğer dör
 | Tarih | İş |
 |---|---|
 | 29 Kasım 2026 | Remzle ilk haftalık rapor |
-| 30 Kasım 2026 | Ezber puan v3 kendiliğinden başlar; Halka etkinliğini izle |
+| 30 Kasım 2026 | Ezber puan v3 kendiliğinden başlar: ilk teslimlerde döküm "deneme" kalemini taşır, `ikincil` = deneme × 3600 + saniye, hız ödülü kalemi yok; kayıp ya da baştan başlatma `yeniden` çağırır. Sorunda geri dönüş `puan/puan.ts` SURUM_BASLANGIC (oyun oturumu). Halka etkinliğini izle |
 | 1 Aralık 2026 | Halka kış sezonu (takvimde hazır); Halka yayın temizliği YY-1 en geç bu tarih |
 | 7 Aralık 2026 | Remzle K1 rotasyonu ve kasa ailesi başlar (içerik canlıda yüklü). Kontrol: (a) sifre-burosu'da `npm run preview -- 2026-12-07` K1 motorunu ve K3 kural metnini yazdırır, canlıyla aynı olmalı; (b) gün içinde PostHog'da o günün `katman_acildi`/`katman_yanlis` oranı önceki 7 günle kıyas, K1'de belirgin artış varsa kurucuya bildir. Yeni K1 motorları (Polybius, Tuş Takımı, Afin, Klavye, İkili Kod, Domuz Ağılı) ilk iki hafta haftalık raporun "Motor bazında" tablosundan izlenir |
 | 26 Aralık 2026 | Halka yılbaşı etkinliği (takvimde hazır) |
@@ -60,7 +61,8 @@ Sağlık betiği şimdilik yalnız Halka ve Beat Greedy'yi denetler; diğer dör
 | İlk lig sezonu bitince | Ezber lig inişi (`inis_orani`) için göç |
 | Ramazan tarihleri | Halka ve Ense: Diyanet takvimiyle doğrula. Ense etkinlikleri: Ramazan 2027 6–8 Mart, Kurban 2027 13–15 Mayıs, Ramazan 2028 23–25 Şubat (tahmin) |
 | ~27 Ağustos 2027 | Ense etkinlik ve sezon takvimi uzatılmalı (şimdi 2028-02-27'ye kadar); ~29 Ağustos Ense günlük havuzunun yeni yılı (L-4) |
-| ~Mayıs 2027 | Beat Greedy günlük içerik yenilemesi (6 ay kala); Halka etkinlik takvimi 2027-05-31'e kadar |
+| ~Mayıs 2027 | Beat Greedy günlük içerik yenilemesi (6 ay kala); Halka etkinlik takvimi 2027-05-31'e kadar; Ezber günlük havuzunun yeni yılı: önce oyun oturumunda üretim (`uret`, `sec`, `npm run gunluk`, `dogrula`; kimlik EB-G-366'dan devam), sonra buradan `gunluk-yukle` |
+| Kurucu tarih verince | Ezber albüm 1. sezon takvimi (oyun oturumu); 23 albüm görseli (`art/paket_4`) GPT kotası açılınca |
 | 2027-09 | Sticky tema haftaları takvimi bitiyor (2027-09-19), yılda 4–6 tema eklenir |
 | 6 ay kala (her oyun) | Ense ve Ezber etkinlik/sezon perdeleri en az 6 ay ileride kalmalı |
 | Her ay | Render faturası (~7 $), Supabase kullanım |
