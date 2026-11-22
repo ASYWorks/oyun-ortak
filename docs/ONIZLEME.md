@@ -17,7 +17,13 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 
 - `ortak.oyunlar.ayarlar.yayin_tarihi` ('YYYY-AA-GG') yayın günü belli olunca yazılır, tarih kayarsa değiştirilir. `acilis().bayraklar.yayin_tarihi` herkese döner (yoksa belli değil).
 - **Günlük takvim yayın tarihinden başlar.** Tarih kesinleşince (ya da değişince) oyun günlük içerik takvimini `yayin_tarihi`'nden başlatıp yeniden yükler (`<oyun>_gunluk_yukle`). Yükleme kuralı yalnız açılmamış gelecek günleri değiştirir. Böylece içeriğin 1. günü yayın günü olur ve önizleme döneminde boşa harcanmaz.
-- **Açılmış içerik yeniden kullanılmaz.** Takvim kaydırılırken yayın gününden başlayan takvim, daha önce (önizlemede ya da önizlemeden önce herkese açıkken) açılmış içeriği atlar ve ilk kullanılmamış içerikten devam eder. Böylece yayından sonra hiçbir günlük, etkinlik ya da turnuva içeriğinin cevabı önceden görülmüş olmaz. İçerik baştan üretilmez; yalnız tarihlere yeniden dağıtılır.
+- **Hiçbir içerik boşa gitmez (kurucu, 22 Kasım).** Yayın gecikince içerik tarihlere yeniden dağıtılır, baştan üretilmez:
+  - **Günlük:** yayın günü, ilk kullanılmamış içerikle başlar. "Kullanılmış" = halkın görmüş olabileceği içerik, yani testçi olmayan bir oyuncunun denemesi ya da skoru olan gün (önizlemeden önce herkese açıkken açılanlar dahil). Yalnız testçinin önizlemede oynadığı içerik yeniden kullanılır; önizleme günleri boşa gitmez.
+  - **Genel etkinlik:** sırası korunur, bütün dizi yayından sonraki ilk uygun güne kayar.
+  - **Özel güne bağlı etkinlik** (yılbaşı, bayram, özel hafta vb.): tarihi yayından önce geçmişse sonraki yılın aynı gününe bırakılır; başka bir tarihe kaydırılmaz.
+  - **Turnuva ve sezon:** ilki yayından sonra başlar; içerik ve sıra korunur.
+  - **Lig:** zaten haftalık; ilk hafta yayın gününü içeren haftadır.
+  - Oyunun takvim aracı bunları uygular (`--baslangic <yayin_tarihi>`, gerekirse `--ilk-icerik`) ve kuru koşuda hangi içeriğin hangi güne gittiğini listeler.
 - **Örnekler kalır.** Yayından önceki günler (önizleme günleri) silinmez. Kurucu önizlemede bunları günlük ve arşiv olarak oynar, bakar. Yayın tarihi belli olmadan da günlük her gün gelir (içerik şimdiki takvimle sürer).
 - **Oyun istemcisi:** "Gün N" numarası, arşivin ilk günü ve etkinlik ya da sezon takvimi `yayin_tarihi`'nden hesaplanır. Yayından sonra yayın öncesi günler halka açık arşivde gösterilmez; testçide gösterilebilir. Tarih yoksa önizleme takvimi (içeriğin kendi başlangıcı) kullanılır.
 - **Etkinlik ve sezon** takvimi olan oyun (Halka, Koz, Ezber vb.) ilk etkinliği yayın tarihinden sonraki ilk uygun güne bağlar. Önizlemede etkinlik testçiye şimdiki takvimle açık kalır.
