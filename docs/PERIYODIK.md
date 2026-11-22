@@ -25,8 +25,8 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
    - Halka: PU-3 kalibrasyonu (`halka-kelime/docs/PUAN.md`).
    - Diğerleri: oyunun PUAN/ADIL_PUAN belgesinde haftalık ayar varsa.
 4. **Brevo:** `GET /v3/smtp/statistics/reports?days=7`; günde 210'u (%70) geçerse Resend Pro öner.
-5. **PostHog:** kurucunun tarayıcı oturumuyla; Halka 18 Kasım sonrası, `hesap_kilidi_zaman` hatası, yeni olaylar (Ense `oyuncu_testi`, Remzle `geri_bildirim`, `katman_acildi`).
-6. **Remzle haftalık rapor:** `PG_URL=<canlı> npx tsx scripts/haftalik-rapor.ts` (sifre-burosu; salt okur), md çıktısı Remzle notlarına. İlki 29 Kasım.
+5. **PostHog:** kurucunun tarayıcı oturumuyla; Halka 18 Kasım sonrası, `hesap_kilidi_zaman` hatası, yeni olaylar (Ense `oyuncu_testi`; Remzle `geri_bildirim`, `katman_acildi`, `katman_yanlis`, `sayfa_gecis` {sayfa}, `gunluk_basla.ekran` "GxY"; Remzle Deneme Dosyası olay göndermez, misafir hunisi için `#deneme` sayfa görüntülemesi).
+6. **Remzle haftalık rapor:** `PG_URL=<canlı> npx tsx scripts/haftalik-rapor.ts --cikti C:\Projeler\oyunlar\sifre-burosu\docs\rapor\<YYYY-AA-GG>.md` (sifre-burosu; salt okur). Commit edilmez, Remzle oturumu açılınca okur ve commit eder. "## Alarmlar" bölümünde madde varsa kurucuya ayrıca bir satırla bildirilir; hücre <30 iken alarm çıkmaz. İlki 29 Kasım.
 7. **Ense haftalık gözden geçirme:** `npm run olcum:rapor` (etkinlik/lig katılımı, ödül akışı, takvim boşluğu).
 8. **Sahte Masası haftalık deste partisi:** oyun oturumu 21 deste üretir ve ön incelemeyi yazar (`docs/inceleme/<tarih>.md`); yükleme buradan `node scripts/yukle.mjs` (SAHTE_SUPABASE_URL, SAHTE_SERVICE_KEY), kurucu onayıyla. Oturum kapalıysa parti beklemede kalır; tampon 14 günün altına inmeden açılmalı.
 9. **oyun-test'i uyanık tut:** ücretsiz plan 1 hafta boşta kalan projeyi duraklatır; testte herhangi bir sorgu ya da yayın yeter.
@@ -54,7 +54,7 @@ Sağlık betiği şimdilik yalnız Halka ve Beat Greedy'yi denetler; diğer dör
 | 29 Kasım 2026 | Remzle ilk haftalık rapor |
 | 30 Kasım 2026 | Ezber puan v3 kendiliğinden başlar; Halka etkinliğini izle |
 | 1 Aralık 2026 | Halka kış sezonu (takvimde hazır); Halka yayın temizliği YY-1 en geç bu tarih |
-| 7 Aralık 2026 | Remzle K1 rotasyonu ve kasa ailesi başlar (içerik canlıda yüklü); ilk gün kontrol |
+| 7 Aralık 2026 | Remzle K1 rotasyonu ve kasa ailesi başlar (içerik canlıda yüklü). Kontrol: (a) sifre-burosu'da `npm run preview -- 2026-12-07` K1 motorunu ve K3 kural metnini yazdırır, canlıyla aynı olmalı; (b) gün içinde PostHog'da o günün `katman_acildi`/`katman_yanlis` oranı önceki 7 günle kıyas, K1'de belirgin artış varsa kurucuya bildir. Yeni K1 motorları (Polybius, Tuş Takımı, Afin, Klavye, İkili Kod, Domuz Ağılı) ilk iki hafta haftalık raporun "Motor bazında" tablosundan izlenir |
 | 26 Aralık 2026 | Halka yılbaşı etkinliği (takvimde hazır) |
 | ~28 Aralık 2026 | Beat Greedy etkinlik takvimi 3 ay ileriye uzatılmalı (şimdi 2027-03-28'e kadar) |
 | İlk lig sezonu bitince | Ezber lig inişi (`inis_orani`) için göç |
