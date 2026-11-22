@@ -58,3 +58,19 @@ test("8010 remzle gösterim: okuma gösterimi döner, gösterimsiz yükleme redd
   await assert.rejects(sql`update remzle.gunluk_anahtar set gosterim = '{"x":1}' where gun = ${dun}`, /acilmis_gun_degisemez/);
   await temizle([dun, yarin]);
 });
+
+test("8150 remzle çözüm: yüklenir ve okunur, yoksa null; biçim denetlenir; açılmış günün çözümü değişmez", async () => {
+  const dun = gun(-1), yarin = gun(1), obur = gun(2);
+  await temizle([dun, yarin, obur]);
+  const sv = yonetici();
+  const cozum = { cevap: "KAPI", adimlar: ["bir", "iki"] };
+  const y = await sv.rpc("remzle_anahtar_yukle", { p_satirlar: [{ ...satir(dun, 1, "a"), cozum }, { ...satir(yarin, 1, "b"), cozum }, satir(obur, 1, "c")], p_surum: "v1" });
+  assert.ifError(y.error);
+  assert.deepEqual((await sv.rpc("remzle_anahtar_oku", { p_gun: yarin })).data[0].cozum, cozum);
+  assert.equal((await sv.rpc("remzle_anahtar_oku", { p_gun: obur })).data[0].cozum, null, "çözümsüz satır null");
+  const bozuk = await sv.rpc("remzle_anahtar_yukle", { p_satirlar: [{ ...satir(gun(3), 1, "d"), cozum: { cevap: "X", adimlar: [] } }], p_surum: "v1" });
+  assert.match(bozuk.error?.message ?? "", /cozum_bicimi/);
+  await assert.rejects(sql`update remzle.gunluk_anahtar set cozum = null where gun = ${dun}`, /acilmis_gun_degisemez/);
+  assert.ok((await istemci().rpc("remzle_anahtar_oku", { p_gun: yarin })).error, "istemci okuyamaz");
+  await temizle([dun, yarin, obur, gun(3)]);
+});
