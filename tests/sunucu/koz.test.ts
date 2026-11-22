@@ -74,6 +74,9 @@ test("8220+8230 koz: arkadaş tutamaçla silinir (adsız da), iki yönlü, kod y
   await yonetici().rpc("koz_duello_havuz_yukle", { p_satirlar: Array.from({ length: 30 }, (_, i) => ({ id: `p-${a.id}-${i}`, kayit: { i } })) });
   const sonuc = await Promise.all(Array.from({ length: 6 }, () => a.c.rpc("koz_duello_ac", { p_kod: kodB, p_el: 3 })));
   assert.equal(sonuc.filter((x) => !x.error).length, 3, "paralel istekte de en çok 3");
+  const tut = ((await a.c.rpc("koz_arkadaslar")).data as { tutamac: string }[])[0]!.tutamac;
+  assert.match((await a.c.rpc("koz_duello_ac_tutamac", { p_tutamac: tut, p_el: 3 })).error?.message ?? "", /gunluk_sinir/, "tutamaçla açma aynı sınırı paylaşır");
+  assert.match((await a.c.rpc("koz_duello_ac_tutamac", { p_tutamac: crypto.randomUUID(), p_el: 3 })).error?.message ?? "", /gunluk_sinir|arkadas_degil/);
   const liste = (await a.c.rpc("koz_arkadaslar")).data as { tutamac: string; ad: string }[];
   assert.equal(liste[0]!.ad, adB);
   assert.ok(((await a.c.rpc("koz_arkadas_sil", { p_tutamac: liste[0]!.tutamac })).data as { tamam: boolean }).tamam);
