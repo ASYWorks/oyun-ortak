@@ -2,6 +2,15 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.22.0 (22 Kasım 2026)
+
+- Yayın öncesi önizleme (göç 8280, `docs/ONIZLEME.md`):
+  - `ortak.oyunlar.ayarlar.yayin` (`onizleme` | `acik`) ve `ortak.testciler`.
+  - `Acilis.bayraklar`: `onizleme` ve `testci`; testçi değilse `kapali` içine gunluk, lig, etkinlik, siralama, duello eklenir.
+  - ortak-sunucu `c.ozellikAcik(ad)`.
+  - `scripts/yayin-temizligi.ts` (yayın günü).
+- **Oyunlar ne yapmalı:** vitrin seviyelerini işaretle (boyut kurucu onayıyla); `kapali` özelliği hiç göstermeden gizle; testçide bütün seviyeleri aç; `dogrula` içinde `c.ozellikAcik` sor; hazır olunca oyun-ortak oturumuna "önizlemeye alınabilir" yaz.
+
 ## v0.21.2 (20 Kasım 2026)
 
 - `Acilis.bayraklar`: sunucu kontrollü bayraklar (`ortak.oyunlar.ayarlar.bayraklar`). Öneri: `kapali` (özellik listesi), `asgari_surum` ve `duyuru`. Göç 6800; `halka_gonderim_verisi` de döndürür (göç 7000).

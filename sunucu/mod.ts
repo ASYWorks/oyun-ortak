@@ -61,6 +61,11 @@ export interface Baglam<G = unknown> {
   tamam(veri: unknown, durum?: number): Response;
   hata(durum: number, neden: string): Response;
   pencereAcik(gun: string, kural?: PencereKurali): boolean;
+  /**
+   * Özellik bu oyuncu için açık mı (göç 8280): ayarlar.bayraklar.kapali + yayın öncesi önizleme. Önizlemede test listesi
+   * dışındakilere "gunluk", "lig", "etkinlik", "siralama", "duello" kapalıdır. Kapalıysa oyun `c.hata(403, "kapali")` döner.
+   */
+  ozellikAcik(ozellik: string): Promise<boolean>;
   hizSiniri(anahtar: string, sinir: number, saniye: number): Promise<boolean>;
   /** Dönüş durumu: yeni | tekrar (aynı runId) | prova (dönemde resmî skor zaten var). */
   /** cihaz: bu kurulumdan bugün başka hesap günlük sıralamaya girdi; skor yazılmadı (oyun SIRALAMA_METINLERI.cihaz gösterir). */
@@ -194,6 +199,11 @@ export function istek<G = unknown>(ayar: IstekAyari, isle: (c: Baglam<G>) => Pro
         tamam: (v, d = 200) => json(v, d),
         hata: (d, neden) => json({ error: neden }, d),
         pencereAcik: (gun, kural) => pencereAcik(gun, simdi, kural),
+        async ozellikAcik(ozellik) {
+          const { data, error } = await db.rpc("etkin_bayraklar", { p_oyun: ayar.oyunId, p_kullanici: kullanici.id });
+          if (error) throw error;
+          return !(((data as { kapali?: string[] } | null)?.kapali) ?? []).includes(ozellik);
+        },
         hizSiniri,
         async skorYaz(s) {
           const { data, error } = await db.rpc("skor_yaz", {

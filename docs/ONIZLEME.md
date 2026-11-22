@@ -1,0 +1,27 @@
+# Yayın öncesi önizleme (kurucu kararı, 22 Kasım 2026)
+
+Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, bütün oyunlar için geçerlidir (Halka, Beat Greedy ve Sticky Ten dahil). Bu kipte halka açık sitede yalnız seviyelerin ücretsiz kısmı (vitrin) açıktır; günlük, lig, etkinlik, sıralama ve düello gizlidir. Kurucunun hesabı test listesindedir ve canlı sitede her şeyi görüp oynar.
+
+## Nasıl çalışır (göç 8280, paket v0.22.0)
+
+| Parça | Ne yapar |
+|---|---|
+| `ortak.oyunlar.ayarlar.yayin` | `"onizleme"` ya da `"acik"`; alan yoksa `"acik"` sayılır. Oyunun oturumu hazır olunca oyun-ortak oturumu `"onizleme"` yapar. Yayın günü `"acik"` olur. |
+| `ortak.testciler` | Önizlemede her şeyi gören hesaplar. Yalnız servis rolü okur. Liste oyun-ortak oturumunda tutulur (şimdilik yalnız kurucu). |
+| `hesap.acilis().bayraklar` | Testçi olmayana `onizleme: true` döner; `kapali` listesine `gunluk`, `lig`, `etkinlik`, `siralama`, `duello` eklenir. Testçiye `onizleme: true, testci: true, lig_acik: true` döner; elle kapatılanlar dışında her şey açık. |
+| `c.ozellikAcik(ad)` (ortak-sunucu) | `dogrula-<oyun>` aynı kuralı sunucuda sorar: kapalıysa `c.hata(403, "kapali")`. |
+| `scripts/yayin-temizligi.ts` | Yayın günü yayından önceki ortak skor, deneme, kurulum ve lig satırlarını siler (yalnız testçiler yazmış olur) ve `yayin`'ı `"acik"` yapar. Önce kuru koşu, sonra kurucu onayıyla `uygula`. |
+
+## Oyunun yapacakları
+
+1. **Vitrin.** İçerikte hangi seviyelerin ücretsiz olduğunu işaretle. Bu kısım her zorluk sınıfından ve her moddan ya da bulmaca türünden örnek içermeli; oyuncu oyunun nasıl büyüdüğünü ve çeşitliliğini görebilmeli. Boyutu oyuna göre önerilir, **kurucu oyun oyun onaylar** (oyun oturumunda seçenekli sor).
+2. **Kilitli kısım.** Vitrin dışındaki seviyeler kilitli görünür. Önizlemede metin "Tam sürümde açılacak" olur; yayından sonra satın alma ekranı gelir. Testçide (`bayraklar.testci`) bütün seviyeler açıktır.
+3. **Gizli kısımlar.** `bayraklar.kapali` içindeki özelliğin sekmesi, düğmesi, bildirimi ve onu anan metin gösterilmez. Bu, "kısa süre kapalı" uyarısı değildir; önizlemede özellik hiç yokmuş gibi davranılır. `onizleme` true ve `testci` true ise küçük bir "Önizleme" işareti gösterilebilir.
+4. **Sunucu.** `dogrula-<oyun>` günlük, lig, etkinlik ve düello işlemlerinde `if (!(await c.ozellikAcik("gunluk"))) return c.hata(403, "kapali");` sorar. `ayarlar.bayraklar.kapali`'yı doğrudan okuyan eski kod bu yardımcıya geçer (aynı işlevi sorar).
+5. **Hazır olunca** oyun-ortak oturumuna yaz: "önizlemeye alınabilir". `yayin` ancak o zaman `"onizleme"` yapılır; böylece istemci hazır olmadan özellik kaybolmaz.
+6. **Yayın günü adımları** oyunun belgesine yazılır: `yayin-temizligi.ts`, oyuna özgü tablolar (varsa), noindex'in kaldırılması (`yayin.json` içinde `dizinlenebilir`), mağaza.
+
+## Sınırlar
+
+- Okuma RPC'leri (`siralama`, `lig_durumu`) önizlemede ayrıca kapatılmadı. İstemci göstermez; tabloya yalnız testçi yazabildiği için içinde yalnız testçi satırı olur. Yayın günü temizliği bunları siler.
+- Test listesinden çıkarmak ya da eklemek oyun-ortak oturumunun işidir (kurucu onayıyla).

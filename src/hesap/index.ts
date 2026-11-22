@@ -38,7 +38,15 @@ export interface Acilis {
    * `kapali`: geçici olarak kapatılan özellikler (ör. "turnuva"), `asgari_surum`: bunun altındaki istemci güncelleme ister,
    * `duyuru`: oyuncuya gösterilecek kısa metin. Boşsa {}.
    */
-  bayraklar: { kapali?: string[]; asgari_surum?: string; duyuru?: string; [k: string]: unknown };
+  bayraklar: {
+    kapali?: string[]; asgari_surum?: string; duyuru?: string;
+    /** Yayın öncesi önizleme (göç 8280): true iken oyun yalnız vitrin seviyelerini açar; testçi değilse günlük, lig,
+     *  etkinlik, sıralama ve düello zaten `kapali` içindedir (sekme ve metin gösterilmez). */
+    onizleme?: boolean;
+    /** Önizlemede test listesindeki hesap: her şey açık, bütün seviyeler açılır. */
+    testci?: boolean;
+    [k: string]: unknown;
+  };
 }
 
 export type AdSonucu =
