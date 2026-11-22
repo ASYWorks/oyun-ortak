@@ -64,7 +64,7 @@ test("8210 koz: lig ve silme ayarı; arkadaş kodu, ekleme, düello açma ve gü
   await sql`delete from koz.duello_havuz where id like ${"t-" + a.id + "%"}`;
 });
 
-test("8220 koz: arkadaş silme iki yönlü, kod yenileyince eski kod geçersiz, paralel düello açma sınırı aşmaz", async () => {
+test("8220+8230 koz: arkadaş tutamaçla silinir (adsız da), iki yönlü, kod yenileyince eski kod geçersiz, paralel düello açma sınırı aşmaz", async () => {
   const a = await girisli(), b = await girisli();
   const kodB = (await b.c.rpc("koz_kodum")).data as string;
   await a.c.rpc("koz_arkadas_ekle", { p_kod: kodB });
@@ -74,7 +74,9 @@ test("8220 koz: arkadaş silme iki yönlü, kod yenileyince eski kod geçersiz, 
   await yonetici().rpc("koz_duello_havuz_yukle", { p_satirlar: Array.from({ length: 30 }, (_, i) => ({ id: `p-${a.id}-${i}`, kayit: { i } })) });
   const sonuc = await Promise.all(Array.from({ length: 6 }, () => a.c.rpc("koz_duello_ac", { p_kod: kodB, p_el: 3 })));
   assert.equal(sonuc.filter((x) => !x.error).length, 3, "paralel istekte de en çok 3");
-  assert.ok(((await a.c.rpc("koz_arkadas_sil", { p_ad: adB })).data as { tamam: boolean }).tamam);
+  const liste = (await a.c.rpc("koz_arkadaslar")).data as { tutamac: string; ad: string }[];
+  assert.equal(liste[0]!.ad, adB);
+  assert.ok(((await a.c.rpc("koz_arkadas_sil", { p_tutamac: liste[0]!.tutamac })).data as { tamam: boolean }).tamam);
   assert.equal(((await b.c.rpc("koz_arkadaslar")).data as unknown[]).length, 0, "iki yön silindi");
   const yeni = (await b.c.rpc("koz_kod_yenile")).data as string;
   assert.notEqual(yeni, kodB);
