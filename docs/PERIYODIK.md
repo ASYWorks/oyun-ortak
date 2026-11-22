@@ -57,6 +57,7 @@ Sağlık betiği şimdilik yalnız Halka ve Beat Greedy'yi denetler; diğer dör
 | 1 Aralık 2026 | Halka kış sezonu (takvimde hazır); Halka yayın temizliği YY-1 en geç bu tarih |
 | 7 Aralık 2026 | Remzle K1 rotasyonu ve kasa ailesi başlar (içerik canlıda yüklü). Kontrol: (a) sifre-burosu'da `npm run preview -- 2026-12-07` K1 motorunu ve K3 kural metnini yazdırır, canlıyla aynı olmalı; (b) gün içinde PostHog'da o günün `katman_acildi`/`katman_yanlis` oranı önceki 7 günle kıyas, K1'de belirgin artış varsa kurucuya bildir. Yeni K1 motorları (Polybius, Tuş Takımı, Afin, Klavye, İkili Kod, Domuz Ağılı) ilk iki hafta haftalık raporun "Motor bazında" tablosundan izlenir |
 | 26 Aralık 2026 | Halka yılbaşı etkinliği (takvimde hazır) |
+| 7 Ocak 2027 | hopkoala.com'un Name.com aktarım kilidi biter; Cloudflare Registrar'a taşınabilir (Hop Koala) |
 | ~28 Aralık 2026 | Beat Greedy etkinlik takvimi 3 ay ileriye uzatılmalı (şimdi 2027-03-28'e kadar) |
 | İlk lig sezonu bitince | Ezber lig inişi (`inis_orani`) için göç |
 | Ramazan tarihleri | Halka ve Ense: Diyanet takvimiyle doğrula. Ense etkinlikleri: Ramazan 2027 6–8 Mart, Kurban 2027 13–15 Mayıs, Ramazan 2028 23–25 Şubat (tahmin) |
