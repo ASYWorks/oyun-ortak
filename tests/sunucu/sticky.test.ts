@@ -316,3 +316,23 @@ test("ST-11: eşit değer ve oyun sayısında sıra adla sabit; haftalık ödül
   await sql`delete from sticky.rating_log where user_id in ${sql(kisiler.map((k) => k.id))}`;
   await sql`delete from ortak.oduller where kaynak = ${"hafta:" + hafta}`;
 });
+
+test("8160: haftalık ödül her gün çalışır, geçen hafta verildiyse yeniden vermez; elle telafi açık", async () => {
+  const [{ hafta }] = await sql`select (date_trunc('week', now() at time zone 'Europe/Istanbul') - interval '7 days')::date::text as hafta`;
+  const bas = new Date(`${hafta}T12:00:00+03:00`).getTime();
+  await sql`delete from sticky.rating_log where at >= ${new Date(`${hafta}T00:00:00+03:00`)} and at < ${new Date(new Date(`${hafta}T00:00:00+03:00`).getTime() + 7 * 86_400_000)}`;
+  await sql`delete from ortak.oduller where oyun_id = 'sticky' and kaynak = ${"hafta:" + hafta}`;
+  const ilk = await oyuncu();
+  for (let j = 0; j < 5; j++) await sql`insert into sticky.rating_log (user_id, at, delta) values (${ilk.id}, ${new Date(bas + j * 3600_000)}, 10)`;
+  const [{ n: n1 }] = await sql`select sticky.haftalik_odul() as n`;
+  assert.ok(n1 >= 1, "kaçan haftanın ödülü günlük çalışmada verilir");
+  const gec = await oyuncu();
+  for (let j = 0; j < 5; j++) await sql`insert into sticky.rating_log (user_id, at, delta) values (${gec.id}, ${new Date(bas + j * 3600_000)}, 50)`;
+  const [{ n: n2 }] = await sql`select sticky.haftalik_odul() as n`;
+  assert.equal(n2, 0, "hafta verildiyse ertesi gün yeniden vermez");
+  const [{ n: n3 }] = await sql`select sticky.haftalik_odul(${hafta}::date) as n`;
+  assert.ok(n3 >= 1, "elle p_hafta ile telafi koruma atlar");
+  const [j] = await sql`select schedule from cron.job where jobname = 'sticky-haftalik-odul'`;
+  assert.equal(j!.schedule, "5 0 * * *");
+  await sql`delete from ortak.oduller where oyun_id = 'sticky' and kaynak = ${"hafta:" + hafta}`;
+});

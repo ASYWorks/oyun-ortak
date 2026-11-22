@@ -21,9 +21,9 @@ test("isletim_durumu: işler, içerik, bekleyen, son 24 saat; istemciye kapalı"
   }
 });
 
-test("haftalık ödül işleri gece yarısında değil (03:05 ve 03:15 İstanbul)", async () => {
+test("ödül işleri gece yarısında değil (03:05 ve 03:15 İstanbul; Sticky 8160 ile her gün)", async () => {
   const r = await sql`select jobname, schedule from cron.job where jobname in ('halka-turnuva-odul', 'sticky-haftalik-odul') order by 1`;
-  assert.deepEqual(r.map((x) => [x.jobname, x.schedule]), [["halka-turnuva-odul", "15 0 * * 1"], ["sticky-haftalik-odul", "5 0 * * 1"]]);
+  assert.deepEqual(r.map((x) => [x.jobname, x.schedule]), [["halka-turnuva-odul", "15 0 * * 1"], ["sticky-haftalik-odul", "5 0 * * *"]]);
 });
 
 test("yönetim kaydı: değişen satır kaydedilir, aynı içerik yeniden yazılınca kayıt yok", async () => {
