@@ -27,7 +27,7 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
 4. **Brevo:** `GET /v3/smtp/statistics/reports?days=7`; günde 210'u (%70) geçerse Resend Pro öner.
 5. **PostHog:** kurucunun tarayıcı oturumuyla; Halka 18 Kasım sonrası, `hesap_kilidi_zaman` hatası, yeni olaylar (Ense `oyuncu_testi`; Remzle `geri_bildirim`, `katman_acildi`, `katman_yanlis`, `sayfa_gecis` {sayfa}, `gunluk_basla.ekran` "GxY"; Remzle Deneme Dosyası olay göndermez, misafir hunisi için `#deneme` sayfa görüntülemesi).
 6. **Remzle haftalık rapor:** `PG_URL=<canlı> npx tsx scripts/haftalik-rapor.ts --cikti C:\Projeler\oyunlar\sifre-burosu\docs\rapor\<YYYY-AA-GG>.md` (sifre-burosu; salt okur). Commit edilmez, Remzle oturumu açılınca okur ve commit eder. "## Alarmlar" bölümünde madde varsa kurucuya ayrıca bir satırla bildirilir; hücre <30 iken alarm çıkmaz. İlki 29 Kasım.
-7. **Ense haftalık gözden geçirme:** `npm run olcum:rapor` (etkinlik/lig katılımı, ödül akışı, takvim boşluğu).
+7. **Ense haftalık:** `npm run tampon` (havuz ve etkinlik takvimi kaç gün yetiyor, 6 ayın altında uyarır) ve `npm run olcum:rapor -- olaylar.jsonl [gün=30]` (tutma, terk noktaları, kayıp oranları). Rapor PostHog dışa aktarımı ister (JSONL, satır başına {event, distinct_id, timestamp, properties}); PostHog'dan bu biçimde alma yolu henüz doğrulanmadı, CSV gelirse betiğe CSV desteği Ense işi.
 8. **Sahte Masası haftalık deste partisi:** oyun oturumu 21 deste üretir ve ön incelemeyi yazar (`docs/inceleme/parti-NN-MM.md`); yükleme buradan `node scripts/yukle.mjs` (SAHTE_SUPABASE_URL, SAHTE_SERVICE_KEY ya da ~/.oyun-ortak/sahte.env), kurucu onayıyla. Partiyle birlikte çoğu zaman Pages yayını da gerekir (kurum defteri, kurallar); istek bunu belirtir. 14 gün uyarısı `node scripts/acilmis.mjs`. Oturum kapalıysa parti beklemede kalır; tampon 14 günün altına inmeden açılmalı.
 9. **oyun-test'i uyanık tut:** ücretsiz plan 1 hafta boşta kalan projeyi duraklatır; testte herhangi bir sorgu ya da yayın yeter.
 10. **Yedeği makine dışına kopyala:** şifreli arşiv, dış disk ya da bulut (henüz kurulmadı; kurucu kararı bekliyor).
@@ -40,7 +40,7 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
 |---|---|---|---|
 | Halka (günlük) | 2027-11-30 | ~373 | `npm run daily` + `node scripts/upload_daily.ts` (+ KV: `scripts/kenar_kv.ts`) |
 | Beat Greedy | 2027-11-13 | ~356 | `pnpm levelgen upload --from … --days N` (DAILY_SEED_SECRET gerekir) |
-| Ense | 2028-02-28 | 463 | `node tools/gunluk-yukle.ts` (ENSE_SUPABASE_URL, ENSE_SERVICE_KEY) |
+| Ense | 2028-02-28 | 463 | `node tools/gunluk-yukle.ts` (ENSE_SUPABASE_URL, ENSE_SERVICE_KEY). Ense kuralı L-4: 183 gün kala yeni yıl üretilir (~2027-08-29). Havuz yeniden üretilip yüklenince `node tools/gunluk-referans.ts` + Pages yayını (ölçü puanları) |
 | Sahte Masası | 2027-04-07 | 136 | `node scripts/yukle.mjs` (haftalık parti) |
 | Remzle | 2027-12-26 | 399 | `npx tsx scripts/anahtar-yukle.ts` (REMZLE_* + pepper) |
 | Ezber Bozan | 2027-11-20 | 363 | `node tools/gunluk-yukle.ts` (EZBER_SUPABASE_URL, EZBER_SERVICE_KEY) |
@@ -58,7 +58,8 @@ Sağlık betiği şimdilik yalnız Halka ve Beat Greedy'yi denetler; diğer dör
 | 26 Aralık 2026 | Halka yılbaşı etkinliği (takvimde hazır) |
 | ~28 Aralık 2026 | Beat Greedy etkinlik takvimi 3 ay ileriye uzatılmalı (şimdi 2027-03-28'e kadar) |
 | İlk lig sezonu bitince | Ezber lig inişi (`inis_orani`) için göç |
-| Ramazan tarihleri | Halka ve Ense: Diyanet takvimiyle doğrula |
+| Ramazan tarihleri | Halka ve Ense: Diyanet takvimiyle doğrula. Ense etkinlikleri: Ramazan 2027 6–8 Mart, Kurban 2027 13–15 Mayıs, Ramazan 2028 23–25 Şubat (tahmin) |
+| ~27 Ağustos 2027 | Ense etkinlik ve sezon takvimi uzatılmalı (şimdi 2028-02-27'ye kadar); ~29 Ağustos Ense günlük havuzunun yeni yılı (L-4) |
 | ~Mayıs 2027 | Beat Greedy günlük içerik yenilemesi (6 ay kala); Halka etkinlik takvimi 2027-05-31'e kadar |
 | 2027-09 | Sticky tema haftaları takvimi bitiyor (2027-09-19), yılda 4–6 tema eklenir |
 | 6 ay kala (her oyun) | Ense ve Ezber etkinlik/sezon perdeleri en az 6 ay ileride kalmalı |
