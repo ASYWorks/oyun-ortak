@@ -45,6 +45,8 @@ export interface Acilis {
     onizleme?: boolean;
     /** Önizlemede test listesindeki hesap: her şey açık, bütün seviyeler açılır. */
     testci?: boolean;
+    /** Yayın tarihi 'YYYY-AA-GG' (göç 8290); yoksa belli değil. "Gün N", arşivin başı ve etkinlik takvimi buna göre. */
+    yayin_tarihi?: string;
     [k: string]: unknown;
   };
 }

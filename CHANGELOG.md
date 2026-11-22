@@ -2,6 +2,11 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.22.1 (22 Kasım 2026)
+
+- Yayın tarihi (göç 8290): `ayarlar.yayin_tarihi`; `Acilis.bayraklar.yayin_tarihi` herkese döner.
+- **Oyunlar ne yapmalı:** "Gün N", arşivin başı ve etkinlik takvimi `yayin_tarihi`'nden hesaplansın; günlük yükleyici başlangıç tarihi alsın (`docs/ONIZLEME.md`).
+
 ## v0.22.0 (22 Kasım 2026)
 
 - Yayın öncesi önizleme (göç 8280, `docs/ONIZLEME.md`):

@@ -12,6 +12,15 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 | `c.ozellikAcik(ad)` (ortak-sunucu) | `dogrula-<oyun>` aynı kuralı sunucuda sorar: kapalıysa `c.hata(403, "kapali")`. |
 | `scripts/yayin-temizligi.ts` | Yayın günü yayından önceki ortak skor, deneme, kurulum ve lig satırlarını siler (yalnız testçiler yazmış olur) ve `yayin`'ı `"acik"` yapar. Önce kuru koşu, sonra kurucu onayıyla `uygula`. |
 
+## Yayın tarihi ve günlük takvim (göç 8290, v0.22.1)
+
+- `ortak.oyunlar.ayarlar.yayin_tarihi` ('YYYY-AA-GG') yayın günü belli olunca yazılır, tarih kayarsa değiştirilir. `acilis().bayraklar.yayin_tarihi` herkese döner (yoksa belli değil).
+- **Günlük takvim yayın tarihinden başlar.** Tarih kesinleşince (ya da değişince) oyun günlük içerik takvimini `yayin_tarihi`'nden başlatıp yeniden yükler (`<oyun>_gunluk_yukle`). Yükleme kuralı yalnız açılmamış gelecek günleri değiştirir. Böylece içeriğin 1. günü yayın günü olur ve önizleme döneminde boşa harcanmaz.
+- **Örnekler kalır.** Yayından önceki günler (önizleme günleri) silinmez. Kurucu önizlemede bunları günlük ve arşiv olarak oynar, bakar. Yayın tarihi belli olmadan da günlük her gün gelir (içerik şimdiki takvimle sürer).
+- **Oyun istemcisi:** "Gün N" numarası, arşivin ilk günü ve etkinlik ya da sezon takvimi `yayin_tarihi`'nden hesaplanır. Yayından sonra yayın öncesi günler halka açık arşivde gösterilmez; testçide gösterilebilir. Tarih yoksa önizleme takvimi (içeriğin kendi başlangıcı) kullanılır.
+- **Etkinlik ve sezon** takvimi olan oyun (Halka, Koz, Ezber vb.) ilk etkinliği yayın tarihinden sonraki ilk uygun güne bağlar. Önizlemede etkinlik testçiye şimdiki takvimle açık kalır.
+- **Lig:** ilk hafta yayın gününü içeren ISO haftası. Önizleme dönemindeki lig verisi yayın günü temizliğinde silinir.
+
 ## Oyunun yapacakları
 
 1. **Vitrin.** İçerikte hangi seviyelerin ücretsiz olduğunu işaretle. Bu kısım her zorluk sınıfından ve her moddan ya da bulmaca türünden örnek içermeli; oyuncu oyunun nasıl büyüdüğünü ve çeşitliliğini görebilmeli. Boyutu oyuna göre önerilir, **kurucu oyun oyun onaylar** (oyun oturumunda seçenekli sor).
@@ -19,7 +28,8 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 3. **Gizli kısımlar.** `bayraklar.kapali` içindeki özelliğin sekmesi, düğmesi, bildirimi ve onu anan metin gösterilmez. Bu, "kısa süre kapalı" uyarısı değildir; önizlemede özellik hiç yokmuş gibi davranılır. `onizleme` true ve `testci` true ise küçük bir "Önizleme" işareti gösterilebilir.
 4. **Sunucu.** `dogrula-<oyun>` günlük, lig, etkinlik ve düello işlemlerinde `if (!(await c.ozellikAcik("gunluk"))) return c.hata(403, "kapali");` sorar. `ayarlar.bayraklar.kapali`'yı doğrudan okuyan eski kod bu yardımcıya geçer (aynı işlevi sorar).
 5. **Hazır olunca** oyun-ortak oturumuna yaz: "önizlemeye alınabilir". `yayin` ancak o zaman `"onizleme"` yapılır; böylece istemci hazır olmadan özellik kaybolmaz.
-6. **Yayın günü adımları** oyunun belgesine yazılır: `yayin-temizligi.ts`, oyuna özgü tablolar (varsa), noindex'in kaldırılması (`yayin.json` içinde `dizinlenebilir`), mağaza.
+6. **Takvim kaydırma:** günlük üretici ya da yükleyici bir başlangıç tarihi alabilmeli (ör. `--baslangic <yayin_tarihi>`). Komut oyunun belgesinde yazılı olsun; yayın tarihi gelince oyun-ortak oturumu ya da oyun oturumu çalıştırır.
+7. **Yayın günü adımları** oyunun belgesine yazılır: `yayin-temizligi.ts`, oyuna özgü tablolar (varsa), noindex'in kaldırılması (`yayin.json` içinde `dizinlenebilir`), mağaza.
 
 ## Sınırlar
 

@@ -50,6 +50,11 @@ test("8280 önizleme: halka kapalı (eski kapali korunur), testçi açık; yayı
   await ayarla("acik", { kapali: [] });
   assert.deepEqual((await a.h.acilis()).bayraklar, { kapali: [] });
 
+  // 8290: yayın tarihi herkese döner (önizlemede de)
+  await sql`update ortak.oyunlar set ayarlar = ayarlar || '{"yayin": "onizleme", "yayin_tarihi": "2027-01-15"}'::jsonb where id = ${OYUN}`;
+  assert.equal((await a.h.acilis()).bayraklar.yayin_tarihi, "2027-01-15");
+  assert.equal((await t.h.acilis()).bayraklar.yayin_tarihi, "2027-01-15");
+
   assert.ok((await a.c.schema("ortak").from("testciler").select("*")).error, "liste okunamaz");
   assert.ok((await a.c.schema("ortak").rpc("etkin_bayraklar", { p_oyun: OYUN, p_kullanici: a.id })).error, "işlev istemciye kapalı");
   await sql`delete from ortak.testciler where kullanici_id = ${t.id}`;
