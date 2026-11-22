@@ -1,5 +1,5 @@
 -- Beat Greedy puan sürüm 3 (ADIL_PUAN §1.1, §1.7; kurucu 17 Kasım 2026; sezgi docs/PUAN_V3.md). Kapı Pazartesi
--- 2026-11-23: motorun POINTS_V3_FROM'u ile aynı gün. Keşif ve Yarış puanı en çok 110 (hız ödülü); sunucuda bunlara
+-- 2026-11-30 (22 Kasım'da 23'ten ertelendi, istemci hazır olunca birlikte): motorun POINTS_V3_FROM'u ile aynı gün. Keşif ve Yarış puanı en çok 110 (hız ödülü); sunucuda bunlara
 -- 100 sınırı yok, değişiklik gerekmiyor. Seviye puanı en çok 100 kalır. Sürüm 3 gününde seviyenin ilk kaydı kalıcıdır,
 -- puanı ne olursa olsun (geçmese de); tekrar oynamak alıştırmadır. Lig rozet eşikleri (+%10) istemcide. Kapıdan
 -- önceki skorlar yeniden hesaplanmaz (§3.2).
@@ -10,7 +10,7 @@ create table sezgi.puan_surumleri (
 );
 alter table sezgi.puan_surumleri enable row level security;
 revoke all on sezgi.puan_surumleri from public, anon, authenticated;
-insert into sezgi.puan_surumleri values (3, '2026-11-23');
+insert into sezgi.puan_surumleri values (3, '2026-11-30');
 
 create function sezgi.puan_v3(p_gun date) returns boolean
 language sql stable security definer set search_path = '' as $$
