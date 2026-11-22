@@ -32,6 +32,22 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 6. **Takvim kaydırma:** günlük üretici ya da yükleyici bir başlangıç tarihi alabilmeli (ör. `--baslangic <yayin_tarihi>`). Komut oyunun belgesinde yazılı olsun; yayın tarihi gelince oyun-ortak oturumu ya da oyun oturumu çalıştırır.
 7. **Yayın günü adımları** oyunun belgesine yazılır: `yayin-temizligi.ts`, oyuna özgü tablolar (varsa), noindex'in kaldırılması (`yayin.json` içinde `dizinlenebilir`), mağaza.
 
+## Testçi örnekleri (kurucu, 22 Kasım)
+
+Testçi hesabında seviyeler dışında oyunda bulunan her oyun tipinden en az bir örnek olur; kurucu yayından önce hepsini dener:
+
+| Tip | Testçide |
+|---|---|
+| Günlük | Her gün gerçek günlük; önizleme günleri arşivde |
+| Etkinlik | Takvimden bağımsız, her zaman açık bir **örnek etkinlik** (gerçek içerik, gerçek `dogrula` yolu) |
+| Turnuva | Varsa her zaman açık bir **örnek turnuva** |
+| Lig | **Örnek lig görünümü**: testçinin kendi satırı ve dolgu satırları; kademe, çıkış ve iniş bantları görünür. Gerçek lig mantığı ortak testlerle sınanır, örnek lig sunucuya yazmaz |
+| Düello ve benzeri | Varsa bir **örnek düello** |
+
+- Örnekler yalnız `bayraklar.testci` iken görünür (ör. Ayarlar ya da ana menüde "Örnekler"). Sunucuda örnek isteği `await c.testciMi()` ile korunur; testçi olmayana 403.
+- Örnek skorları gerçek sıralamaya yazılmaz ya da ayrı bir dönem kimliği taşır (ör. `ornek-…`); yayın günü temizliği bunları da siler.
+- Yeni bir oyun tipi eklendiğinde örneği de eklenir.
+
 ## İstisna: Hop Koala
 
 Hop Koala'da (çocuk oyunu; günlük, lig ve sıralama yok) önizlemede de bütün içerik açık kalır. Vitrin ve kilit, mağazalara yüklenince kurulur (kurucu, 22 Kasım).

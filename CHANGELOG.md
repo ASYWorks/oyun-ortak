@@ -2,6 +2,11 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.22.3 (22 Kasım 2026)
+
+- ortak-sunucu `c.testciMi()`: testçiye özel örnek içerik için.
+- **Oyunlar ne yapmalı:** testçide her oyun tipinden en az bir örnek (günlük, örnek etkinlik, örnek turnuva, örnek lig görünümü, örnek düello); `docs/ONIZLEME.md` "Testçi örnekleri".
+
 ## v0.22.2 (22 Kasım 2026)
 
 - `hesap.oyunBayraklari()` (göç 8310): oturumsuz ziyaretçi için oyunun halka açık bayrakları (önizleme, kapali, yayin_tarihi). Testçi bilgisi yine `acilis()`'te.

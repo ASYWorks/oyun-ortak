@@ -66,6 +66,11 @@ export interface Baglam<G = unknown> {
    * dışındakilere "gunluk", "lig", "etkinlik", "siralama", "duello" kapalıdır. Kapalıysa oyun `c.hata(403, "kapali")` döner.
    */
   ozellikAcik(ozellik: string): Promise<boolean>;
+  /**
+   * Bu oyuncu test listesinde mi (göç 8280/8300). Testçiye özel örnek içerik (örnek etkinlik, turnuva, düello) yalnız
+   * buna bağlı açılır; testçi olmayana `c.hata(403, "kapali")`.
+   */
+  testciMi(): Promise<boolean>;
   hizSiniri(anahtar: string, sinir: number, saniye: number): Promise<boolean>;
   /** Dönüş durumu: yeni | tekrar (aynı runId) | prova (dönemde resmî skor zaten var). */
   /** cihaz: bu kurulumdan bugün başka hesap günlük sıralamaya girdi; skor yazılmadı (oyun SIRALAMA_METINLERI.cihaz gösterir). */
@@ -203,6 +208,11 @@ export function istek<G = unknown>(ayar: IstekAyari, isle: (c: Baglam<G>) => Pro
           const { data, error } = await db.rpc("etkin_bayraklar", { p_oyun: ayar.oyunId, p_kullanici: kullanici.id });
           if (error) throw error;
           return !(((data as { kapali?: string[] } | null)?.kapali) ?? []).includes(ozellik);
+        },
+        async testciMi() {
+          const { data, error } = await db.rpc("etkin_bayraklar", { p_oyun: ayar.oyunId, p_kullanici: kullanici.id });
+          if (error) throw error;
+          return (data as { testci?: boolean } | null)?.testci === true;
         },
         hizSiniri,
         async skorYaz(s) {
