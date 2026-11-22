@@ -19,6 +19,17 @@ test("8180 mahalle: oyun satırı, eşitlik ikincil; tablo ve servis uçları is
   assert.ok((await istemci().rpc("mahalle_gunluk_yukle", { p_satirlar: [], p_surum: "x" })).error);
 });
 
+test("8270 mahalle lig: kademeler, 30'luk grupta 7 çıkar 5 iner, bayrak kapalı", async () => {
+  const [o] = await sql`select ayarlar from ortak.oyunlar where id = 'mahalle'`;
+  const l = o!.ayarlar.lig;
+  assert.equal(l.kademeler.length, 8);
+  assert.equal(l.esitlik, "ikincil");
+  assert.equal(Math.floor(30 * l.cikis_orani), 7);
+  assert.equal(Math.floor(30 * l.inis_orani), 5);
+  assert.equal(o!.ayarlar.bayraklar.lig_acik, false);
+  assert.equal(o!.ayarlar.siralama.esitlik, "ikincil", "mevcut ayarlar korunur");
+});
+
 test("8180 mahalle.gunluk: beş kutu şartı, açılmış gün korunur, gelecek gün yalnız içerik değişince güncellenir", async () => {
   const dun = gun(-1), yarin = gun(1);
   await temizle([dun, yarin]);
