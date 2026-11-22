@@ -87,3 +87,20 @@ export async function adVer(id: string, oyun = "deneme") {
     values (${oyun}, ${id}, ${ad}, ortak.ad_anahtari(${ad}), false)
     on conflict (oyun_id, kullanici_id) do update set ad = excluded.ad, ad_anahtari = excluded.ad_anahtari, ad_otomatik = false`;
 }
+
+/**
+ * Oyun günlük tablosunun verilen günlerini saklar; dönen işlev testten sonra aynen geri koyar. Testler dün/yarın satırlarını
+ * silip yeniden yazıyor; geri konmazsa yerel yığında oyun oturumlarının yüklediği içerik kaybolur (İfade bulgusu, 22 Kasım).
+ */
+export async function gunlukKoru(sema: string, gunler: string[]): Promise<() => Promise<void>> {
+  if (!/^[a-z]+$/.test(sema)) throw new Error("şema adı");
+  const satirlar = await sql.unsafe(`select coalesce(jsonb_agg(to_jsonb(g)), '[]'::jsonb) as j from ${sema}.gunluk g where gun = any($1::date[])`, [gunler]);
+  const json = satirlar[0]!.j;
+  return async () => {
+    await sql.begin(async (t) => {
+      await t.unsafe(`set local ${sema}.duzeltme = 'evet'`);
+      await t.unsafe(`delete from ${sema}.gunluk where gun = any($1::date[])`, [gunler]);
+      await t.unsafe(`insert into ${sema}.gunluk select * from jsonb_populate_recordset(null::${sema}.gunluk, $1::jsonb)`, [json]);
+    });
+  };
+}

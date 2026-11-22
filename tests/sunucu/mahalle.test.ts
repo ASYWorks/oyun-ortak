@@ -1,13 +1,15 @@
 // Göç 8180 (Mahalle Dönüşümü): oyun satırı, gizli günlük tablo yalnız servis rolüne, açılmış gün koruması, yükleme kuralı.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
-import { istemci, sql, yonetici } from "./yardimci.ts";
+import { istemci, sql, yonetici , gunlukKoru } from "./yardimci.ts";
 
-after(() => sql.end());
+let geriKoy: (() => Promise<void>) | undefined;
+after(async () => { await geriKoy?.(); await sql.end(); });
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
 const bes = (k: string) => Array.from({ length: 5 }, (_, i) => ({ no: i + 1, k }));
 const temizle = (gunler: string[]) => sql.begin(async (t) => { await t`set local mahalle.duzeltme = 'evet'`; await t`delete from mahalle.gunluk where gun = any(${gunler})`; });
+geriKoy = await gunlukKoru("mahalle", [gun(-1), gun(1)]);
 
 test("8180 mahalle: oyun satırı, eşitlik ikincil; tablo ve servis uçları istemciye kapalı", async () => {
   const [o] = await sql`select ayarlar from ortak.oyunlar where id = 'mahalle'`;

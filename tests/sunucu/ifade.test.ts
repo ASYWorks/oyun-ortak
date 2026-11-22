@@ -1,12 +1,14 @@
 // Göç 8240 (İfade Katı): oyun satırı, gizli günlük tablo yalnız servis rolüne, açılmış gün koruması, yükleme kuralı.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
-import { istemci, sql, yonetici } from "./yardimci.ts";
+import { istemci, sql, yonetici , gunlukKoru } from "./yardimci.ts";
 
-after(() => sql.end());
+let geriKoy: (() => Promise<void>) | undefined;
+after(async () => { await geriKoy?.(); await sql.end(); });
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
 const temizle = (gunler: string[]) => sql.begin(async (t) => { await t`set local ifade.duzeltme = 'evet'`; await t`delete from ifade.gunluk where gun = any(${gunler})`; });
+geriKoy = await gunlukKoru("ifade", [gun(-1), gun(1)]);
 
 test("8240 ifade: oyun satırı; tablo ve servis uçları istemciye kapalı", async () => {
   const [o] = await sql`select ayarlar from ortak.oyunlar where id = 'ifade'`;
