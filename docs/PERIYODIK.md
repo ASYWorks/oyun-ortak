@@ -11,7 +11,7 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
 | Canlı yedek + sağlık | Her gün 11:00 | Windows görevi "oyun-ortak gunluk" → `scripts/gunluk.sh`; kayıt `~/.oyun-ortak/yedek/gunluk.log` | Bilgisayar kapalıysa yedek yok: açılınca `sh scripts/gunluk.sh` |
 | Lig kapanışı | Pazartesi 01:00 UTC | pg_cron `ortak-lig-kapat` | `select ortak.lig_kapat();` |
 | Halka Usta Turnuvası ödülü | Pazartesi 00:15 UTC | pg_cron `halka-turnuva-odul` (14 gün geriye bakar) | Kendiliğinden yakalar |
-| Sticky haftalık ödül | Pazartesi 00:05 UTC | pg_cron `sticky-haftalik-odul` | **Kendiliğinden yakalamaz:** `select sticky.haftalik_odul('<pazartesi>');` |
+| Sticky haftalık ödül | Her gün 00:05 UTC (göç 8160) | pg_cron `sticky-haftalik-odul`, geçen hafta verildiyse çıkar | Ertesi gün kendiliğinden yakalar; elle: `select sticky.haftalik_odul('<pazartesi>');` |
 | Beat Greedy işleri, temizlik, saklama | Dakikalık/saatlik/gece | pg_cron (ISLETIM §4) | `ortak.isletim_durumu` panelde |
 | Render bekçisi | 15 dakikada bir | Worker `asyworks-bekci` | Panelde Render trafiği |
 | Panel denetimleri | Her açılışta | panel.asyworks.com (siteler, alan adları, kotalar) | — |
