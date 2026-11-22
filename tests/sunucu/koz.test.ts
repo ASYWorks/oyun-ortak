@@ -1,7 +1,7 @@
 // Göç 8200 (Koz Hesabı): oyun satırı, gizli günlük tablo yalnız servis rolüne, açılmış gün koruması, yükleme kuralı.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
-import { istemci, sql, yonetici } from "./yardimci.ts";
+import { istemci, kaliciKullanici, sql, yonetici } from "./yardimci.ts";
 
 after(() => sql.end());
 
@@ -28,4 +28,38 @@ test("8200 koz.gunluk: açılmış gün korunur, gelecek gün yalnız içerik de
   assert.deepEqual((await sv.rpc("koz_gunluk_oku", { p_gun: yarin })).data.eller, { a: 2 });
   await assert.rejects(sql`update koz.gunluk set eller = '{"q":1}' where gun = ${dun}`, /acilmis_gun_degisemez/);
   await temizle([dun, yarin]);
+});
+
+const girisli = async () => {
+  const k = await kaliciKullanici();
+  const c = istemci();
+  const { error } = await c.auth.signInWithPassword({ email: k.eposta, password: k.parola });
+  if (error) throw error;
+  return { ...k, c };
+};
+
+test("8210 koz: lig ve silme ayarı; arkadaş kodu, ekleme, düello açma ve günlük sınır; silme", async () => {
+  const [o] = await sql`select ayarlar from ortak.oyunlar where id = 'koz'`;
+  assert.deepEqual(o!.ayarlar.lig.kademeler, ["Onlu", "Vale", "Kız", "Papaz", "As"]);
+  assert.equal(o!.ayarlar.hesap.silme_fonksiyonu, "koz.oyuncu_verisini_sil");
+  const a = await girisli(), b = await girisli();
+  const kodA = (await a.c.rpc("koz_kodum")).data as string, kodB = (await b.c.rpc("koz_kodum")).data as string;
+  assert.match(kodA, /^[ACDEFGHJKMNPRTUVWXY34679]{8}$/);
+  assert.equal((await a.c.rpc("koz_kodum")).data, kodA, "aynı kod döner");
+  assert.equal(((await a.c.rpc("koz_arkadas_ekle", { p_kod: kodA })).data as { hata: string }).hata, "kendin");
+  assert.ok(((await a.c.rpc("koz_arkadas_ekle", { p_kod: kodB.toLowerCase() })).data as { tamam: boolean }).tamam);
+  assert.equal(((await b.c.rpc("koz_arkadaslar")).data as unknown[]).length, 1, "iki yönlü");
+  const yon = yonetici();
+  await yon.rpc("koz_duello_havuz_yukle", { p_satirlar: Array.from({ length: 20 }, (_, i) => ({ id: `t-${a.id}-${i}`, kayit: { i } })) });
+  for (let i = 0; i < 3; i++) assert.ifError((await a.c.rpc("koz_duello_ac", { p_kod: kodB, p_el: 3 })).error);
+  assert.match((await a.c.rpc("koz_duello_ac", { p_kod: kodB, p_el: 3 })).error?.message ?? "", /gunluk_sinir/);
+  const d = (await b.c.rpc("koz_duellolar")).data as { el: number; karsi: unknown }[];
+  assert.equal(d.length, 3); assert.equal(d[0]!.el, 3);
+  assert.ok(!JSON.stringify(d).includes(a.id), "kimlik dönmez");
+  const misafir = istemci(); await misafir.auth.signInAnonymously();
+  assert.match((await misafir.rpc("koz_kodum")).error?.message ?? "", /kalici_hesap_gerekli/);
+  await sql`select koz.oyuncu_verisini_sil(${a.id})`;
+  const [{ n }] = await sql`select (select count(*) from koz.arkadaslik where kullanici = ${a.id} or arkadas = ${a.id}) + (select count(*) from koz.duello where acan = ${a.id}) as n`;
+  assert.equal(Number(n), 0);
+  await sql`delete from koz.duello_havuz where id like ${"t-" + a.id + "%"}`;
 });
