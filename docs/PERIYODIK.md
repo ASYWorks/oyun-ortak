@@ -22,7 +22,7 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
 2. **Panel uyarıları:** rozet, alan adları, kotalar, Render trafiği, işler.
 3. **Adil puan haftalık ayarı** (`_ortak/ADIL_PUAN.md`): yeni sürüm Pazartesi başlar, Pazar onaylanır.
    - Beat Greedy: `pnpm levelgen kalibre` (sezgi; SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY), `--write` kurucu onayıyla.
-   - Halka: PU-3 kalibrasyonu (`halka-kelime/docs/PUAN.md`).
+   - Halka: PU-3, servis rolüyle `select * from ortak.kalibrasyon('halka', '<geçen pazartesi>', '<bu pazartesi>');` (ilk dönem 2026-11-23 → 2026-11-30), çıktı CSV olarak halka-kelime/scripts/puan/cikti/kalibrasyon_<bu pazartesi>.csv; ayarı Halka oturumu yapar (docs/PUAN.md §5), yeni sürüm Pazartesi, dogrula-halka yeniden yayını buradan.
    - Diğerleri: oyunun PUAN/ADIL_PUAN belgesinde haftalık ayar varsa.
 4. **Brevo:** `GET /v3/smtp/statistics/reports?days=7`; günde 210'u (%70) geçerse Resend Pro öner.
 5. **PostHog:** kurucunun tarayıcı oturumuyla; Halka 18 Kasım sonrası, `hesap_kilidi_zaman` hatası, yeni olaylar (Ense `oyuncu_testi`; Remzle `geri_bildirim`, `katman_acildi`, `katman_yanlis`, `sayfa_gecis` {sayfa}, `gunluk_basla.ekran` "GxY"; Remzle Deneme Dosyası olay göndermez, misafir hunisi için `#deneme` sayfa görüntülemesi).
@@ -53,17 +53,18 @@ Sağlık betiği şimdilik yalnız Halka ve Beat Greedy'yi denetler; diğer dör
 | Tarih | İş |
 |---|---|
 | 29 Kasım 2026 | Remzle ilk haftalık rapor |
-| 30 Kasım 2026 | Ezber puan v3 kendiliğinden başlar: ilk teslimlerde döküm "deneme" kalemini taşır, `ikincil` = deneme × 3600 + saniye, hız ödülü kalemi yok; kayıp ya da baştan başlatma `yeniden` çağırır. Sorunda geri dönüş `puan/puan.ts` SURUM_BASLANGIC (oyun oturumu). Halka etkinliğini izle |
-| 1 Aralık 2026 | Halka kış sezonu (takvimde hazır); Halka yayın temizliği YY-1 en geç bu tarih |
+| 30 Kasım 2026 | Halka ilk gerçek etkinlik (hafta-2026-11-30): dogrula-halka 409/422 ve basla pencere 409 (30 Kasım'da sıfıra inmeli), halka.etkinlik_cozumler, ortak.oduller'de rozet-etkinlik-hafta-2026-11-30 ilk kez 5. çözümde ve yalnız kaynak='sunucu' (değilse odul_kaydet delinmiş), halka_turnuva_dosya('hafta-2026-11-30-1') 29 Kasım null / 30 Kasım dolu, bilet exp 2026-12-06T21:00Z, kenar 503 ~0. Gündüz yy1-halka.ts kuru koşu (etkinlik çözümlerine ve rozetlere dokunmadığını doğrula), gece kurucu onayıyla uygula (Halka yayını 1 Aralık, src/presets.ts LAUNCH). Ezber puan v3 kendiliğinden başlar: ilk teslimlerde döküm "deneme" kalemini taşır, `ikincil` = deneme × 3600 + saniye, hız ödülü kalemi yok; kayıp ya da baştan başlatma `yeniden` çağırır. Sorunda geri dönüş `puan/puan.ts` SURUM_BASLANGIC (oyun oturumu). Halka etkinliğini izle |
+| 1 Aralık 2026 | Halka yayını (LAUNCH) ve kış sezonu (1 Aralık – 28 Şubat; takvimde hazır) |
 | 7 Aralık 2026 | Remzle K1 rotasyonu ve kasa ailesi başlar (içerik canlıda yüklü). Kontrol: (a) sifre-burosu'da `npm run preview -- 2026-12-07` K1 motorunu ve K3 kural metnini yazdırır, canlıyla aynı olmalı; (b) gün içinde PostHog'da o günün `katman_acildi`/`katman_yanlis` oranı önceki 7 günle kıyas, K1'de belirgin artış varsa kurucuya bildir. Yeni K1 motorları (Polybius, Tuş Takımı, Afin, Klavye, İkili Kod, Domuz Ağılı) ilk iki hafta haftalık raporun "Motor bazında" tablosundan izlenir |
-| 26 Aralık 2026 | Halka yılbaşı etkinliği (takvimde hazır) |
+| 21 Aralık 2026 | Halka yılbaşı etkinliği 21 Aralık – 3 Ocak (takvimde hazır) |
 | 7 Ocak 2027 | hopkoala.com'un Name.com aktarım kilidi biter; Cloudflare Registrar'a taşınabilir (Hop Koala) |
 | ~28 Aralık 2026 | Beat Greedy etkinlik takvimi 3 ay ileriye uzatılmalı (şimdi 2027-03-28'e kadar) |
 | İlk lig sezonu bitince | Ezber lig inişi (`inis_orani`) için göç |
-| Ramazan tarihleri | Halka ve Ense: Diyanet takvimiyle doğrula. Ense etkinlikleri: Ramazan 2027 6–8 Mart, Kurban 2027 13–15 Mayıs, Ramazan 2028 23–25 Şubat (tahmin) |
+| Ramazan tarihleri | Halka ramazan-2027 1–14 Mart (bayramı kapsar); Halka ve Ense: Diyanet takvimiyle doğrula. Ense etkinlikleri: Ramazan 2027 6–8 Mart, Kurban 2027 13–15 Mayıs, Ramazan 2028 23–25 Şubat (tahmin) |
 | ~27 Ağustos 2027 | Ense etkinlik ve sezon takvimi uzatılmalı (şimdi 2028-02-27'ye kadar); ~29 Ağustos Ense günlük havuzunun yeni yılı (L-4) |
-| ~Mayıs 2027 | Beat Greedy günlük içerik yenilemesi (6 ay kala); Halka etkinlik takvimi 2027-05-31'e kadar; Ezber günlük havuzunun yeni yılı: önce oyun oturumunda üretim (`uret`, `sec`, `npm run gunluk`, `dogrula`; kimlik EB-G-366'dan devam), sonra buradan `gunluk-yukle` |
+| ~Mayıs 2027 | Beat Greedy günlük içerik yenilemesi (6 ay kala); Ezber günlük havuzunun yeni yılı: önce oyun oturumunda üretim (`uret`, `sec`, `npm run gunluk`, `dogrula`; kimlik EB-G-366'dan devam), sonra buradan `gunluk-yukle` |
 | Kurucu tarih verince | Ezber albüm 1. sezon takvimi (oyun oturumu); 23 albüm görseli (`art/paket_4`) GPT kotası açılınca |
+| ~Ekim 2027 | Halka etkinlik takvimi ve günlükler yeni yıl: node scripts/generate_events.ts, sonra upload_daily ve KV (takvim 2027-12-05'e kadar) |
 | 2027-09 | Sticky tema haftaları takvimi bitiyor (2027-09-19), yılda 4–6 tema eklenir |
 | 6 ay kala (her oyun) | Ense ve Ezber etkinlik/sezon perdeleri en az 6 ay ileride kalmalı |
 | Her ay | Render faturası (~7 $), Supabase kullanım |
