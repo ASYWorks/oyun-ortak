@@ -17,6 +17,8 @@ const OYUNLAR = [
 ];
 const ISTISNA_ONIZLEME = new Set(['minik-oyun-kutusu']);
 const GEREKLI_PAKET = '0.22';
+// Bayrakları kendi sunucusundan alan oyun (Sticky: Render sunucusu etkin_bayraklar sorar) paket sürümüne bağlı değil.
+const PAKET_GEREKMEZ = new Set(['sticky-ten']);
 
 const git = (dir, args) => spawnSync('git', args, { cwd: dir, encoding: 'utf8' }).stdout?.trim() ?? '';
 const oku = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
@@ -65,7 +67,7 @@ for (const [klasor, id] of OYUNLAR) {
   satirlar.push({
     oyun: klasor,
     depo: /github\.com\/ASYWorks\//.test(remote) ? '✓' : '✗',
-    paket: istisna ? '–' : (surum.startsWith(GEREKLI_PAKET) ? surum : `✗ ${surum}`),
+    paket: istisna ? '–' : (surum.startsWith(GEREKLI_PAKET) || PAKET_GEREKMEZ.has(klasor) ? surum : `✗ ${surum}`),
     yayin_json: istisna && !yayinJson ? '– (sunucusuz)' : yayinJson ? ((yj.yasakMetin?.length || yj.yasakDosya?.length) ? '✓' : '✓ desen yok') : '✗',
     sunucu: istisna ? '–' : (ozellik ? '✓' : '✗'),
     onizleme: istisna ? 'istisna' : (onizleme && testci ? '✓' : '✗'),

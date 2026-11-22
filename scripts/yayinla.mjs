@@ -103,7 +103,8 @@ const icerenler = (re) => metin.filter(([, t]) => re.test(t)).map(([y]) => y);
 const hata = [];
 if (dosyalar.some((p) => p.endsWith('.map'))) hata.push('.map dosyası var');
 if (dosyalar.some((p) => yol(p).startsWith('functions/'))) hata.push('functions/ klasörü var (Pages işlevi olarak yüklenir)');
-if (!icerenler(new RegExp(CANLI)).length) hata.push('canlı Supabase adresi pakette yok');
+// supabaseSunucuda: istemci Supabase adresini kendi sunucusundan alır (Sticky, ST-13); canlı adres pakette aranmaz, test adresi yine yasak.
+if (!ayar.supabaseSunucuda && !icerenler(new RegExp(CANLI)).length) hata.push('canlı Supabase adresi pakette yok');
 if (icerenler(new RegExp(TEST)).length) hata.push('test Supabase adresi pakette: ' + icerenler(new RegExp(TEST)).slice(0, 3).join(', '));
 if (icerenler(/eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]*cm9sZSI6InNlcnZpY2Vfcm9sZS/).length) hata.push('servis anahtarı pakette');
 const basliklar = existsSync(join(CIKTI, '_headers')) ? readFileSync(join(CIKTI, '_headers'), 'utf8') : '';

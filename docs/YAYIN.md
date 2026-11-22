@@ -41,6 +41,7 @@ Betik `git archive <commit>` ile temiz kopyadan derler. Yerel `dist`, `.env.loca
 - `derle`: komut temiz kopyada çalışır. Ya `{CIKTI}` klasörüne yazar ya da `"cikti": "dist"` ile çıktı klasörünü bildirir.
 - `ortamSil`: derlemede tanımsız olması gereken değişkenler (Ezber'de `EZBER_TEST_KIPI` gibi).
 - `adres`: alan adı `https://<pages>.asyworks.com` değilse.
+- `supabaseSunucuda: true`: istemci Supabase adresini kendi sunucusundan alıyorsa (Sticky Ten); "canlı adres pakette" denetimi atlanır, test adresi yasağı sürer.
 - `dizinlenebilir: true`: yalnız yayın gününden sonra (noindex denetimini kapatır).
 - Yer tutucular: `{CANLI_URL} {CANLI_ANON} {POSTHOG_KEY} {TURNSTILE_SITE_KEY} {TEST_URL} {TEST_ANON} {TEST_SERVIS} {CIKTI} {KAYNAK}`. Anahtarları betik kendisi alır, ekrana yazmaz. Oyun deposuna hiçbir anahtar girmez.
 
