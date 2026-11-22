@@ -275,8 +275,8 @@ test("PU-8 + PU-7 b/e/f: puan ayarı Pazartesi kuralı; tablolar kapıdan önce 
   assert.equal((await sql`select sezgi.record_level(${a.id}, 'kasa', 2, 1, 1.0, 101) as r`)[0]!.r.error, "bad_puan");
   assert.equal((await sql`select sezgi.record_level(${a.id}, 'kasa', 2, 1, 1.0, 55.5) as r`)[0]!.r.error, "bad_puan", "ondalık yok");
   // puan sürüm 3: kapı açıkken ilk kayıt kalıcı, geçmese de (daha iyisi yazılmaz); kapı kapalıyken en iyisi
-  assert.equal((await sql`select sezgi.puan_v3('2026-11-22') as v`)[0]!.v, false);
-  assert.equal((await sql`select sezgi.puan_v3('2026-11-23') as v`)[0]!.v, true);
+  assert.equal((await sql`select sezgi.puan_v3('2026-11-29') as v`)[0]!.v, false);
+  assert.equal((await sql`select sezgi.puan_v3('2026-11-30') as v`)[0]!.v, true);
   await sql`update sezgi.puan_surumleri set gecerli = '2026-11-09' where formul = 3`;
   try {
     await sql`select sezgi.record_level(${a.id}, 'kasa', 3, 0, 9.0, 30)`;
@@ -284,7 +284,7 @@ test("PU-8 + PU-7 b/e/f: puan ayarı Pazartesi kuralı; tablolar kapıdan önce 
     const [v3] = await sql`select raw_stars, puan::float from sezgi.level_verified where user_id = ${a.id} and game = 'kasa' and level = 3`;
     assert.deepEqual([v3!.raw_stars, v3!.puan], [0, 30]);
   } finally {
-    await sql`update sezgi.puan_surumleri set gecerli = '2026-11-23' where formul = 3`;
+    await sql`update sezgi.puan_surumleri set gecerli = '2026-11-30' where formul = 3`;
   }
 
   await bulmacaSil((tx) => tx`delete from sezgi.daily_puzzles where id in (${eski}, ${yeni})`);
