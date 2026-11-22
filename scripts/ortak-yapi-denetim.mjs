@@ -19,6 +19,8 @@ const ISTISNA_ONIZLEME = new Set(['minik-oyun-kutusu']);
 const GEREKLI_PAKET = '0.22';
 // Bayrakları kendi sunucusundan alan oyun (Sticky: Render sunucusu etkin_bayraklar sorar) paket sürümüne bağlı değil.
 const PAKET_GEREKMEZ = new Set(['sticky-ten']);
+// Oyunda olmayan özellik: Sticky'de günlük takvim ve ücretli seviye yok.
+const UYGULANMAZ = { 'sticky-ten': new Set(['tarih', 'korumali']) };
 
 const git = (dir, args) => spawnSync('git', args, { cwd: dir, encoding: 'utf8' }).stdout?.trim() ?? '';
 const oku = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
@@ -57,7 +59,7 @@ for (const [klasor, id] of OYUNLAR) {
   const src = ['src', 'app', 'apps', 'client', 'web'].map((s) => join(d, s));
   const onizleme = src.some((s) => iceren(s, /\.(ts|tsx|js|svelte|vue)$/, /onizleme/));
   const testci = src.some((s) => iceren(s, /\.(ts|tsx|js|svelte|vue)$/, /testci/));
-  const misafirBayrak = src.some((s) => iceren(s, /\.(ts|tsx|js|svelte|vue)$/, /oyunBayraklari/));
+  const misafirBayrak = src.some((s) => iceren(s, /\.(ts|tsx|js|svelte|vue)$/, /oyunBayraklari/)) || (PAKET_GEREKMEZ.has(klasor) && onizleme);
   const yayinTarihi = src.some((s) => iceren(s, /\.(ts|tsx|js|svelte|vue)$/, /yayin_tarihi/));
   const docs = tumDosyalar(join(d, 'docs'), /\.md$/).map(oku).join('\n') + oku(join(d, 'CLAUDE.md'));
   const yayinGunu = /yayin-temizligi|yayın günü/i.test(docs);
@@ -72,9 +74,9 @@ for (const [klasor, id] of OYUNLAR) {
     sunucu: istisna ? '–' : (ozellik ? '✓' : '✗'),
     onizleme: istisna ? 'istisna' : (onizleme && testci ? '✓' : '✗'),
     misafir: istisna ? '–' : (misafirBayrak ? '✓' : '✗'),
-    tarih: istisna ? '–' : (yayinTarihi ? '✓' : '✗'),
+    tarih: istisna || UYGULANMAZ[klasor]?.has('tarih') ? '–' : (yayinTarihi ? '✓' : '✗'),
     yayin_gunu: istisna ? '–' : (yayinGunu ? '✓' : '✗'),
-    korumali: istisna ? '–' : (korumali ? '✓' : '✗'),
+    korumali: istisna || UYGULANMAZ[klasor]?.has('korumali') ? '–' : (korumali ? '✓' : '✗'),
     canli: c ? `${c.yayin ?? 'acik'}${c.tarih ? ' ' + c.tarih : ''}` : (Object.keys(canli).length ? '-' : ''),
   });
 }
