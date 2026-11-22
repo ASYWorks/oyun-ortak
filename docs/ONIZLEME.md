@@ -18,7 +18,7 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 - `ortak.oyunlar.ayarlar.yayin_tarihi` ('YYYY-AA-GG') yayın günü belli olunca yazılır, tarih kayarsa değiştirilir. `acilis().bayraklar.yayin_tarihi` herkese döner (yoksa belli değil).
 - **Günlük takvim yayın tarihinden başlar.** Tarih kesinleşince (ya da değişince) oyun günlük içerik takvimini `yayin_tarihi`'nden başlatıp yeniden yükler (`<oyun>_gunluk_yukle`). Yükleme kuralı yalnız açılmamış gelecek günleri değiştirir. Böylece içeriğin 1. günü yayın günü olur ve önizleme döneminde boşa harcanmaz.
 - **Hiçbir içerik boşa gitmez (kurucu, 22 Kasım).** Yayın gecikince içerik tarihlere yeniden dağıtılır, baştan üretilmez:
-  - **Günlük:** yayın günü, ilk kullanılmamış içerikle başlar. "Kullanılmış" = halkın görmüş olabileceği içerik, yani testçi olmayan bir oyuncunun denemesi ya da skoru olan gün (önizlemeden önce herkese açıkken açılanlar dahil). Yalnız testçinin önizlemede oynadığı içerik yeniden kullanılır; önizleme günleri boşa gitmez.
+  - **Günlük:** yayın günü içeriğin başından (ya da oyunun seçtiği bir yerden) başlar; bütün içerik yayından sonraya dağıtılır. Önizlemede ya da önizlemeden önce birkaç günün görülmüş olması sorun değildir (kurucu, 22 Kasım): o içerik yeniden kullanılabilir, atlanabilir ya da yeniden üretilebilir; oyun en basit yolu seçer. Tek kesin kural içeriğin boşa gitmemesidir.
   - **Genel etkinlik:** sırası korunur, bütün dizi yayından sonraki ilk uygun güne kayar.
   - **Özel güne bağlı etkinlik** (yılbaşı, bayram, özel hafta vb.): tarihi yayından önce geçmişse sonraki yılın aynı gününe bırakılır; başka bir tarihe kaydırılmaz.
   - **Turnuva ve sezon:** ilki yayından sonra başlar; içerik ve sıra korunur.
