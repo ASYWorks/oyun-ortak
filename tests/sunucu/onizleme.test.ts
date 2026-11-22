@@ -49,6 +49,7 @@ test("8280 önizleme: halka kapalı (eski kapali korunur), testçi açık; yayı
 
   await ayarla("acik", { kapali: [] });
   assert.deepEqual((await a.h.acilis()).bayraklar, { kapali: [] });
+  assert.deepEqual((await t.h.acilis()).bayraklar, { kapali: [], testci: true }, "8300: yayından sonra da testçi");
 
   // 8290: yayın tarihi herkese döner (önizlemede de)
   await sql`update ortak.oyunlar set ayarlar = ayarlar || '{"yayin": "onizleme", "yayin_tarihi": "2027-01-15"}'::jsonb where id = ${OYUN}`;
