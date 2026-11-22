@@ -427,3 +427,8 @@ Bağlam: `ezber-bozan/docs/DENETIM.md`. Arka uç Neon (yalnız olay tablosu; öl
 - **Ad ve alt alan adı:** her oyunun oturumunda; Remzle (`remzle.asyworks.com`) kesin, ötekiler ad kesinleşene kadar proje adıyla (`<proje>.asyworks.com`).
 
 | MD-13 | `arayuz` (A8) | Google'ın kendi giriş düğmesi (googleDugmesi, "large") 40 px çiziliyor; 44 px kuralına bu düğme için istisna notu (Google markasının sabit boyu) | Mahalle 22 Kasım | OYUN_DENETIMI A8 notu |
+| MD-14 | `kayit` (O16) | `bulutKaydi().birlestir` yeni bulut sürümünü dönsün; oyun şimdi tahmin ediyor (yanlışsa bir fazla eşitleme) | Mahalle 22 Kasım | |
+| MD-15 | `kayit` (ÖG-9) | `kayit_buyuk` ayrı hata türü olarak çıksın | Mahalle 22 Kasım | |
+| MD-16 | `hesap` (ÖG-4, O17) | `hesap.kullanici()` ağsızken süresi dolmuş oturumda "bilinmiyor" dönsün; misafire düşürmesin (oyun şimdi isAuthRetryableFetchError ile çözüyor) | Mahalle 22 Kasım | |
+| MD-17 | `hesap` (ÖG-13, O17) | Paket çağrılarına zaman aşımı; `webDonusunuTamamla` ağsızken hiç dönmüyordu (oyun 3 sn ile kesiyor) | Mahalle 22 Kasım | |
+| MD-18 | `kayit` (not) | 256 KB bulut kaydı tavanı: 1600 seviye ≈ 127 KB + iki yıllık günlük ≈ 100 KB + arşiv aşabilir; aşınca eşitleme durur. Yaklaşınca eski günler bulutta aylık özete çevrilsin | Mahalle 22 Kasım | uzun vade |
