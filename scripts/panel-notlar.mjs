@@ -6,7 +6,7 @@
 //   node scripts/panel-notlar.mjs --gonderildi 12,13   iletilen notları işaretler
 //   node scripts/panel-notlar.mjs --yapildi 12 "sonuç" oturum düzeltince işaretler (sonuç isteğe bağlı, ≤1000)
 //   --test                                             oyun-test projesinde çalışır
-import { execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
 const arg = process.argv.slice(2);
@@ -14,8 +14,7 @@ const deger = (b) => { const i = arg.indexOf(b); return i >= 0 ? arg[i + 1] : un
 const REF = arg.includes('--test') ? 'vbygbyurswjjmiqrhvmo' : 'qzxchutjzhyzzaoxzroh';
 const ORTAK = resolve(import.meta.dirname, '..');
 
-const anahtarlar = JSON.parse(execFileSync('npx', ['--prefix', ORTAK, 'supabase', 'projects', 'api-keys', '--project-ref', REF, '-o', 'json'],
-  { encoding: 'utf8', shell: true, stdio: ['ignore', 'pipe', 'ignore'] }));
+const anahtarlar = JSON.parse(execSync(`npx --prefix "${ORTAK}" supabase projects api-keys --project-ref ${REF} -o json`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
 const KEY = anahtarlar.find((k) => k.name === 'service_role')?.api_key;
 if (!KEY) throw new Error('servis anahtarı alınamadı');
 const URL_ = `https://${REF}.supabase.co/rest/v1/panel_notlar`;
@@ -40,7 +39,7 @@ if (deger('--gonderildi')) {
 } else {
   const hepsi = arg.includes('--hepsi');
   const notlar = await istek(`?select=id,oyun,metin,durum,olusturma,sonuc&order=oyun.asc,olusturma.asc&limit=300${hepsi ? '' : '&durum=eq.yeni'}`);
-  if (!notlar.length) { console.log(hepsi ? 'not yok' : 'yeni not yok'); process.exit(0); }
+  if (!notlar.length) console.log(hepsi ? 'not yok' : 'yeni not yok');
   const gruplar = Object.groupBy(notlar, (n) => n.oyun);
   for (const [oyun, ns] of Object.entries(gruplar)) {
     console.log(`\n## ${oyun} (${ns.length})`);
