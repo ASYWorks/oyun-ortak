@@ -226,6 +226,21 @@ test("nabız: süre yalnız ekrandayken birikir; duraklama sayılmaz; sık nabı
   assert.match((await m.schema("ortak").rpc("nabiz", { p_oyun: "deneme", p_anahtar: anahtar })).error?.message ?? "", /permission denied|JWT|yetki/i);
 });
 
+test("8420 nabız (MD-23): deneme nabızsız açıldıysa ilk nabız açılıştan bu yanki süreyi sayar; 90 sn'den uzunsa duraklama", async () => {
+  const c = istemci();
+  const h = hesapBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
+  const uid = await kaliciGir(h);
+  const s = siralamaBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
+  const kisa = `ilk:${crypto.randomUUID()}`, uzun = `ilk:${crypto.randomUUID()}`;
+  // Oyun denemeyi kendi işleminde (ör. basla) nabızsız açar; ilk nabız 20 sn sonra gelir.
+  await sql`insert into ortak.denemeler (oyun_id, kullanici_id, anahtar, olusturma) values ('deneme', ${uid}, ${kisa}, now() - interval '20 seconds')`;
+  assert.ok(Math.abs((await s.nabiz(kisa)) - 20_000) < 1000, "açılıştan ilk nabza kadar 20 sn sayılır");
+  await sql`insert into ortak.denemeler (oyun_id, kullanici_id, anahtar, olusturma) values ('deneme', ${uid}, ${uzun}, now() - interval '5 minutes')`;
+  assert.ok((await s.nabiz(uzun)) < 1000, "5 dk boşluk süreye eklenmez");
+  const [d] = await sql`select durak_ms from ortak.denemeler where kullanici_id = ${uid} and anahtar = ${uzun}`;
+  assert.ok(Math.abs(Number(d!.durak_ms) - 300_000) < 1500, `duraklama sayılır: ${d!.durak_ms}`);
+});
+
 test("nabız durdur: duraklatma süreye eklenmez; teslimde durdu yok sayılır", async () => {
   const c = istemci();
   const h = hesapBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });

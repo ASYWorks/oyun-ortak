@@ -237,8 +237,10 @@ export function hesapBaslat(a: HesapAyari) {
          * tutulur: ilk deneme okumadan yapılır, sürüm tutmazsa (başka cihaz yazdı) okunur. `acilis()` bulut damgası
          * bilinenle farklıysa belleği düşürür.
          */
-        async birlestir(yerel: T, birlestir: (yerel: T, uzak: T) => Birlesim<T>): Promise<Birlesim<T>> {
+        async birlestir(yerel: T, birlestir: (yerel: T, uzak: T) => Birlesim<T>, secenek: { kim?: string } = {}): Promise<Birlesim<T>> {
           const kim = await oturumKimligi();
+          // MD-24: yerel kayıt hangi hesaba aitse o verilir; oturum arada başka hesaba geçtiyse başkasının kaydına karışmasın.
+          if (secenek.kim !== undefined && secenek.kim !== kim) throw new Error("hesap_degisti");
           for (let i = 0; i < 4; i++) {
             const bilinen = i === 0 && bulutBilinen && bulutBilinen.kim === kim ? bulutBilinen : null;
             const uzak = bilinen ? { veri: bilinen.veri as T, surum: bilinen.surum } : await oku();

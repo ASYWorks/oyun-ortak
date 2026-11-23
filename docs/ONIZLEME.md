@@ -37,7 +37,7 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 4. **Sunucu.** `dogrula-<oyun>` günlük, lig, etkinlik ve düello işlemlerinde `if (!(await c.ozellikAcik("gunluk"))) return c.hata(403, "kapali");` sorar. `ayarlar.bayraklar.kapali`'yı doğrudan okuyan eski kod bu yardımcıya geçer (aynı işlevi sorar).
 5. **Hazır olunca** oyun-ortak oturumuna yaz: "önizlemeye alınabilir". `yayin` ancak o zaman `"onizleme"` yapılır; böylece istemci hazır olmadan özellik kaybolmaz.
 6. **Takvim kaydırma:** günlük üretici ya da yükleyici bir başlangıç tarihi alabilmeli (ör. `--baslangic <yayin_tarihi>`). Komut oyunun belgesinde yazılı olsun; yayın tarihi gelince oyun-ortak oturumu ya da oyun oturumu çalıştırır.
-7. **Yayın günü adımları** oyunun belgesine yazılır: `yayin-temizligi.ts`, oyuna özgü tablolar (varsa), noindex'in kaldırılması (`yayin.json` içinde `dizinlenebilir`), mağaza.
+7. **Yayın günü adımları** oyunun belgesine yazılır: `yayin-temizligi.ts`, oyuna özgü tablolar (varsa), noindex'in kaldırılması (`yayin.json` içinde `dizinlenebilir`), mağaza. **Yayın öncesi kurucuya hatırlatılır:** gizlilik metinlerinde veri sorumlusu şimdilik "ASYWorks" (kurucu 23 Kasım); ASYWorks tüzel kişi değilse KVKK için satır yayından önce kurucuyla yeniden kararlaştırılır.
 8. **Ücretli seviyeler pakette durmaz** (ortak çerçeve §5, satın alma açılmadan önce): pakette yalnız vitrin kalır; vitrin dışı seviyeler `korumali` kovasından `odeme.korumaliIndir` ile hak doğrulanınca iner (Ense, Ezber böyle). Testçi de korumalı yoldan alır. Kova yüklemesi oyun-ortak oturumunda. Önizlemede kilit yalnız istemcidedir; satın alma kapalı olduğu için bu geçici olarak kabul edilir.
 
 ## Testçi örnekleri (kurucu, 22 Kasım)

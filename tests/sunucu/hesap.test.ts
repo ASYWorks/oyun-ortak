@@ -362,3 +362,14 @@ test("silinen hesabın ad kilidi: yeniden açınca ad ve kilit geri gelir, ad ba
   await h2.hesabiSil();
   assert.equal((await sql`select count(*)::int as n from ortak.silinen_adlar where ad = ${ad}`)[0]!.n, 0);
 });
+
+test("MD-24 bulutKaydi.birlestir({ kim }): beklenen hesap değilse yazmaz, hesap_degisti fırlatır", async () => {
+  const k = await kaliciKullanici();
+  const h = yeniHesap();
+  await h.disGiris(() => h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
+  const b = h.bulutKaydi<{ a: number }>();
+  await assert.rejects(b.birlestir({ a: 1 }, (y) => ({ kayit: y }), { kim: crypto.randomUUID() }), /hesap_degisti/);
+  assert.equal(await b.oku(), null, "başka hesabın kaydı yazılmadı");
+  const r = await b.birlestir({ a: 2 }, (y) => ({ kayit: y }), { kim: k.id });
+  assert.deepEqual(r.kayit, { a: 2 }, "doğru hesapla yazar");
+});
