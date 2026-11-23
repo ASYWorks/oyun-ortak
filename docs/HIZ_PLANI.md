@@ -8,7 +8,7 @@ alanında (`hiz/olcum-raporu.md`, `paket-raporu.md`, `astra-son.txt`); özet aş
 
 | Oyun | Hazır | LCP | İlk JS (gz) | Başlıca neden |
 |---|---|---|---|---|
-| Beat Greedy | 11,0 sn | 1,3* | 1.136 KB | tek 1 MB paket, iki 1+ sn uzun görev, canvaskit.wasm 8 MB; **yazı tipi yolları bozuk (webde hiç yüklenmiyor)** |
+| Beat Greedy | yayında 39541ef | BİTTİ 4da8b1c: menü 14,6 → 5,7 sn, ilk JS 1,14 MB → 418 KB, uzun görev 1,5 → 0,46 sn | kurucu 23 Kasım: web 5,6–5,9 sn kabul (H2 istisnası; telefon uygulaması paketi cihazda). ≤4 sn için ayrı hafif web menüsü gerekir, yapılmayacak |
 | Remzle | 5,6 | 5,6 | 185 | Levels açılışında 2,2 sn tek hesaplama; 17 kritik istek; önbellek başlığı yok |
 | Ezber | 2,5 | 4,8 | 134 | 10 karakter görseli (470 KB) aynı anda; menü bayrak cevabını bekliyor |
 | Halka | 3,2 | 1,9 | 141 | gün dizini → seviye JSON zinciri |
