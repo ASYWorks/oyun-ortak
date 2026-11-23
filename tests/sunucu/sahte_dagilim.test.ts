@@ -9,7 +9,7 @@ const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Euro
 const ESKI = gun(-500), YENI = gun(-501); // gerçek günlerle çakışmasın
 const kullanicilar: string[] = [];
 after(async () => {
-  await sql`delete from ortak.denemeler where oyun_id = 'sahte' and anahtar in (${`gunluk:${ESKI}`}, ${`gunluk:${YENI}`}, ${`gunluk:${gun(0)}`})`;
+  // Yalnız bu testin kullanıcıları silinir; denemeleri onlarla gider (ÖG-53: oyunların yerel verisine dokunulmaz).
   if (kullanicilar.length) await sql`delete from auth.users where id in ${sql(kullanicilar)}`;
   await sql.end();
 });
@@ -41,4 +41,11 @@ test("8410 sahte_vaka_dagilim: geçmiş gün, en az 20 bitmiş deneme; bugün bo
   assert.deepEqual((await a.rpc("sahte_vaka_dagilim", { p_gun: YENI })).data, [], "20'den az deneme: boş");
   assert.deepEqual((await a.rpc("sahte_vaka_dagilim", { p_gun: gun(0) })).data, [], "bugün: boş");
   assert.deepEqual((await a.rpc("sahte_vaka_dagilim", { p_gun: gun(1) })).data, [], "yarın: boş");
+  // 8425: dün ancak bölüm açılınca (03:00'ten sonra) döner; geç kabul penceresinde cevap sızmasın.
+  for (let i = 0; i < 20; i++) await deneme(`gunluk:${gun(-1)}`, [karar(0, "sahte")]);
+  const [{ acik }] = await sql`select sahte.bolum_acik(${gun(-1)}::date) as acik`;
+  const dun = (await a.rpc("sahte_vaka_dagilim", { p_gun: gun(-1) })).data as unknown[];
+  assert.equal(dun.length > 0, acik, "dün yalnız bolum_acik ise döner");
+  const [{ sahteSaat }] = await sql`select extract(hour from now() at time zone 'Europe/Istanbul')::int as "sahteSaat"`;
+  assert.equal(acik, sahteSaat >= 3);
 });
