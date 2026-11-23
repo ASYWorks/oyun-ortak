@@ -26,8 +26,9 @@ const kuru = bayrak('--kuru');
 
 const gizle = (s) => String(s).replace(/eyJ[A-Za-z0-9._-]{20,}/g, '<jwt>').replace(/sb_secret_[A-Za-z0-9_-]+/g, '<gizli>');
 const dur = (m) => { console.error('DURDU: ' + gizle(m)); gunluk({ sonuc: 'durdu', neden: gizle(m) }); process.exit(1); };
+let temizTmp = null; // [KAYNAK, GECICI]: temiz kopya hazır olunca dolar (aşağıda)
 function calis(komut, { cwd = KLASOR, env = {}, sessiz = false, izin = false, stdout = false } = {}) {
-  const tmp = cwd === KAYNAK ? { TEMP: GECICI, TMP: GECICI, TMPDIR: GECICI } : {};
+  const tmp = temizTmp && cwd === temizTmp[0] ? { TEMP: temizTmp[1], TMP: temizTmp[1], TMPDIR: temizTmp[1] } : {};
   const r = spawnSync(komut, { cwd, env: { ...process.env, ...tmp, ...env }, shell: true, encoding: 'utf8', maxBuffer: 64 << 20 });
   const cikti = (r.stdout || '') + (r.stderr || '');
   if (!sessiz) process.stdout.write(gizle(cikti.split('\n').slice(-15).join('\n')) + '\n');
@@ -53,7 +54,7 @@ const KAYNAK = join(IS, 'kaynak'), CIKTI = join(IS, 'cikti'), BOS = join(IS, 'bo
 mkdirSync(KAYNAK, { recursive: true }); mkdirSync(BOS);
 // Her yayının kendi geçici klasörü: Metro gibi derleyiciler önbelleği %TEMP%'te tutar ve eski metni pakete koyabilir
 // (Beat Greedy, 23 Kasım: silinmiş veri sorumlusu satırı önbellekten geldi). Temiz kopyadaki derleme ve e2e bunu kullanır.
-const GECICI = join(IS, 'tmp'); mkdirSync(GECICI);
+const GECICI = join(IS, 'tmp'); mkdirSync(GECICI); temizTmp = [KAYNAK, GECICI];
 console.log(`▸ ${ayar.oyun} ${kayit.commit} → ${IS}`);
 calis(`git archive --format=tar -o "${join(IS, 'k.tar')}" ${tamCommit}`, { sessiz: true });
 calis(`"${join(process.env.SystemRoot, "System32", "tar.exe")}" -xf "${join(IS, 'k.tar')}" -C "${KAYNAK}"`, { sessiz: true });
