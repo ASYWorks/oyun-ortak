@@ -2,11 +2,13 @@
 // istek aynı sonuç), hesap silmede ipucu kayıtları gider.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
-import { istemci, kaliciKullanici, sql, yonetici } from "./yardimci.ts";
+import { gunlukKoru, istemci, kaliciKullanici, sql, yonetici } from "./yardimci.ts";
 
-after(() => sql.end());
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
+// ÖG-53: paylaşılan yerel yığında oyunun yakın gün satırları test sonunda aynen geri konur.
+const geriKoy = await gunlukKoru("ezber", [gun(-1), gun(0), gun(1)]);
+after(async () => { await geriKoy(); await sql.end(); });
 const satir = (g: string, id: string) => ({ gun: g, challenge_id: id, bulmaca: { b: id }, en_kisa: 4, ilk_hamle: { h: 1 }, hedef_beklenti: null, aile: "A", kaynak_sinif: "k", motor_surumu: "1.0.0" });
 // Yerel yığında oyunun gerçek içeriği de olabilir (oyun oturumu yükler): sınanan günler ve test kimlikleri temizlenir.
 const temizle = () => sql.begin(async (t) => { await t`set local ezber.duzeltme = 'evet'`; await t`delete from ezber.gunluk where challenge_id like 'test-%' or gun between ${gun(-1)}::date and ${gun(1)}::date`; });

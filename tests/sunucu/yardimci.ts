@@ -92,15 +92,16 @@ export async function adVer(id: string, oyun = "deneme") {
  * Oyun günlük tablosunun verilen günlerini saklar; dönen işlev testten sonra aynen geri koyar. Testler dün/yarın satırlarını
  * silip yeniden yazıyor; geri konmazsa yerel yığında oyun oturumlarının yüklediği içerik kaybolur (İfade bulgusu, 22 Kasım).
  */
-export async function gunlukKoru(sema: string, gunler: string[]): Promise<() => Promise<void>> {
-  if (!/^[a-z]+$/.test(sema)) throw new Error("şema adı");
-  const satirlar = await sql.unsafe(`select coalesce(jsonb_agg(to_jsonb(g)), '[]'::jsonb) as j from ${sema}.gunluk g where gun = any($1::date[])`, [gunler]);
+export async function gunlukKoru(sema: string, gunler: string[], { tablo = "gunluk", kolon = "gun" } = {}): Promise<() => Promise<void>> {
+  if (![sema, tablo, kolon].every((a) => /^[a-z_]+$/.test(a))) throw new Error("ad");
+  const yer = `${sema}.${tablo}`;
+  const satirlar = await sql.unsafe(`select coalesce(jsonb_agg(to_jsonb(g)), '[]'::jsonb) as j from ${yer} g where ${kolon} = any($1::date[])`, [gunler]);
   const json = satirlar[0]!.j;
   return async () => {
     await sql.begin(async (t) => {
       await t.unsafe(`set local ${sema}.duzeltme = 'evet'`);
-      await t.unsafe(`delete from ${sema}.gunluk where gun = any($1::date[])`, [gunler]);
-      await t.unsafe(`insert into ${sema}.gunluk select * from jsonb_populate_recordset(null::${sema}.gunluk, $1::jsonb)`, [json]);
+      await t.unsafe(`delete from ${yer} where ${kolon} = any($1::date[])`, [gunler]);
+      await t.unsafe(`insert into ${yer} select * from jsonb_populate_recordset(null::${yer}, $1::jsonb)`, [json]);
     });
   };
 }

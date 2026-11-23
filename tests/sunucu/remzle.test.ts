@@ -2,11 +2,13 @@
 // yükleme kuralları (eksik satır eklenir; var olan yalnız gelecekte ve sürüm farklıysa güncellenir).
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
-import { istemci, sql, yonetici } from "./yardimci.ts";
+import { gunlukKoru, istemci, sql, yonetici } from "./yardimci.ts";
 
-after(() => sql.end());
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
+// ÖG-53: paylaşılan yerel yığında oyunun yakın gün satırları test sonunda aynen geri konur.
+const geriKoy = await gunlukKoru("remzle", [gun(-1), gun(0), gun(1)], { tablo: "gunluk_anahtar" });
+after(async () => { await geriKoy(); await sql.end(); });
 const oz = (c: string) => c.repeat(64).slice(0, 64);
 const satir = (g: string, k: number, c: string) => ({ gun: g, katman: k, cevap_ozet: oz(c), ipuclari: ["a", "b", "c"], zorluk: 2, gosterim: { k, c } });
 const temizle = (gunler: string[]) => sql.begin(async (t) => { await t`set local remzle.duzeltme = 'evet'`; await t`delete from remzle.gunluk_anahtar where gun = any(${gunler})`; });
