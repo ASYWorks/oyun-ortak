@@ -42,6 +42,7 @@ Betik `git archive <commit>` ile temiz kopyadan derler. Yerel `dist`, `.env.loca
 - `ortamSil`: derlemede tanımsız olması gereken değişkenler (Ezber'de `EZBER_TEST_KIPI` gibi).
 - `adres`: alan adı `https://<pages>.asyworks.com` değilse.
 - `supabaseSunucuda: true`: istemci Supabase adresini kendi sunucusundan alıyorsa (Sticky Ten); "canlı adres pakette" denetimi atlanır, test adresi yasağı sürer.
+- **ortak-sunucu adresi** (`supabase/functions/*/deno.json`): raw.githubusercontent adresi sürüm etiketinin **commit kimliğiyle** sabitlenir (`git rev-parse v0.x.y^{commit}`), etiketle değil: etiket taşınırsa sonraki --islev incelenmemiş kodu alır (Koz 23 Kasım). Denetimin sunucu_surum sütunu ikisini de kabul eder; etiketli oyunlar sonraki --islev yayınında commit'e geçer.
 - `sunucusuz: true`: oyunun arka ucu yok (Hop Koala); "canlı adres pakette" denetimi atlanır.
 - `baglantilar`: çalışma alanı paketlerinin kendi node_modules klasörleri (ör. `["apps/mobile/node_modules"]`, pnpm monorepo). Temiz kopyada depodaki aynı klasöre bağlanır, çıkışta kaldırılır. Derleyici önbelleği için her yayın kendi geçici klasörünü (TEMP) kullanır.
 - `dizinlenebilir: true`: yalnız yayın gününden sonra (noindex denetimini kapatır).
