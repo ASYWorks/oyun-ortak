@@ -70,7 +70,7 @@ Akış: oyun Faz 1'i yayınlar → oyun-ortak canlıda yeniden ölçer (yöntem 
 | Beat Greedy | yayında 39541ef (yazı tipi düzeldi, wasm immutable) | Faz 3 verildi (karo görselleri, wasm LAZY, asyncRoutes, tek dil, useFrameSize) | ara hedef ilk JS ≤400–500 KB, menü ≤4–5 sn |
 | Koz | yayında 5e9d79e (FCP 2,5 → 1,0 sn; SW kabuk 22 dosya 1,1 MB) | yayında 2bcf980 (ilk JS 199 → 127 KB, zincir derinliği 1) | dil dosyası görevi verildi |
 | Ezber | yayında 4cad6b8 (LCP 7,3 → 3,2 sn, menü 3,3 sn) | yayında cc44f08 (ana.js 116 → 57 KB; 562 ms gecikmede LCP 2,6 sn) | BİTTİ; dil hazırlığı yayında (8784a50) |
-| Kapı | yayında 27866b1 (menü ~110 ms, immutable, harita geçişi 184 → 64 ms) | verildi (istemci dinamik import) | dil dosyası yayında (529 anahtar) |
+| Kapı | yayında 27866b1 (menü ~110 ms, immutable, harita geçişi 184 → 64 ms) | yayında 46e5f2a (ilk JS 117 → 62 KB, menü ~75 ms) | BİTTİ; dil dosyası yayında (529 anahtar) |
 | Remzle, Ense, Sahte, Halka, İfade, Hop Koala | BEKLİYOR | — | kurucu 23 Kasım: 4 oyun (BG, Koz, Ezber, Kapı) bitince dur, başka oyuna geçme; yeni karar beklenir |
 | Mahalle | şablon | ince istemci pilotu | dil dosyası görevi kurucu çalışması bitince |
 Ortak kütüphane (oyun-ortak): çevrimiçi istemciyi ilk çizimden sonra yükleyen yardımcı + ince istemci (Faz 2) henüz başlamadı.
