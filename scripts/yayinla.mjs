@@ -27,7 +27,8 @@ const kuru = bayrak('--kuru');
 const gizle = (s) => String(s).replace(/eyJ[A-Za-z0-9._-]{20,}/g, '<jwt>').replace(/sb_secret_[A-Za-z0-9_-]+/g, '<gizli>');
 const dur = (m) => { console.error('DURDU: ' + gizle(m)); gunluk({ sonuc: 'durdu', neden: gizle(m) }); process.exit(1); };
 function calis(komut, { cwd = KLASOR, env = {}, sessiz = false, izin = false, stdout = false } = {}) {
-  const r = spawnSync(komut, { cwd, env: { ...process.env, ...env }, shell: true, encoding: 'utf8', maxBuffer: 64 << 20 });
+  const tmp = cwd === KAYNAK ? { TEMP: GECICI, TMP: GECICI, TMPDIR: GECICI } : {};
+  const r = spawnSync(komut, { cwd, env: { ...process.env, ...tmp, ...env }, shell: true, encoding: 'utf8', maxBuffer: 64 << 20 });
   const cikti = (r.stdout || '') + (r.stderr || '');
   if (!sessiz) process.stdout.write(gizle(cikti.split('\n').slice(-15).join('\n')) + '\n');
   if (r.status !== 0 && !izin) dur(`${komut.split(' ').slice(0, 4).join(' ')} … çıkış ${r.status}\n${cikti.slice(-1500)}`);
@@ -50,6 +51,9 @@ const adres = ayar.adres ?? `https://${ayar.pages}.asyworks.com`;
 const IS = join(tmpdir(), 'oyun-yayin', `${ayar.oyun}-${Date.now().toString(36)}`);
 const KAYNAK = join(IS, 'kaynak'), CIKTI = join(IS, 'cikti'), BOS = join(IS, 'bos');
 mkdirSync(KAYNAK, { recursive: true }); mkdirSync(BOS);
+// Her yayının kendi geçici klasörü: Metro gibi derleyiciler önbelleği %TEMP%'te tutar ve eski metni pakete koyabilir
+// (Beat Greedy, 23 Kasım: silinmiş veri sorumlusu satırı önbellekten geldi). Temiz kopyadaki derleme ve e2e bunu kullanır.
+const GECICI = join(IS, 'tmp'); mkdirSync(GECICI);
 console.log(`▸ ${ayar.oyun} ${kayit.commit} → ${IS}`);
 calis(`git archive --format=tar -o "${join(IS, 'k.tar')}" ${tamCommit}`, { sessiz: true });
 calis(`"${join(process.env.SystemRoot, "System32", "tar.exe")}" -xf "${join(IS, 'k.tar')}" -C "${KAYNAK}"`, { sessiz: true });
