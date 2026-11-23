@@ -63,6 +63,7 @@ Testçi hesabında seviyeler dışında oyunda bulunan her oyun tipinden en az b
 3. **Testçi her şeyi her an açar.** Testçide vitrin sırası uygulanmaz: bütün ücretsiz seviyeler (ve ücretli seviyeler) her an açılabilir. Günlük, etkinlik, turnuva ve lig örnekleri de her an açıktır (yukarıdaki tablo).
 4. **Yeni arayüz yok.** Testçi yayında kullanılacak ekranları kullanır; ayrı ekran, menü ya da düğme eklenmez. Kilit ve sıra yalnız açılıp kapanma olarak ayrışır.
 5. **Kademeli açılış (ilk yayın).** Önizleme yapısı ilk yayında da kullanılabilir: yayın `acik` olunca `ayarlar.bayraklar.kapali` listesinde kalan özellikler (ör. etkinlik, lig) oyuncuya kapalı kalır; oyuncu sayısı arttıkça kurucu kararıyla listeden çıkarılır, oyunun yeni sürüm yayınlaması gerekmez. Testçi listeye takılmaz (göç 8360). Bunun için oyun her özelliği ayrı ayrı `bayraklar.kapali`'ya bağlar (istemci ve sunucu), hepsini tek "onizleme" bayrağına bağlamaz.
+6. **Kapalı özellik her zaman hiç yokmuş gibi** (kurucu, 23 Kasım): önizlemede de yayından sonra da `kapali`'daki özelliğin sekmesi, düğmesi ve metni görünmez; adresi açılırsa seviyelere dönülür; ona bağlı alt özellik de kapanır (ör. günlük kapalıysa arşivi). "Kısa süre kapalı" kartı kullanılmaz. Geçici arızada oyuncuya bilgi `bayraklar.duyuru` metniyle verilir. `onizleme` bayrağı yalnız satış kilidini ("Tam sürümde açılacak") ve küçük "Önizleme" işaretini yönetir, özellik gizlemeyi değil.
 
 ## İstisna: Hop Koala
 
