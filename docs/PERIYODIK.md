@@ -48,6 +48,7 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
 | Halka (günlük) | 2027-11-30 | ~373 | `npm run daily` + `node scripts/upload_daily.ts` (+ KV: `scripts/kenar_kv.ts`) |
 | Beat Greedy | 2027-11-13 | ~356 | `pnpm levelgen upload --from … --days N` (DAILY_SEED_SECRET gerekir) |
 | Ense | 2028-02-28 | 463 | `node tools/gunluk-yukle.ts --baslangic <yayin_tarihi>` kuru varsayılan, yazmak için `--yaz` (23 Kasım; --baslangic içeriğin 1. günü, pazartesi değilse uyarır); tampon: `npm run tampon -- --baslangic <yayin_tarihi>` (ENSE_SUPABASE_URL, ENSE_SERVICE_KEY). Ense kuralı L-4: 183 gün kala yeni yıl üretilir (~2027-08-29). Havuz yeniden üretilip yüklenince `node tools/gunluk-referans.ts` + Pages yayını (ölçü puanları) |
+| Mahalle | 2027-11-10 | 352 | `npx tsx tools/gunluk-yukle.ts [--karsilastir <son yüklenen commit>] --yaz` (MAHALLE_SUPABASE_URL, MAHALLE_SERVICE_KEY). Yükleme temiz kopyadan (git archive); `--karsilastir` git ister, kuru karşılaştırmayı depo kopyasında koş (temiz kopyada ref okunamazsa araç artık durur, 23 Kasım). Son yükleme 3a05ddf |
 | Sahte Masası | 2027-05-19 | 178 | `node scripts/yukle.mjs` (haftalık parti; oyun oturumunda "Haftalık parti" komutu) |
 | Remzle | 2027-12-26 | 399 | `npx tsx scripts/anahtar-yukle.ts` (REMZLE_* + pepper) |
 | Ezber Bozan | 2027-11-20 | 363 | `node tools/gunluk-yukle.ts` (EZBER_SUPABASE_URL, EZBER_SERVICE_KEY) |
