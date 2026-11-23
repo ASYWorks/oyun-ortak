@@ -63,7 +63,8 @@ for (const [klasor, id] of OYUNLAR) {
   const yayinTarihi = src.some((s) => iceren(s, /\.(ts|tsx|js|svelte|vue)$/, /yayin_tarihi/));
   const docs = tumDosyalar(join(d, 'docs'), /\.md$/).map(oku).join('\n') + oku(join(d, 'CLAUDE.md'));
   const yayinGunu = /yayin-temizligi|yayın günü/i.test(docs);
-  const korumali = /korumali|korumalı/i.test(docs);
+  // Ücretli içerik ya korumali kovasından ya da hak denetimli sunucu işleminden (Ezber: dogrula-ezber "icerik") iner.
+  const korumali = /korumali|korumalı/i.test(docs) || !!iceren(fnDir, /\.ts$/, /hakki_var|islem === "icerik"/);
   const c = id ? canli[id] : undefined;
   const istisna = ISTISNA_ONIZLEME.has(klasor);
   satirlar.push({
