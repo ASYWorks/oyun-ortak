@@ -68,7 +68,7 @@ Akış: oyun Faz 1'i yayınlar → oyun-ortak canlıda yeniden ölçer (yöntem 
 | Oyun | Faz 1 | Faz 2 | Not |
 |---|---|---|---|
 | Beat Greedy | yayında 39541ef (yazı tipi düzeldi, wasm immutable) | Faz 3 verildi (karo görselleri, wasm LAZY, asyncRoutes, tek dil, useFrameSize) | ara hedef ilk JS ≤400–500 KB, menü ≤4–5 sn |
-| Koz | verildi (ilk ekran beklemesin, preload, SW kabuk) | — | sonra dil dosyası görevi |
+| Koz | yayında 5e9d79e (FCP 2,5 → 1,0 sn; SW kabuk 22 dosya 1,1 MB) | verildi (React.lazy kod bölme, istemci dinamik import) | sonra dil dosyası görevi |
 | Ezber | yayında 4cad6b8 (LCP 7,3 → 3,2 sn, menü 3,3 sn) | verildi (oturum/hak beklemesi, istemci dinamik import) | dil hazırlığı yayında (8784a50) |
 | Kapı | verildi (menü beklemesi, immutable, harita geçişi) | — | dil dosyası işi de sürüyor |
 | Remzle, Ense, Sahte, Halka, İfade, Hop Koala | sırada | — | 2–3'er oturum |
