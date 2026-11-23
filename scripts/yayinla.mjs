@@ -7,9 +7,9 @@
 // Oyun deposunda yayin.json gerekir (biçim: docs/YAYIN.md). Gizli değerler ekrana ve dosyaya yazılmaz.
 // Her yayın ~/.oyun-ortak/yayin-gunlugu.jsonl dosyasına bir satır yazar; oyun-ortak oturumu son kontrolü buradan yapar.
 import { spawnSync } from 'node:child_process';
-import { appendFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { appendFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 
 const ORTAK = resolve(import.meta.dirname, '..');
 const PANEL = resolve(ORTAK, '../panel');
@@ -32,7 +32,15 @@ function calis(komut, { cwd = KLASOR, env = {}, sessiz = false, izin = false, st
   const r = spawnSync(komut, { cwd, env: { ...process.env, ...tmp, ...env }, shell: true, encoding: 'utf8', maxBuffer: 64 << 20 });
   const cikti = (r.stdout || '') + (r.stderr || '');
   if (!sessiz) process.stdout.write(gizle(cikti.split('\n').slice(-15).join('\n')) + '\n');
-  if (r.status !== 0 && !izin) dur(`${komut.split(' ').slice(0, 4).join(' ')} … çıkış ${r.status}\n${cikti.slice(-1500)}`);
+  if (r.status !== 0 && !izin) {
+    // Tam çıktı iş klasörüne yazılır (BG 23 Kasım: aralıklı düşmenin nedeni ekranda görünmüyordu). r.error: ENOBUFS, zaman aşımı vb.
+    let yol = '';
+    if (temizTmp) {
+      yol = join(dirname(temizTmp[1]), 'durdu.log');
+      writeFileSync(yol, gizle(`$ ${komut}\ncwd: ${cwd}\nçıkış: ${r.status} ${r.error ? r.error.message : ''}\n\n${cikti}`));
+    }
+    dur(`${komut.slice(0, 160)} … çıkış ${r.status}${r.error ? ` (${r.error.message})` : ''}${yol ? `\ntam çıktı: ${yol}` : ''}\n${cikti.slice(-1500)}`);
+  }
   return stdout ? r.stdout || '' : cikti;
 }
 const envOku = (ad) => Object.fromEntries(readFileSync(join(GIZLI, ad), 'utf8').split(/\r?\n/).filter((l) => /^[A-Z_]+=/.test(l)).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1).trim()]));
