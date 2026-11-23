@@ -53,13 +53,18 @@ Kaynak: 22 Kasım 2026 envanteri (oyunların LIVEOPS, PUAN, CLAUDE.md belgeleri 
 
 Sağlık betiği şimdilik yalnız Halka ve Beat Greedy'yi denetler; diğer dördü panele eklenecek.
 
+## Puan v3 kontrolü (23 Kasım'dan; önizlemede yalnız testçi teslimi)
+
+- Beat Greedy: ilk Keşif tesliminde skor ayrıntısında formul 3 (göç 8430 ve istemci POINTS_V3_FROM 2026-11-23 birlikte).
+- Ezber (74cbca3): dökümde "deneme" kalemi var, hız ödülü kalemi yok; ikincil = (deneme − 1) × 3600 + saniye; kayıp ya da baştan başlatma `yeniden` işlemini çağırır.
+
 ## Tarihli işler
 
 | Tarih | İş |
 |---|---|
 | 29 Kasım 2026 | Remzle ilk haftalık rapor. (BG submit_attempt 22 Kasım yayınlandı, v3 hazır) |
 | 23 Kasım 2026 | Koz albüm sezonu 2027-1 başlar (görseller yer tutucuyla). (Kapı yayını 22 Kasım akşamı kurucu onayıyla yapıldı, Kapı önizlemede.) |
-| 30 Kasım 2026 | Beat Greedy puan v3 başlar: o günün ilk Keşif tesliminde skor ayrıntısında formul 3 olmalı. Halka ilk gerçek etkinlik (hafta-2026-11-30): dogrula-halka 409/422 ve basla pencere 409 (30 Kasım'da sıfıra inmeli), halka.etkinlik_cozumler, ortak.oduller'de rozet-etkinlik-hafta-2026-11-30 ilk kez 5. çözümde ve yalnız kaynak='sunucu' (değilse odul_kaydet delinmiş), halka_turnuva_dosya('hafta-2026-11-30-1') 29 Kasım null / 30 Kasım dolu, bilet exp 2026-12-06T21:00Z, kenar 503 ~0. ~~Gündüz yy1-halka.ts kuru koşu~~ (YY-1 yayınla birlikte ertelendi) (etkinlik çözümlerine ve rozetlere dokunmadığını doğrula), gece kurucu onayıyla uygula (Halka yayını 1 Aralık, src/presets.ts LAUNCH). Ezber puan v3 kendiliğinden başlar: ilk teslimlerde döküm "deneme" kalemini taşır, `ikincil` = deneme × 3600 + saniye, hız ödülü kalemi yok; kayıp ya da baştan başlatma `yeniden` çağırır. Sorunda geri dönüş `puan/puan.ts` SURUM_BASLANGIC (oyun oturumu). Halka etkinliğini izle |
+| 30 Kasım 2026 | (BG ve Ezber puan v3 kurucu kararıyla 23 Kasım'a alındı; kontrolleri aşağıda "Puan v3 kontrolü".) Halka ilk gerçek etkinlik (hafta-2026-11-30): dogrula-halka 409/422 ve basla pencere 409 (30 Kasım'da sıfıra inmeli), halka.etkinlik_cozumler, ortak.oduller'de rozet-etkinlik-hafta-2026-11-30 ilk kez 5. çözümde ve yalnız kaynak='sunucu' (değilse odul_kaydet delinmiş), halka_turnuva_dosya('hafta-2026-11-30-1') 29 Kasım null / 30 Kasım dolu, bilet exp 2026-12-06T21:00Z, kenar 503 ~0. ~~Gündüz yy1-halka.ts kuru koşu~~ (YY-1 yayınla birlikte ertelendi) (etkinlik çözümlerine ve rozetlere dokunmadığını doğrula), gece kurucu onayıyla uygula (Halka yayını 1 Aralık, src/presets.ts LAUNCH). ~~Ezber puan v3 kendiliğinden başlar~~ (23 Kasım'a alındı): ilk teslimlerde döküm "deneme" kalemini taşır, `ikincil` = deneme × 3600 + saniye, hız ödülü kalemi yok; kayıp ya da baştan başlatma `yeniden` çağırır. Sorunda geri dönüş `puan/puan.ts` SURUM_BASLANGIC (oyun oturumu). Halka etkinliğini izle |
 | ~~1 Aralık 2026~~ | Halka yayını **ertelendi** (kurucu 22 Kasım: Halka da önizleme planına uyar, tarih sarkabilir; docs/ONIZLEME.md). Yayın tarihi belli olunca ayarlar.yayin_tarihi, takvim kaydırma, YY-1 (yy1-halka.ts) ve yayin-temizligi.ts o güne göre. Kış sezonu ve yılbaşı etkinliği takvimi de yayın tarihine göre yeniden bağlanır |
 | 7 Aralık 2026 | Remzle K1 rotasyonu ve kasa ailesi başlar (içerik canlıda yüklü). Kontrol: (a) sifre-burosu'da `npm run preview -- 2026-12-07` K1 motorunu ve K3 kural metnini yazdırır, canlıyla aynı olmalı; (b) gün içinde PostHog'da o günün `katman_acildi`/`katman_yanlis` oranı önceki 7 günle kıyas, K1'de belirgin artış varsa kurucuya bildir. Yeni K1 motorları (Polybius, Tuş Takımı, Afin, Klavye, İkili Kod, Domuz Ağılı) ilk iki hafta haftalık raporun "Motor bazında" tablosundan izlenir |
 | 21 Aralık 2026 | Halka yılbaşı etkinliği 21 Aralık – 3 Ocak (takvimde hazır) |
