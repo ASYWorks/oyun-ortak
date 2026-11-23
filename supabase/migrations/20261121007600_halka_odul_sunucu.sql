@@ -3,7 +3,7 @@
 -- ödülleri istemciden sessizce atlar (eski istemci kırılmaz). Halka: desen-, cerceve-, rozet-etkinlik-, rozet-usta-.
 -- Bağlama ödülü kuralı (7300) aynen kalır.
 
--- HK-23 (Serdar 21 Kasım 2026, "hata kalmasın"): ödüller sunucuda (docs/inceleme/ODUL_SUNUCU.md). Göçü oyun-ortak uygular;
+-- HK-23 (kurucu 21 Kasım 2026, "hata kalmasın"): ödüller sunucuda (docs/inceleme/ODUL_SUNUCU.md). Göçü oyun-ortak uygular;
 -- hk22'den ve oyun-ortak 20261120005100 (turnuva %5) ile 20261120007000'den (gonderim_bayraklar) sonra. Yalnız halka.* ve
 -- public.halka_*. Testi: halka-kelime tests/sql.test.ts "hk23". Uygulanmadı.
 --
