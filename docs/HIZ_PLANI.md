@@ -67,7 +67,7 @@ Akış: oyun Faz 1'i yayınlar → oyun-ortak canlıda yeniden ölçer (yöntem 
 `scripts/hiz-olc.mjs` olarak alınacak) → ölçüm iyiyse ve oturum açıksa Faz 2 aynı oturuma verilir → bitince oturum kapatılır.
 | Oyun | Faz 1 | Faz 2 | Not |
 |---|---|---|---|
-| Beat Greedy | yayında 39541ef (yazı tipi düzeldi, wasm immutable) | Faz 3 verildi (karo görselleri, wasm LAZY, asyncRoutes, tek dil, useFrameSize) | ara hedef ilk JS ≤400–500 KB, menü ≤4–5 sn |
+| Beat Greedy | yayında 39541ef (yazı tipi düzeldi, wasm immutable) | Faz 3 adım 1–5 yayında (3fcf48a): menü 11 → 6 sn, ilk JS 1,14 MB → 459 KB; son tur verildi (tek dil, art haritası, svg, useFrameSize) | ≤4 sn için Expo tabanı/Vite prototipi kurucu kararı |
 | Koz | yayında 5e9d79e (FCP 2,5 → 1,0 sn; SW kabuk 22 dosya 1,1 MB) | yayında 2bcf980 (ilk JS 199 → 127 KB, zincir derinliği 1) | dil dosyası görevi verildi |
 | Ezber | yayında 4cad6b8 (LCP 7,3 → 3,2 sn, menü 3,3 sn) | yayında cc44f08 (ana.js 116 → 57 KB; 562 ms gecikmede LCP 2,6 sn) | BİTTİ; dil hazırlığı yayında (8784a50) |
 | Kapı | yayında 27866b1 (menü ~110 ms, immutable, harita geçişi 184 → 64 ms) | yayında 46e5f2a (ilk JS 117 → 62 KB, menü ~75 ms) | BİTTİ; dil dosyası yayında (529 anahtar) |
