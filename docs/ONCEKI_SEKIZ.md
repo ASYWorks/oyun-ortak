@@ -82,7 +82,7 @@ Halka Kelime, Beat Greedy, Sticky Ten, Hop Koala, Ense Nasıl Olsun?, Sahte Masa
 ### Ezber Bozan
 - Ücretli içerik korumalı kovada.
 - A17 istisnaları sürer:
-  - misafir günlüğü oynar, sıralamaya girmez;
+  - ~~misafir günlüğü oynar~~ (kurucu 23 Kasım: istisna kaldırıldı, günlük yalnız hesapla);
   - arşiv yalnız tam açılımla açılır.
 - Puan v3 30 Kasım'da başlar.
 - Lig sezonu bitince inis_orani için göç yazılır.
