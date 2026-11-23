@@ -143,7 +143,8 @@ if (!/Deployment complete/.test(yukle)) dur('Pages yüklemesi başarısız:\n' +
 
 // 8) Canlı doğrulama: yeni index'in betikleri canlıda
 const yerelIndex = existsSync(join(CIKTI, 'index.html')) ? readFileSync(join(CIKTI, 'index.html'), 'utf8') : '';
-const betikler = [...yerelIndex.matchAll(/(?:src|href)="(\/?assets\/[^"]+\.js)"/g)].map((m) => m[1]);
+// Vite /assets/, Next.js /_next/static/ (Hop Koala); index'teki betiklerin hepsi canlı sayfada olmalı.
+const betikler = [...yerelIndex.matchAll(/(?:src|href)="(\/?(?:assets|_next\/static)\/[^"]+\.js)"/g)].map((m) => m[1]);
 let dogru = false;
 for (let i = 0; i < 6 && !dogru; i++) {
   try { const r = await fetch(adres + '/', { headers: { 'cache-control': 'no-cache' } }); const t = await r.text(); dogru = r.ok && betikler.every((b) => t.includes(b)); } catch {}
