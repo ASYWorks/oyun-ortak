@@ -244,9 +244,9 @@ test("PU-8 + PU-7 b/e/f: puan ayarı Pazartesi kuralı; tablolar kapıdan önce 
   const kal = await sql`select * from sezgi.kalibrasyon(now() - interval '1 hour', now() + interval '1 hour') where game = ${"pu" + n} and day = '2031-01-06'`;
   assert.equal(Number(kal[0]!.oyuncu), 2);
 
-  // puan sürüm 3: kapı açıkken ilk kayıt kalıcı, geçmese de (daha iyisi yazılmaz); kapı kapalıyken en iyisi
-  assert.equal((await sql`select sezgi.puan_v3('2026-11-29') as v`)[0]!.v, false);
-  assert.equal((await sql`select sezgi.puan_v3('2026-11-30') as v`)[0]!.v, true);
+  // puan sürüm 3 (kapı 23 Kasım, göç 8430): kapı açıkken ilk kayıt kalıcı, geçmese de (daha iyisi yazılmaz); kapı kapalıyken en iyisi
+  assert.equal((await sql`select sezgi.puan_v3('2026-11-22') as v`)[0]!.v, false);
+  assert.equal((await sql`select sezgi.puan_v3('2026-11-23') as v`)[0]!.v, true);
 
   await bulmacaSil((tx) => tx`delete from sezgi.daily_puzzles where id in (${eski}, ${yeni})`);
   await sql.begin(async (t) => { await t`set local ortak.puan_ayar_serbest = 'acik'`; await t`delete from ortak.puan_ayar where oyun_id = 'sezgi'`; });
