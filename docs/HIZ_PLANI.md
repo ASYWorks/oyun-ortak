@@ -61,3 +61,16 @@ Supabase ince istemcisi ölçülmüş −28 KB gzip (yavaş 4G'de ~140 ms); değ
 ## Sıra ve bellek
 Oyun oturumları bellek durumuna göre 2–3'er açılır (kurucu kuralı). Faz 1 sırası: Beat Greedy (hata) + Koz, sonra Ezber + Remzle,
 sonra Kapı + Ense + Sahte, sonra Halka + İfade + Hop Koala (önbellek). Faz 2'nin ortak kütüphane işi oyun-ortak'ta paralel.
+
+## Durum (23 Kasım akşam; yarıda kalırsa buradan devam)
+Akış: oyun Faz 1'i yayınlar → oyun-ortak canlıda yeniden ölçer (yöntem yukarıda; betik oturum çalışma alanında `hiz/olc.mjs`, kalıcısı
+`scripts/hiz-olc.mjs` olarak alınacak) → ölçüm iyiyse ve oturum açıksa Faz 2 aynı oturuma verilir → bitince oturum kapatılır.
+| Oyun | Faz 1 | Faz 2 | Not |
+|---|---|---|---|
+| Beat Greedy | verildi (yazı tipi hatası, wasm önbelleği, uzun görev teşhisi) | — | teşhis Faz 3'e girdi |
+| Koz | verildi (ilk ekran beklemesin, preload, SW kabuk) | — | sonra dil dosyası görevi |
+| Ezber | verildi (görseller, menü beklemesi, özetli ad + immutable, yazı tipi preload) | — | dil hazırlığı yayında (8784a50) |
+| Kapı | verildi (menü beklemesi, immutable, harita geçişi) | — | dil dosyası işi de sürüyor |
+| Remzle, Ense, Sahte, Halka, İfade, Hop Koala | sırada | — | 2–3'er oturum |
+| Mahalle | şablon | ince istemci pilotu | dil dosyası görevi kurucu çalışması bitince |
+Ortak kütüphane (oyun-ortak): çevrimiçi istemciyi ilk çizimden sonra yükleyen yardımcı + ince istemci (Faz 2) henüz başlamadı.
