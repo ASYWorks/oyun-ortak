@@ -77,7 +77,7 @@ for (const [klasor, id] of OYUNLAR) {
     depo: /github\.com\/ASYWorks\//.test(remote) ? '✓' : '✗',
     paket: istisna ? '–' : (surum === GEREKLI_PAKET ? surum : `✗ ${surum}`),
     sunucu_surum: sunucuSurum,
-    yayin_json: istisna && !yayinJson ? '– (sunucusuz)' : yayinJson ? ((yj.yasakMetin?.length || yj.yasakDosya?.length) ? '✓' : '✓ desen yok') : '✗',
+    yayin_json: yayinJson ? ((yj.yasakMetin?.length || yj.yasakDosya?.length) ? '✓' : '✓ desen yok') : '✗',
     sunucu: istisna ? '–' : (ozellik ? '✓' : '✗'),
     onizleme: istisna ? 'istisna' : (onizleme && testci ? '✓' : '✗'),
     misafir: istisna ? '–' : (misafirBayrak ? '✓' : '✗'),
