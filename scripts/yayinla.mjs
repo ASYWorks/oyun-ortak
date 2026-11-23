@@ -58,8 +58,12 @@ console.log(`▸ ${ayar.oyun} ${kayit.commit} → ${IS}`);
 calis(`git archive --format=tar -o "${join(IS, 'k.tar')}" ${tamCommit}`, { sessiz: true });
 calis(`"${join(process.env.SystemRoot, "System32", "tar.exe")}" -xf "${join(IS, 'k.tar')}" -C "${KAYNAK}"`, { sessiz: true });
 if (!existsSync(join(KLASOR, 'node_modules'))) dur('oyun klasöründe node_modules yok (önce npm ci)');
-process.on('exit', () => spawnSync(`cmd /c rmdir "${join(KAYNAK, 'node_modules')}"`, { shell: true })); // bağlantıyı kaldırır, hedefe dokunmaz
-calis(`cmd /c mklink /J "${join(KAYNAK, 'node_modules')}" "${join(KLASOR, 'node_modules')}"`, { sessiz: true });
+// Kök node_modules ve yayin.json 'baglantilar' (pnpm çalışma alanı paketlerinin kendi node_modules'u, ör. apps/mobile/node_modules)
+// temiz kopyada depodaki aynı klasöre bağlanır (junction); çıkışta bağlantılar kaldırılır, hedefe dokunulmaz.
+const baglantilar = ['node_modules', ...(ayar.baglantilar ?? [])];
+for (const b of baglantilar) if (!/^[A-Za-z0-9_./-]*node_modules$/.test(b) || b.includes('..') || !existsSync(join(KLASOR, b))) dur(`bağlantı yok ya da geçersiz: ${b}`);
+process.on('exit', () => { for (const b of baglantilar) spawnSync(`cmd /c rmdir "${join(KAYNAK, b)}"`, { shell: true }); });
+for (const b of baglantilar) calis(`cmd /c mklink /J "${join(KAYNAK, b)}" "${join(KLASOR, b)}"`, { sessiz: true });
 
 // 2) Anahtarlar (ekrana basılmaz)
 function anahtarlar(ref) {
