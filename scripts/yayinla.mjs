@@ -7,7 +7,7 @@
 // Oyun deposunda yayin.json gerekir (biçim: docs/YAYIN.md). Gizli değerler ekrana ve dosyaya yazılmaz.
 // Her yayın ~/.oyun-ortak/yayin-gunlugu.jsonl dosyasına bir satır yazar; oyun-ortak oturumu son kontrolü buradan yapar.
 import { spawnSync } from 'node:child_process';
-import { appendFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { appendFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 
@@ -159,3 +159,9 @@ for (let i = 0; i < 6 && !dogru; i++) {
 kayit.canliDogru = dogru;
 gunluk({ sonuc: dogru ? 'yayinda' : 'yayinda-dogrulanamadi', adres });
 console.log(dogru ? `✔ YAYINDA: ${adres} (${ayar.oyun} ${kayit.commit}, Pages ${kayit.pagesYayin})` : `⚠ yüklendi ama ${adres} yeni sürümü göstermiyor; oyun-ortak oturumuna yaz`);
+// Başarılı yayının çalışma klasörü silinir (disk dolmasın; 23 Kasım). Önce bağlantılar (junction) kaldırılır, sonra klasör;
+// bağlantı kalırsa silinmez (oyun deposunun node_modules'una dokunulmasın). Durunca ve kuru koşuda klasör inceleme için kalır.
+if (dogru) {
+  for (const b of baglantilar) spawnSync(`cmd /c rmdir "${join(KAYNAK, b)}"`, { shell: true });
+  if (baglantilar.every((b) => !existsSync(join(KAYNAK, b)))) rmSync(IS, { recursive: true, force: true });
+}
