@@ -16,7 +16,10 @@ const OYUNLAR = [
   ['koz-hesabi', 'koz'], ['kapi-ustasi', 'kapi'], ['mahalle-donusumu', 'mahalle'], ['ifade-kati', 'ifade'],
 ];
 const ISTISNA_ONIZLEME = new Set(['minik-oyun-kutusu']);
-const GEREKLI_PAKET = '0.22';
+// Bütün oyunlar ortak kütüphanenin güncel sürümünde olmalı (kurucu 23 Kasım: "sonradan karışmasın"): istemci paketi ve sunucu işlevinin
+// ortak-sunucu adresi bu deponun package.json sürümüne (ya da o etiketin commit'ine) bağlı.
+const GEREKLI_PAKET = JSON.parse(readFileSync(join(ORTAK, 'package.json'), 'utf8')).version;
+const GEREKLI_COMMIT = spawnSync('git', ['-C', ORTAK, 'rev-parse', `v${GEREKLI_PAKET}^{commit}`], { encoding: 'utf8' }).stdout.trim();
 // Bayrakları kendi sunucusundan alan oyun (Sticky: Render sunucusu etkin_bayraklar sorar) paket sürümüne bağlı değil.
 const PAKET_GEREKMEZ = new Set(['sticky-ten']);
 // Oyunda olmayan özellik: Sticky'de günlük takvim ve ücretli seviye yok.
@@ -54,6 +57,8 @@ for (const [klasor, id] of OYUNLAR) {
   const yayinJson = existsSync(join(d, 'yayin.json'));
   const yj = yayinJson ? JSON.parse(oku(join(d, 'yayin.json'))) : {};
   const fnDir = join(d, 'supabase/functions');
+  const pinler = [...new Set(tumDosyalar(fnDir, /deno\.json$/).flatMap((p) => [...oku(p).matchAll(/oyun-ortak\/([^/"]+)\/sunucu\//g)].map((m) => m[1])))];
+  const sunucuSurum = !pinler.length ? '–' : pinler.every((p) => p === `v${GEREKLI_PAKET}` || p === GEREKLI_COMMIT) ? '✓' : `✗ ${pinler.map((p) => p.slice(0, 8)).join(',')}`;
   const ozellik = iceren(fnDir, /\.ts$/, /ozellikAcik|etkin_bayraklar/) || iceren(join(d, 'server'), /\.(ts|js)$/, /etkin_bayraklar/) || iceren(join(d, 'supabase'), /\.sql$/, /etkin_bayraklar/)
     || (id !== null && tumDosyalar(join(ORTAK, 'supabase/migrations'), /\.sql$/).some((p) => oku(p).includes(`etkin_bayraklar('${id}'`)));
   const src = ['src', 'app', 'apps', 'client', 'web'].map((s) => join(d, s));
@@ -70,7 +75,8 @@ for (const [klasor, id] of OYUNLAR) {
   satirlar.push({
     oyun: klasor,
     depo: /github\.com\/ASYWorks\//.test(remote) ? '✓' : '✗',
-    paket: istisna ? '–' : (surum.startsWith(GEREKLI_PAKET) || PAKET_GEREKMEZ.has(klasor) ? surum : `✗ ${surum}`),
+    paket: istisna ? '–' : (surum === GEREKLI_PAKET ? surum : `✗ ${surum}`),
+    sunucu_surum: sunucuSurum,
     yayin_json: istisna && !yayinJson ? '– (sunucusuz)' : yayinJson ? ((yj.yasakMetin?.length || yj.yasakDosya?.length) ? '✓' : '✓ desen yok') : '✗',
     sunucu: istisna ? '–' : (ozellik ? '✓' : '✗'),
     onizleme: istisna ? 'istisna' : (onizleme && testci ? '✓' : '✗'),
