@@ -52,9 +52,17 @@ Testçi hesabında seviyeler dışında oyunda bulunan her oyun tipinden en az b
 | Lig | **Örnek lig görünümü**: testçinin kendi satırı ve dolgu satırları; kademe, çıkış ve iniş bantları görünür. Gerçek lig mantığı ortak testlerle sınanır, örnek lig sunucuya yazmaz |
 | Düello ve benzeri | Varsa bir **örnek düello** |
 
-- Örnekler yalnız `bayraklar.testci` iken görünür (ör. Ayarlar ya da ana menüde "Örnekler"). Sunucuda örnek isteği `await c.testciMi()` ile korunur; testçi olmayana 403.
+- Örnekler yalnız `bayraklar.testci` iken görünür ve **yayında kullanılacak ekranlarda** açılır: örnek etkinlik etkinlik kartında, örnek lig lig ekranında, günlük günlük sekmesinde. Testçiye ayrı bir "Örnekler" ekranı ya da yeni arayüz yapılmaz; amaç yayın ekranlarını denemektir (kurucu, 23 Kasım). Sunucuda örnek isteği `await c.testciMi()` ile korunur; testçi olmayana 403.
 - Örnek skorları gerçek sıralamaya yazılmaz ya da ayrı bir dönem kimliği taşır (ör. `ornek-…`); yayın günü temizliği bunları da siler.
 - Yeni bir oyun tipi eklendiğinde örneği de eklenir.
+
+## Ek kurallar (kurucu, 23 Kasım)
+
+1. **Önizlemede ne kapalı, ne açık.** Sıralamaya giren her şey kapalıdır: günlük, etkinlik, turnuva, lig, sıralama, düello (göç 8360 turnuvayı listeye ekledi). Oyunu öğreten kısımlar açık kalabilir: öğretici, alıştırma, ilk bölümler, sıralamaya yazmayan deneme oyunları.
+2. **Vitrinde zorluk sırası.** Önizlemede oyuncu bir zorluk sınıfının vitrindeki (ücretsiz) seviyelerini bitirmeden sonraki sınıf açılmaz. Sonraki sınıfın ne zaman açılacağını o sınıfın vitrindeki seviye sayısı belirler; ör. sınıf başına 5 ücretsiz seviye varsa 5'i bitince sonraki sınıfın ücretsiz seviyeleri açılır. Oyunun kendi açılma kuralı daha sıkıysa o geçerli.
+3. **Testçi her şeyi her an açar.** Testçide vitrin sırası uygulanmaz: bütün ücretsiz seviyeler (ve ücretli seviyeler) her an açılabilir. Günlük, etkinlik, turnuva ve lig örnekleri de her an açıktır (yukarıdaki tablo).
+4. **Yeni arayüz yok.** Testçi yayında kullanılacak ekranları kullanır; ayrı ekran, menü ya da düğme eklenmez. Kilit ve sıra yalnız açılıp kapanma olarak ayrışır.
+5. **Kademeli açılış (ilk yayın).** Önizleme yapısı ilk yayında da kullanılabilir: yayın `acik` olunca `ayarlar.bayraklar.kapali` listesinde kalan özellikler (ör. etkinlik, lig) oyuncuya kapalı kalır; oyuncu sayısı arttıkça kurucu kararıyla listeden çıkarılır, oyunun yeni sürüm yayınlaması gerekmez. Testçi listeye takılmaz (göç 8360). Bunun için oyun her özelliği ayrı ayrı `bayraklar.kapali`'ya bağlar (istemci ve sunucu), hepsini tek "onizleme" bayrağına bağlamaz.
 
 ## İstisna: Hop Koala
 
