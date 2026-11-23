@@ -67,9 +67,9 @@ Akış: oyun Faz 1'i yayınlar → oyun-ortak canlıda yeniden ölçer (yöntem 
 `scripts/hiz-olc.mjs` olarak alınacak) → ölçüm iyiyse ve oturum açıksa Faz 2 aynı oturuma verilir → bitince oturum kapatılır.
 | Oyun | Faz 1 | Faz 2 | Not |
 |---|---|---|---|
-| Beat Greedy | verildi (yazı tipi hatası, wasm önbelleği, uzun görev teşhisi) | — | teşhis Faz 3'e girdi |
+| Beat Greedy | yayında 39541ef (yazı tipi düzeldi, wasm immutable) | Faz 3 verildi (karo görselleri, wasm LAZY, asyncRoutes, tek dil, useFrameSize) | ara hedef ilk JS ≤400–500 KB, menü ≤4–5 sn |
 | Koz | verildi (ilk ekran beklemesin, preload, SW kabuk) | — | sonra dil dosyası görevi |
-| Ezber | verildi (görseller, menü beklemesi, özetli ad + immutable, yazı tipi preload) | — | dil hazırlığı yayında (8784a50) |
+| Ezber | yayında 4cad6b8 (LCP 7,3 → 3,2 sn, menü 3,3 sn) | verildi (oturum/hak beklemesi, istemci dinamik import) | dil hazırlığı yayında (8784a50) |
 | Kapı | verildi (menü beklemesi, immutable, harita geçişi) | — | dil dosyası işi de sürüyor |
 | Remzle, Ense, Sahte, Halka, İfade, Hop Koala | sırada | — | 2–3'er oturum |
 | Mahalle | şablon | ince istemci pilotu | dil dosyası görevi kurucu çalışması bitince |
