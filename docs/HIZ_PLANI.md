@@ -71,6 +71,6 @@ Akış: oyun Faz 1'i yayınlar → oyun-ortak canlıda yeniden ölçer (yöntem 
 | Koz | yayında 5e9d79e (FCP 2,5 → 1,0 sn; SW kabuk 22 dosya 1,1 MB) | verildi (React.lazy kod bölme, istemci dinamik import) | sonra dil dosyası görevi |
 | Ezber | yayında 4cad6b8 (LCP 7,3 → 3,2 sn, menü 3,3 sn) | verildi (oturum/hak beklemesi, istemci dinamik import) | dil hazırlığı yayında (8784a50) |
 | Kapı | verildi (menü beklemesi, immutable, harita geçişi) | — | dil dosyası işi de sürüyor |
-| Remzle, Ense, Sahte, Halka, İfade, Hop Koala | sırada | — | 2–3'er oturum |
+| Remzle, Ense, Sahte, Halka, İfade, Hop Koala | BEKLİYOR | — | kurucu 23 Kasım: 4 oyun (BG, Koz, Ezber, Kapı) bitince dur, başka oyuna geçme; yeni karar beklenir |
 | Mahalle | şablon | ince istemci pilotu | dil dosyası görevi kurucu çalışması bitince |
 Ortak kütüphane (oyun-ortak): çevrimiçi istemciyi ilk çizimden sonra yükleyen yardımcı + ince istemci (Faz 2) henüz başlamadı.
