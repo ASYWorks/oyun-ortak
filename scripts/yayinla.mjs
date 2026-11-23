@@ -127,6 +127,12 @@ if (icerenler(new RegExp(TEST)).length) hata.push('test Supabase adresi pakette:
 if (icerenler(/eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]*cm9sZSI6InNlcnZpY2Vfcm9sZS/).length) hata.push('servis anahtarı pakette');
 const basliklar = existsSync(join(CIKTI, '_headers')) ? readFileSync(join(CIKTI, '_headers'), 'utf8') : '';
 if (!ayar.dizinlenebilir && !/noindex/i.test(basliklar)) hata.push('_headers noindex yok');
+// Yerel disk yolu pakete sızmasın; wrangler node_modules adlı klasörü yüklemez (BG 23 Kasım: Metro junction yüzünden yazı tipi
+// yolu "__________Projeler/.../node_modules/..." oldu, webde 4 yazı tipi HTML döndü).
+const nmDosya = dosyalar.map(yol).filter((y) => /(^|\/)node_modules\//.test(y));
+if (nmDosya.length) hata.push(`node_modules yolunda dosya (wrangler yüklemez): ${nmDosya.slice(0, 3).join(', ')}`);
+const diskYolu = icerenler(/_{4,}Projeler[\\/]|[A-Za-z]:[\\/]{1,2}Projeler[\\/]|\/Users\/[^/"']+\/AppData\//);
+if (diskYolu.length) hata.push(`yerel disk yolu pakette: ${diskYolu.slice(0, 3).join(', ')}`);
 for (const desen of ayar.yasakMetin ?? []) { const v = icerenler(new RegExp(desen)); if (v.length) hata.push(`yasak metin /${desen}/: ${v.slice(0, 3).join(', ')}`); }
 for (const desen of ayar.yasakDosya ?? []) { const re = new RegExp(desen); const v = dosyalar.map(yol).filter((y) => re.test(y)); if (v.length) hata.push(`yasak dosya /${desen}/: ${v.slice(0, 3).join(', ')}`); }
 for (const desen of ayar.gerekliMetin ?? []) if (!icerenler(new RegExp(desen)).length) hata.push(`gerekli metin yok /${desen}/`);
