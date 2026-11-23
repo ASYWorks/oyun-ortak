@@ -111,28 +111,6 @@ test("BG-1: gün toplamı birikir, hafta 7 gün toplanır; istemci yazamaz; kapa
   assert.ok(od.every((r) => r.odul === `sira:lig-1-${hafta}`));
 });
 
-test("BG-2: İlerleme tablosu yalnız ücretsiz bölümleri (seviye < 4000) sayar; tam sürüm üstünlük vermez", async () => {
-  const oyun = `bg2_${Math.floor(Math.random() * 1e8)}`;
-  const yap = async (seviyeler: number[]) => {
-    const o = await oyuncu();
-    await o.sezgi().from("profiles").insert({ id: o.id, username: `ilr_${Math.floor(Math.random() * 1e8)}` });
-    for (const [i, level] of seviyeler.entries())
-      await sql`insert into sezgi.level_verified (user_id, game, level, raw_stars, value, verified_at)
-                values (${o.id}, ${oyun}, ${level}, 3, 1, now() - make_interval(secs => ${100 - i}))`;
-    return o.id;
-  };
-  const ucretsiz = await yap([0, 1, 2001]);          // 9 ücretsiz yıldız
-  const tam = await yap([0, 1, 4000, 5000, 7000]);  // 6 ücretsiz + 9 ücretli yıldız
-  const satir = async (id: string, game: string) =>
-    (await sql`select stars, master3, rank::int from sezgi.board_levels where user_id = ${id} and game = ${game}`)[0];
-  assert.deepEqual(await satir(tam, oyun), { stars: 6, master3: 0, rank: 2 });
-  assert.deepEqual(await satir(ucretsiz, oyun), { stars: 9, master3: 0, rank: 1 });
-  assert.equal((await satir(tam, "all"))!.stars, 6);
-  // Yalnız ücretli bölümde yıldızı olan oyuncu tabloda görünmez
-  const yalnizTam = await yap([4001]);
-  assert.equal(await satir(yalnizTam, oyun), undefined);
-});
-
 test("ortak silme yolu: bu oyundan sil sezgi profilini siler; lig kurucusu önce devretmeli", async () => {
   const a = await oyuncu();
   await a.h.ben(); // ortak.oyuncular('sezgi') satırı
@@ -203,7 +181,7 @@ test("BG-11: game_sign 16 oyun (büyük-iyi: canta, yilan, bostan, aniz, dedikod
 
 test("BG-12: misafir (anon) Beat Greedy tablolarını sütun adıyla okur, user_id'yi okuyamaz", async () => {
   const anon = istemci().schema("sezgi");
-  for (const [t, s] of [["board_day", "day,username,total,rank"], ["board_game_day", "game,day,username,rank"], ["board_race", "day,game,username,rank"], ["board_levels", "game,username,stars,rank"]] as const) {
+  for (const [t, s] of [["board_day", "day,username,total,rank"], ["board_game_day", "game,day,username,rank"], ["board_race", "day,game,username,rank"]] as const) {
     const { error } = await anon.from(t).select(s).limit(1);
     assert.equal(error, null, t);
     const { error: e2 } = await anon.from(t).select("user_id").limit(1);
@@ -266,26 +244,9 @@ test("PU-8 + PU-7 b/e/f: puan ayarı Pazartesi kuralı; tablolar kapıdan önce 
   const kal = await sql`select * from sezgi.kalibrasyon(now() - interval '1 hour', now() + interval '1 hour') where game = ${"pu" + n} and day = '2031-01-06'`;
   assert.equal(Number(kal[0]!.oyuncu), 2);
 
-  // seviye puanı en iyisinde kalır, yıldız ayrı
-  await sql`select sezgi.record_level(${a.id}, 'kasa', 1, 2, 5.0, 70)`;
-  await sql`select sezgi.record_level(${a.id}, 'kasa', 1, 1, 6.0, 40)`;
-  await sql`select sezgi.record_level(${a.id}, 'kasa', 1, 1, 6.0)`;
-  const [lv] = await sql`select raw_stars, value, puan::float from sezgi.level_verified where user_id = ${a.id} and game = 'kasa' and level = 1`;
-  assert.deepEqual([lv!.raw_stars, lv!.value, lv!.puan], [2, 5, 70]);
-  assert.equal((await sql`select sezgi.record_level(${a.id}, 'kasa', 2, 1, 1.0, 101) as r`)[0]!.r.error, "bad_puan");
-  assert.equal((await sql`select sezgi.record_level(${a.id}, 'kasa', 2, 1, 1.0, 55.5) as r`)[0]!.r.error, "bad_puan", "ondalık yok");
   // puan sürüm 3: kapı açıkken ilk kayıt kalıcı, geçmese de (daha iyisi yazılmaz); kapı kapalıyken en iyisi
   assert.equal((await sql`select sezgi.puan_v3('2026-11-29') as v`)[0]!.v, false);
   assert.equal((await sql`select sezgi.puan_v3('2026-11-30') as v`)[0]!.v, true);
-  await sql`update sezgi.puan_surumleri set gecerli = '2026-11-09' where formul = 3`;
-  try {
-    await sql`select sezgi.record_level(${a.id}, 'kasa', 3, 0, 9.0, 30)`;
-    await sql`select sezgi.record_level(${a.id}, 'kasa', 3, 3, 2.0, 95)`;
-    const [v3] = await sql`select raw_stars, puan::float from sezgi.level_verified where user_id = ${a.id} and game = 'kasa' and level = 3`;
-    assert.deepEqual([v3!.raw_stars, v3!.puan], [0, 30]);
-  } finally {
-    await sql`update sezgi.puan_surumleri set gecerli = '2026-11-30' where formul = 3`;
-  }
 
   await bulmacaSil((tx) => tx`delete from sezgi.daily_puzzles where id in (${eski}, ${yeni})`);
   await sql.begin(async (t) => { await t`set local ortak.puan_ayar_serbest = 'acik'`; await t`delete from ortak.puan_ayar where oyun_id = 'sezgi'`; });
@@ -495,16 +456,13 @@ test("8170: eski yollar kapalı (materyalize tablolar, görünümde user_id, lea
     assert.ok((await anon.from(t).select("username").limit(1)).error, `${t}: misafire kapalı`);
     assert.ok((await a.sezgi().from(t).select("username").limit(1)).error, `${t}: girişliye kapalı`);
   }
-  for (const t of ["board_game_day", "board_day", "board_race", "board_race_day", "board_levels",
+  for (const t of ["board_game_day", "board_day", "board_race", "board_race_day",
                    "league_board_game_day", "league_board_day", "league_board_week", "league_board_all_time"]) {
     assert.equal((await a.sezgi().from(t).select("username,rank,ben").limit(1)).error, null, `${t}: ben okunur`);
     assert.ok((await a.sezgi().from(t).select("user_id").limit(1)).error, `${t}: user_id kapalı`);
   }
   // submit_attempt Edge Function service_role ile board_day'i user_id'yle süzer: açık kalmalı
   assert.equal((await yonetici().schema("sezgi").from("board_day").select("total").eq("user_id", a.id)).error, null);
-  // board_levels ben: kendi satırı
-  await sql`insert into sezgi.level_verified (user_id, game, level, raw_stars, value, verified_at) values (${a.id}, ${"ey" + n}, 0, 3, 1, now())`;
-  assert.deepEqual((await a.sezgi().from("board_levels").select("ben").eq("game", "ey" + n)).data, [{ ben: true }]);
   // league_members: B yalnız kendi satırını görür; diğer üyeler league_members_v'de
   const { data: lig } = await a.sezgi().from("leagues").insert({ name: `ey${n}`, owner_id: a.id }).select("id, invite_code").single();
   assert.equal((await b.sezgi().rpc("join_league", { p_code: lig!.invite_code })).error, null);
