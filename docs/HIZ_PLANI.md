@@ -55,16 +55,18 @@ Supabase ince istemcisi ölçülmüş −28 KB gzip (yavaş 4G'de ~140 ms); değ
     (aynı profil); geçişte ilk geri bildirim ≤100 ms, yerel ekran ≤200 ms; ilk JS 120 KiB (çatısız/Preact) / 150 KiB (React) başlangıç
     hedefi; kritik yazı tipi ≤60 KiB, 0–2 preload; görünür görseller toplam ≤150 KiB; özetli dosyalar immutable; SW zorunlu değil, varsa
     ön önbellek ≤700 KiB; başarısız varlık isteği 0; ÖG-58 ihlali 0.
-13. **Ölçüm ortaklaşır**: canlı ölçüm betiği `scripts/hiz-olc.mjs` olarak oyun-ortak'a alınır; Pazar listesinde ayda bir (ve büyük
-    yayından sonra) bütün sitelerde koşulur, sonuç tabloyla karşılaştırılır.
+13. **Ölçüm ortaklaşır**: canlı ölçüm betiği [scripts/hiz-olc.mjs](../scripts/hiz-olc.mjs). Pazar listesinde ayda bir (ve büyük
+    yayından sonra) bütün sitelerde koşulur, sonuç tabloyla karşılaştırılır. Kullanım: `node scripts/hiz-olc.mjs <site> [tekrar]`.
+    Varsayılan üç koşu. Betik Playwright'ı kullanır; başka bir kurulum için `PLAYWRIGHT_MODULE`, yerel Chrome yolu için `CHROME`
+    verilebilir. Ham JSON, komutun çalıştığı dizine yazılır. Site listesini `--help` gösterir.
 
 ## Sıra ve bellek
 Oyun oturumları bellek durumuna göre 2–3'er açılır (kurucu kuralı). Faz 1 sırası: Beat Greedy (hata) + Koz, sonra Ezber + Remzle,
 sonra Kapı + Ense + Sahte, sonra Halka + İfade + Hop Koala (önbellek). Faz 2'nin ortak kütüphane işi oyun-ortak'ta paralel.
 
 ## Durum (23 Kasım akşam; yarıda kalırsa buradan devam)
-Akış: oyun Faz 1'i yayınlar → oyun-ortak canlıda yeniden ölçer (yöntem yukarıda; betik oturum çalışma alanında `hiz/olc.mjs`, kalıcısı
-`scripts/hiz-olc.mjs` olarak alınacak) → ölçüm iyiyse ve oturum açıksa Faz 2 aynı oturuma verilir → bitince oturum kapatılır.
+Akış: oyun Faz 1'i yayınlar → oyun-ortak [ortak hız betiğiyle](../scripts/hiz-olc.mjs) canlıda yeniden ölçer → ölçüm iyiyse ve
+oturum açıksa Faz 2 aynı oturuma verilir → bitince oturum kapatılır.
 | Oyun | Faz 1 | Faz 2 | Not |
 |---|---|---|---|
 | Beat Greedy | yayında 39541ef (yazı tipi düzeldi, wasm immutable) | Faz 3 adım 1–5 yayında (3fcf48a): menü 11 → 6 sn, ilk JS 1,14 MB → 459 KB; son tur verildi (tek dil, art haritası, svg, useFrameSize) | ≤4 sn için Expo tabanı/Vite prototipi kurucu kararı |
