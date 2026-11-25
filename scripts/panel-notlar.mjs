@@ -41,8 +41,10 @@ if (deger('--gonderildi')) {
   const notlar = await istek(`?select=id,oyun,metin,durum,olusturma,sonuc&order=oyun.asc,olusturma.asc&limit=300${hepsi ? '' : '&durum=eq.yeni'}`);
   if (!notlar.length) console.log(hepsi ? 'not yok' : 'yeni not yok');
   const gruplar = Object.groupBy(notlar, (n) => n.oyun);
+  // Paneldeki kimlik → yerel klasör (oturum.ps1 adı). Eşleşmeyenler aynı ad. genel: bu oturum (oyun-ortak).
+  const KLASOR = { 'beat-greedy': 'sezgi', remzle: 'sifre-burosu', genel: 'oyun-ortak (bu oturum)' };
   for (const [oyun, ns] of Object.entries(gruplar)) {
-    console.log(`\n## ${oyun} (${ns.length})`);
+    console.log(`\n## ${oyun} → ${KLASOR[oyun] ?? oyun} (${ns.length})`);
     for (const n of ns) console.log(`- [${n.id}${hepsi ? ' ' + n.durum : ''}] ${n.olusturma.slice(0, 16).replace('T', ' ')}: ${n.metin.replace(/\s+/g, ' ')}${n.sonuc ? `  → ${n.sonuc}` : ''}`);
   }
 }
