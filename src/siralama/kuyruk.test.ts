@@ -137,7 +137,7 @@ test("D02: cihaz kimliği yüklenirken hesap değişirse kayıt yeni hesapla git
 test("D02: sahipsiz eski kayıt kalıcı hesaba yazılmaz", async () => {
   const { s, sb, kalici } = sahte2();
   const depo = bellekDepo();
-  await depo.yaz("oyun-ortak:gonderim:o", JSON.stringify([{ runId: "eski-1", govde: { x: 0 }, eklendi: 1 }]));
+  await depo.yaz("oyun-ortak:gonderim:o", JSON.stringify([{ runId: "eski-1", govde: { x: 0 }, eklendi: Date.now() }]));
   s.oturum = kalici("B");
   const sir = siralamaBaslat({ supabase: sb as never, oyunId: "o", depo });
   const r = await sir.bosalt();
@@ -216,4 +216,22 @@ test("GC-1: kuyruktaki önceki gönderimin sonucu da işlenir; süren boşaltmay
   await bos;
   assert.equal(r2.bekliyor, false);
   assert.equal(await sir.bekleyenSayisi(), 0);
+});
+
+test("7 günden eski, gönderilemeyen kayıt kuyruktan düşer; taze olan bekler", async () => {
+  const { s, sb } = sahte();
+  const depo = bellekDepo();
+  const eski = Date.now() - 8 * 86_400_000;
+  await depo.yaz("oyun-ortak:gonderim:o", JSON.stringify([
+    { runId: "eski", govde: { x: 1 }, eklendi: eski, kullanici: "A" },
+    { runId: "taze", govde: { x: 2 }, eklendi: Date.now(), kullanici: "A" },
+  ]));
+  s.kullanici = "B";
+  const sir = siralamaBaslat({ supabase: sb as never, oyunId: "o", depo });
+  await sir.bosalt();
+  assert.equal(s.giden.length, 0);
+  assert.equal(await sir.bekleyenSayisi(), 1);
+  s.kullanici = "A";
+  await sir.bosalt();
+  assert.deepEqual(s.giden.map((g) => (g.govde as { runId: string }).runId), ["taze"]);
 });

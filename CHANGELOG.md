@@ -2,6 +2,12 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.23.1 (25 Kasım 2026)
+
+- Skor kuyruğu: 7 günden eski ve gönderilemeyen kayıt (sahibi dönmeyen ya da kalıcı hesapta bekleyen misafir kaydı) kuyruktan düşer.
+- Göç 8450 (D08): ödeme hakkı mağaza işlemine bağlı. Eşzamanlı aynı olay tek kez işlenir. Eski alımın gecikmiş iadesi yeni alıma dokunmaz (`eski_islem`). İadesi önce gelen işlem hak vermez (`iade_edilmis`).
+- **Oyunlar ne yapmalı:** bir şey gerekmez; v0.23.0 ile birlikte bir sonraki işte geçin.
+
 ## v0.23.0 (25 Kasım 2026)
 
 Codex incelemesi (D02, D03, D09, MD-24) ve Opus 5.5 uygulaması.

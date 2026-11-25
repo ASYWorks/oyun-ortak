@@ -143,6 +143,7 @@ export function siralamaBaslat(a: SiralamaAyari) {
   const sb = a.supabase;
   const fn = a.fonksiyon ?? `dogrula-${a.oyunId}`;
   const KEY = `oyun-ortak:gonderim:${a.oyunId}`;
+  const BEKLEME_SINIRI = 7 * 86_400_000;
   let kuyruk: Bekleyen[] | null = null;
   let bosaltiliyor: Promise<GonderimSonucu[]> | null = null;
   let cihaz: string | null = null;
@@ -256,6 +257,12 @@ export function siralamaBaslat(a: SiralamaAyari) {
       const sonuclar: GonderimSonucu[] = [];
       for (const b of [...q]) {
         const r = await cagir(b);
+        if (r.tur === "bekle" && Date.now() - b.eklendi > BEKLEME_SINIRI) {
+          // Sahibi 7 gündür dönmeyen ya da kalıcı hesapta bekleyen misafir kaydı: sunucu kapanmış güne zaten almaz, kuyruk şişmesin.
+          kuyruk = (kuyruk ?? []).filter((x) => x.runId !== b.runId);
+          await sakla();
+          continue;
+        }
         if (r.tur === "bekle" || r.tur === "sustur") continue; // başka hesabın kaydı ya da hesap değişti: kuyrukta bekler
         const bekliyor = yenidenDenenir(r.durum);
         const s = { runId: b.runId, durum: r.durum, veri: r.veri, bekliyor };
