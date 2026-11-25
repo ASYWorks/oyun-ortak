@@ -37,7 +37,7 @@ Push ve yayın her oyunun kendi oturumunda.
 |---|---|---|---|---|---|---|---|---|---|
 | Halka | ✓ 0bb13b5 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 58ec5ee: K5, K6, K7 hataları düzeldi; 3 e2e yarışı (ÖG-57) giderildi |
 | Beat Greedy | ✓ 1aff480 | | | | | | | | K2, K3 hataları düzeldi; 4–8 sürüyor |
-| Sticky Ten | ✓ 57c5d4a | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | 9a1b0cf (yayın kurucu onayı bekliyor): K7 hatası, K8 eksik düzeldi; K5 yok (ad_gerekli yolu yok) |
+| Sticky Ten | ✓ 57c5d4a | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | 9a1b0cf, Pages 929c4da5, Render protokol=1: K7 hatası, K8 eksik düzeldi; K5 yok (ad_gerekli yolu yok) |
 | Hop Koala | | | | | | | | | çevrimiçi bayrak yok; K7 (full_unlock) mağaza paketinde |
 | Ense | ✓ 5f0df88 | | | | | | | | K2, K3 hataları düzeldi |
 | Sahte | ✓ a146f99 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 89b9b47, 071c7a1: K5, K6, K9 hataları düzeldi; K7 yok (ücretli hak yok) |
