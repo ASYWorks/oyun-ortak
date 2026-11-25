@@ -35,7 +35,7 @@ Push ve yayın her oyunun kendi oturumunda.
 
 | Oyun | K1–K3 bayrak | K4 | K5 | K6 | K7 | K8 | K9 | K10 | Not |
 |---|---|---|---|---|---|---|---|---|---|
-| Halka | ✓ 0bb13b5 | | | | | | | | K2 hatası düzeldi; 4–8 sürüyor |
+| Halka | ✓ 0bb13b5 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 58ec5ee: K5, K6, K7 hataları düzeldi; 3 e2e yarışı (ÖG-57) giderildi |
 | Beat Greedy | ✓ 1aff480 | | | | | | | | K2, K3 hataları düzeldi; 4–8 sürüyor |
 | Sticky Ten | ✓ 57c5d4a | | | | | | | | K2 hatası düzeldi |
 | Hop Koala | | | | | | | | | çevrimiçi bayrak yok; K7 (full_unlock) mağaza paketinde |
