@@ -2,6 +2,15 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.23.4 (25 Kasım 2026)
+
+PR #1 ultrareview bulguları (7/7):
+- Sıralama: kalıcı hesabın süresi dolmuş anahtarıyla çevrimdışı gönderilen skor, ağ dönünce o hesapla gider. Önceden kayıt sahipsiz kalıyor, 7 gün sonra sessizce düşüyordu.
+- Hesap: süresi dolan web devir kaydı, girişten vazgeçip misafir kalan oyuncuya ya da başka hesaba "devir başarısız" göstermez.
+- `birlestir`: sunucunun `hesap_degisti` reddi de `KayitHatasi("hesap_degisti")` olarak gelir.
+- Betikler: yayinla.mjs bir günden eski çalışma klasörlerini siler; haftalık rapor ve yapı denetimi CLI'nin iki JSON biçimini okur.
+- **Oyunlar ne yapmalı:** `#v0.23.4`'e geçin. API değişmedi, `sunucu/` değişmedi (`--islev` gerekmez).
+
 ## v0.23.3 (25 Kasım 2026)
 
 - KZ-1: bulut kaydı hataları `KayitHatasi` (`kod`: kayit_cakisma | hesap_degisti | kayit_hesapli_yok). `message` aynı; eski yakalayıcılar bozulmaz.
