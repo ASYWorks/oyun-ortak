@@ -200,8 +200,8 @@ export function hesapBaslat(a: HesapAyari) {
       const r = data as { oyunlar: string[]; skorlar_tasindi: boolean };
       return { devredilen: r.oyunlar, skorlarTasindi: r.skorlar_tasindi };
     }
-    // Kesin ret: kod geçersiz ya da süresi dolmuş. Not: önceki denemenin yanıtı kaybolmuş ve sunucu devri yapmışsa sunucu da
-    // devir_kodu_gecersiz döner; bugünkü sunucu bu iki durumu ayırmaz, bu yüzden başarı sayılmaz (devirBasarisiz).
+    // Kesin ret: kod geçersiz ya da süresi dolmuş. Önceki denemenin yanıtı kaybolmuş ve sunucu devri yapmışsa sunucu aynı
+    // hesaba saklı sonucu döner (göç 8460, devir makbuzu); o durum yukarıda başarı olarak işlenir.
     if (/devir_kodu_gecersiz/.test(String(error.message ?? ""))) await devirSil(k.id);
     return { devredilen: [], devirBasarisiz: true }; // öteki hatalar geçici: kayıt kalır
   }

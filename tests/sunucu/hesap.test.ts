@@ -212,8 +212,14 @@ test("anonim hesap ödül alamaz; devir kodu tek kullanımlık", async () => {
   const kod = await rpc<string>(h.supabase, "devir_kodu_al");
   const k = await kaliciKullanici();
   await h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola });
-  await rpc(h.supabase, "hesap_devral", { p_kod: kod });
-  await assert.rejects(rpc(h.supabase, "hesap_devral", { p_kod: kod }), /devir_kodu_gecersiz/);
+  const ilk = await rpc(h.supabase, "hesap_devral", { p_kod: kod });
+  // 8460 (D03 makbuzu): yanıt kaybolup aynı hesap yeniden çağırırsa ikinci devir olmaz, aynı sonuç döner.
+  assert.deepEqual(await rpc(h.supabase, "hesap_devral", { p_kod: kod }), ilk);
+  // Başka hesap aynı kodu kullanamaz.
+  const b = await kaliciKullanici();
+  const h2 = yeniHesap();
+  await h2.supabase.auth.signInWithPassword({ email: b.eposta, password: b.parola });
+  await assert.rejects(rpc(h2.supabase, "hesap_devral", { p_kod: kod }), /devir_kodu_gecersiz/);
   // kalıcı hesap devir kodu alamaz
   await assert.rejects(rpc(h.supabase, "devir_kodu_al"), /anonim_degil/);
 });

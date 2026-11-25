@@ -2,6 +2,10 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.23.2 (25 Kasım 2026)
+
+- Göç 8460 (D03 sunucu makbuzu): devir yapılıp yanıt kaybolursa aynı hesap aynı kodla yeniden çağırınca aynı sonuç döner (ikinci devir yok). Başka hesap için kod geçersiz. İstemcide değişiklik gerekmez.
+
 ## v0.23.1 (25 Kasım 2026)
 
 - Skor kuyruğu: 7 günden eski ve gönderilemeyen kayıt (sahibi dönmeyen ya da kalıcı hesapta bekleyen misafir kaydı) kuyruktan düşer.
