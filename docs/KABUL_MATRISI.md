@@ -36,7 +36,7 @@ Push ve yayın her oyunun kendi oturumunda.
 | Oyun | K1–K3 bayrak | K4 | K5 | K6 | K7 | K8 | K9 | K10 | Not |
 |---|---|---|---|---|---|---|---|---|---|
 | Halka | ✓ 0bb13b5 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 58ec5ee: K5, K6, K7 hataları düzeldi; 3 e2e yarışı (ÖG-57) giderildi |
-| Beat Greedy | ✓ 1aff480 | | | | | | | | K2, K3 hataları düzeldi; 4–8 sürüyor |
+| Beat Greedy | ✓ 1aff480 | ✓ | – | ✓ | – | ✓* | ✓ | ✓ | 4e8fc3b: K4, K6 hataları düzeldi; K5 yok (ad seçmeden başlamaz), K7 yok (satın alma kapalı); *K8: ücretli seviyeler pakette, satın alma açılmadan korumalı kovaya taşınacak |
 | Sticky Ten | ✓ 57c5d4a | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | 9a1b0cf, Pages 929c4da5, Render protokol=1: K7 hatası, K8 eksik düzeldi; K5 yok (ad_gerekli yolu yok) |
 | Hop Koala | | | | | | | | | çevrimiçi bayrak yok; K7 (full_unlock) mağaza paketinde |
 | Ense | ✓ 5f0df88 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 51645a0: K4, K5, K6, K9 (2), K10 hataları düzeldi; K7 kısmen (satın alma bağlı değil) |
