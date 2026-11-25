@@ -37,13 +37,13 @@ Push ve yayın her oyunun kendi oturumunda.
 |---|---|---|---|---|---|---|---|---|---|
 | Halka | ✓ 0bb13b5 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 58ec5ee: K5, K6, K7 hataları düzeldi; 3 e2e yarışı (ÖG-57) giderildi |
 | Beat Greedy | ✓ 1aff480 | | | | | | | | K2, K3 hataları düzeldi; 4–8 sürüyor |
-| Sticky Ten | ✓ 57c5d4a | | | | | | | | K2 hatası düzeldi |
+| Sticky Ten | ✓ 57c5d4a | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | 9a1b0cf (yayın kurucu onayı bekliyor): K7 hatası, K8 eksik düzeldi; K5 yok (ad_gerekli yolu yok) |
 | Hop Koala | | | | | | | | | çevrimiçi bayrak yok; K7 (full_unlock) mağaza paketinde |
 | Ense | ✓ 5f0df88 | | | | | | | | K2, K3 hataları düzeldi |
 | Sahte | ✓ a146f99 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 89b9b47, 071c7a1: K5, K6, K9 hataları düzeldi; K7 yok (ücretli hak yok) |
 | Remzle | ✓ 46fb65a | | | | | | | | K2, K3 hataları düzeldi; K4–K10 sürüyor |
 | Ezber | ✓ 030d02d | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | f75ca33: K6, K7, K9, K10 hataları düzeldi (K10: yanıt kaybında −5 iki kez) |
-| Koz | ✓ 537d773 | | | | | | | | K2 hatası düzeldi |
+| Koz | ✓ 537d773 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 7cd2368: K6, K9, K10 hataları düzeldi; K7 yok (ödeme ertelendi); düello 403 testi ve sıralama kapalı skor doğrulanıyor |
 | Kapı | ✓ (D05, 42d375e) | | | | | | | | arşiv sunucuda (hata 4) |
 | Mahalle | ✓ 615dbc6 | | | | | | | | 3 hata; hata 2 ve 4 (7825343) |
 | İfade | ✓ e7de7f9 | | | | | | | | K2 hatası düzeldi |
