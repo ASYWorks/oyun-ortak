@@ -2,6 +2,12 @@
 
 Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, bütün oyunlar için geçerlidir (Halka, Beat Greedy ve Sticky Ten dahil). Bu kipte halka açık sitede yalnız seviyelerin ücretsiz kısmı (vitrin) açıktır; günlük, lig, etkinlik, sıralama ve düello gizlidir. Kurucunun hesabı test listesindedir ve canlı sitede her şeyi görüp oynar.
 
+**Adlar** (Codex incelemesi, 25 Kasım: iki ayrı durum karışmasın):
+- **Canlı önizleme:** canlı sitede `ayarlar.yayin = "onizleme"`; halka açık, kısıtlı.
+- **Test derlemesi:** oyun-test ya da yerel yığına bağlı derleme. Test kipleri (ör. `?acik`, bütün içeriği açma) yalnız bunda çalışır; canlı pakette bulunmaz (K8).
+
+Oyun belgelerinde ikisi bu adlarla yazılır.
+
 ## Nasıl çalışır (göç 8280, paket v0.22.0)
 
 | Parça | Ne yapar |
@@ -71,5 +77,6 @@ Hop Koala'da (çocuk oyunu; günlük, lig ve sıralama yok) önizlemede de büt�
 
 ## Sınırlar
 
-- Okuma RPC'leri (`siralama`, `lig_durumu`) önizlemede ayrıca kapatılmadı. İstemci göstermez; tabloya yalnız testçi yazabildiği için içinde yalnız testçi satırı olur. Yayın günü temizliği bunları siler.
+- Okuma RPC'leri (`siralama`, `lig_durumu`) önizlemede ayrıca kapatılmadı. İstemci göstermez; tabloya yalnız testçi yazabildiği için içinde yalnız testçi satırı olur. Yayın günü temizliği bunları siler. **Kabul edilmiş sınır** (Codex incelemesi, 25 Kasım): testçi adları ve skorları doğrudan RPC çağrısıyla okunabilir; oyuncu verisi yoktur. Yayından sonra kademeli açılışta (`kapali` listesi) gerçek oyuncu skoru oluşur, ama sıralama kapalıyken skor yazılmaz (hata bulgusu 2, Mahalle ve Koz). Yine de okuma açık kalır, yalnız testçi verisi döner.
+- Testçi üyeliği (`ortak.testciler`) bütün oyunlarda geçerlidir. Bugün tek testçi kurucudur. Dışarıdan testçi eklenecekse önce oyun bazında yetki eklenir (ISTEKLER TS-1). Herkesi etkileyen acil durdurma bu bayraktan ayrı tutulur; o iş için `asgari_surum` ve elle `kapali` kullanılır.
 - Test listesinden çıkarmak ya da eklemek oyun-ortak oturumunun işidir (kurucu onayıyla).

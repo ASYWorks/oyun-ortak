@@ -69,7 +69,11 @@ for (const [klasor, id] of OYUNLAR) {
   const docs = tumDosyalar(join(d, 'docs'), /\.md$/).map(oku).join('\n') + oku(join(d, 'CLAUDE.md'));
   const yayinGunu = /yayin-temizligi|yayın günü/i.test(docs);
   // Ücretli içerik ya korumali kovasından ya da hak denetimli sunucu işleminden (Ezber: dogrula-ezber "icerik") iner.
-  const korumali = /korumali|korumalı/i.test(docs) || !!iceren(fnDir, /\.ts$/, /hakki_var|islem === "icerik"/);
+  // Codex 25 Kasım: belgede sözcük geçmesi uygulama sayılmaz. ✓ yalnız kod kanıtıyla (istemci korumali kovasından iner ya da
+  // sunucu hak denetimli içerik verir); yalnız belgede geçiyorsa "plan".
+  const korumaliKod = src.some((s) => iceren(s, /\.(ts|tsx|js)$/, /from\(['"]korumali['"]\)|korumali\.ts|korumaliIndir/))
+    || !!iceren(fnDir, /\.ts$/, /hakki_var|islem === "icerik"/);
+  const korumali = korumaliKod ? '✓' : /korumali|korumalı/i.test(docs) ? 'plan' : '✗';
   const c = id ? canli[id] : undefined;
   const istisna = ISTISNA_ONIZLEME.has(klasor);
   satirlar.push({
@@ -83,7 +87,7 @@ for (const [klasor, id] of OYUNLAR) {
     misafir: istisna ? '–' : (misafirBayrak ? '✓' : '✗'),
     tarih: istisna || UYGULANMAZ[klasor]?.has('tarih') ? '–' : (yayinTarihi ? '✓' : '✗'),
     yayin_gunu: istisna ? '–' : (yayinGunu ? '✓' : '✗'),
-    korumali: istisna || UYGULANMAZ[klasor]?.has('korumali') ? '–' : (korumali ? '✓' : '✗'),
+    korumali: istisna || UYGULANMAZ[klasor]?.has('korumali') ? '–' : korumali,
     canli: c ? `${c.yayin ?? 'acik'}${c.tarih ? ' ' + c.tarih : ''}` : (Object.keys(canli).length ? '-' : ''),
   });
 }
