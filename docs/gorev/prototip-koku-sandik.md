@@ -13,8 +13,8 @@ Kurucu, GPT portföy incelemesinin önerdiği iki prototipi seçti. Her oyun ken
 `docs/plan/OTURUM_GOREVI.md` adımlarını sırayla izle. Her adımın sonunda dur ve kurucunun onayını bekle; kurucu telefondan bağlanır. Karar soruları tek tek, seçenekli sorulur, öneri ilk seçenektir.
 
 GPT incelemesinin bulguları plana ek girdi olarak kullanılır:
-- `C:/Users/alise/Documents/Codex/2026-11-23/cl/outputs/oyun-altyapisi-inceleme/portfoy-16-koku-izi.md`. Kabul ölçütleri: yem örneğinde en kısa çözüm 9 tur; koku renk dışında nokta ya da dokuyla gösterilir; 1.600 bölüm üretmeden önce 8–12 görevlik kesit yapılır.
-- `.../portfoy-35-sandik-ustasi.md`. Kabul ölçütleri: Sıralı Oy örneğinde 6 tek jetonluk hamleden yalnız biri hedefi kazandırır; kural adları "En çok ilk tercih" ve "Yarıdan fazlası"; ilk kesit üç adımlı öğretici.
+- `C:/Users/alise/Documents/Codex/2026-11-23/cl/outputs/oyun-altyapisi-inceleme/portfoy-16-koku-izi.md`. Kabul ölçütleri: yem örneğinde en kısa çözüm 9 tur; koku renk dışında nokta ya da dokuyla gösterilir; ilk 8–12 görevde oyuncu en kısa yolun neden yanlış olduğunu görür (öğretici ve zorluk eğrisi ölçütü).
+- `.../portfoy-35-sandik-ustasi.md`. Kabul ölçütleri: Sıralı Oy örneğinde 6 tek jetonluk hamleden yalnız biri hedefi kazandırır; kural adları "En çok ilk tercih" ve "Yarıdan fazlası"; öğretici üç adımlı.
 
 **Öncelik sırası (kurucu, 25 Kasım):** ortak oyun kuralları bağlayıcıdır: `YENI_OYUN.md`, `OTURUM_GOREVI.md`, 8 × 200 kapasite, `OYUN_DENETIMI.md`, `ADIL_PUAN`/`RATING_KURALI`, `ARAYUZ_KURALLARI.md` ve `PAZAR_OLCUTLERI.md`. GPT önerileri yalnız bu kurallara uyduğu yerde kullanılır: kabul ölçütüne, örnek teste ya da öğretici tasarımına girdi olarak. Bir GPT önerisi ortak kuralla çelişirse ortak kural geçerlidir; çelişki rapora yazılır.
 
