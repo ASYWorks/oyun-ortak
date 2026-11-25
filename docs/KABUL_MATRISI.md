@@ -38,7 +38,7 @@ Push ve yayın her oyunun kendi oturumunda.
 | Halka | ✓ 0bb13b5 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 58ec5ee: K5, K6, K7 hataları düzeldi; 3 e2e yarışı (ÖG-57) giderildi |
 | Beat Greedy | ✓ 1aff480 | ✓ | – | ✓ | – | ✓* | ✓ | ✓ | 4e8fc3b: K4, K6 hataları düzeldi; K5 yok (ad seçmeden başlamaz), K7 yok (satın alma kapalı); *K8: ücretli seviyeler pakette, satın alma açılmadan korumalı kovaya taşınacak |
 | Sticky Ten | ✓ 57c5d4a | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | 9a1b0cf, Pages 929c4da5, Render protokol=1: K7 hatası, K8 eksik düzeldi; K5 yok (ad_gerekli yolu yok) |
-| Hop Koala | | | | | | | | | çevrimiçi bayrak yok; K7 (full_unlock) mağaza paketinde |
+| Hop Koala | – | ✓ | – | ✓ | ✓ | ✓* | – | – | d9e60150: K4 hatası düzeldi (sekmeler ayarı geri alıyordu); sunucu, hesap, bayrak yok; K6 akşam modu bilerek yerel saat; K7 web ücretsiz, mağaza birim testleri hazır; *K8 eski sürümden geçişin otomatik testi yok |
 | Ense | ✓ 5f0df88 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 51645a0: K4, K5, K6, K9 (2), K10 hataları düzeldi; K7 kısmen (satın alma bağlı değil) |
 | Sahte | ✓ a146f99 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 89b9b47, 071c7a1: K5, K6, K9 hataları düzeldi; K7 yok (ücretli hak yok) |
 | Remzle | ✓ 46fb65a | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 338587e: K5, K6, K9 hataları düzeldi; K7 kısmen (ödeme kapalı) |
