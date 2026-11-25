@@ -2,6 +2,16 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.23.0 (25 Kasım 2026)
+
+Codex incelemesi (D02, D03, D09, MD-24) ve Opus 5.5 uygulaması.
+- `kayitDeposu().birlestir(yerel, fn, { kim })` hesap doğrulamalı işlevlerle çalışır (göç 8440: `kayit_oku_hesapli`, `kayit_yaz_hesapli`). Oturum iki istek arasında başka hesaba geçerse `hesap_degisti` fırlatır; başka hesabın kaydı okunmaz ve yazılmaz. Göç uygulanmamışsa `kayit_hesapli_yok` fırlatır; eski işlevlere düşmez.
+- Skor kuyruğu (D02): her kayıt gönderen hesaba bağlanır ve yalnız o hesabın jetonuyla gider. Misafir kaydı kalıcı hesaba gitmez.
+- Web devri (D03): devir kaydı geçici hatada silinmez, aynı hesapta yeniden denenir. 30 dakika sonra düşer. Aynı anda gelen çağrılar tek devri paylaşır.
+- Ölçüm (D09): parti 60 KB'ı aşmaz (`keepalive` sınırı). Sığmayan olay kuyruktan düşer. İzin kapatılıp açılınca eski yanıt yeni kuyruğa dokunmaz.
+- Yayın betiği: paket SHA-256, tam commit ve dağıtım kimliği günlüğe yazılır; kilitli npm/pnpm kurulumu. Yedek betiği: hazırlık dizini, doğrulama, atomik yayımlama ve yalnız geçerli yedeklerin rotasyonu. Günlük görev Docker kapalıysa açar.
+- **Oyunlar ne yapmalı:** `birlestir` çağrısında `kim` veriyorsanız (MD-24) bu sürüme geçin. Davranış değişikliği yoktur; yalnız sunucu da hesabı doğrular.
+
 ## v0.22.3 (22 Kasım 2026)
 
 - ortak-sunucu `c.testciMi()`: testçiye özel örnek içerik için.

@@ -95,6 +95,95 @@ test("topluSinir dolunca kendiliğinden gönderir; aynı anda tek istek", async 
   assert.equal(istekler.reduce((n, i) => n + i.govde.batch.length, 0), 3);
 });
 
+/** Yanıtı testin elle verdiği sahte fetch: istek beklerken kuyruğa ne olduğunu sınamak için. */
+const bekleyenFetch = () => {
+  const istekler: { govde: { batch: { event: string; properties: Record<string, unknown> }[] }; bayt: number }[] = [];
+  let coz: ((r: Response) => void) | null = null;
+  const f = ((_url: string, init: RequestInit) => {
+    const s = String(init.body);
+    istekler.push({ govde: JSON.parse(s), bayt: new TextEncoder().encode(s).length });
+    return new Promise<Response>((r) => { coz = r; });
+  }) as unknown as typeof fetch;
+  const yanitla = (durum: number) => { const c = coz; coz = null; c?.(new Response(null, { status: durum })); };
+  return { f, istekler, yanitla };
+};
+
+test("D09: istek beklerken kuyruk taşarsa başarı yalnız gönderilenleri çıkarır, gönderilmemiş olay silinmez", async () => {
+  const b = bekleyenFetch();
+  const o = await olcumBaslat(ayar({ fetch: b.f, topluSinir: 10_000 }));
+  for (let i = 0; i < 3; i++) o.olay("seviye_basla", { n: i });
+  const bekleyen = o.gonder(); // parti: n 0..2, yanıt bekliyor
+  for (let i = 3; i < 503; i++) o.olay("seviye_basla", { n: i }); // 503 olay → 500'e kırpılır, gönderilen 3'ü düşer
+  assert.equal(o.kuyruk.length, 500);
+  b.yanitla(200);
+  await bekleyen;
+  assert.equal(o.kuyruk.length, 500, "kırpma sonrası kalanların hiçbiri gönderilmedi; hepsi kalmalı");
+  assert.equal(o.kuyruk[0]!.properties.n, 3);
+  assert.equal(o.kuyruk.at(-1)!.properties.n, 502);
+});
+
+test("D09: istek beklerken ölçüm kapatılıp açılırsa eski dönemin yanıtı yeni kuyruğa dokunmaz (başarı ve kalıcı 4xx)", async () => {
+  for (const durum of [200, 401]) {
+    const b = bekleyenFetch();
+    const o = await olcumBaslat(ayar({ fetch: b.f, topluSinir: 10_000 }));
+    o.olay("seviye_basla", { n: 1 });
+    o.olay("seviye_basla", { n: 2 });
+    const bekleyen = o.gonder();
+    await o.ayarla(false);
+    await o.ayarla(true);
+    o.olay("seviye_bitir", { n: 3 }); // yeni dönemin olayı
+    b.yanitla(durum);
+    await bekleyen;
+    assert.deepEqual(o.kuyruk.map((x) => x.properties.n), [3], String(durum));
+    assert.equal(o.durdu, false, `eski dönemin ${durum} yanıtı ölçümü durdurmaz`);
+    // yeni dönemde normal gönderim sürer
+    const sonraki = o.gonder();
+    b.yanitla(200);
+    await sonraki;
+    assert.equal(o.kuyruk.length, 0, String(durum));
+  }
+});
+
+test("D09: zaten açıkken ayarla(true) bekleyen partinin onayını bozmaz; olay yeniden gönderilmez", async () => {
+  const b = bekleyenFetch();
+  const o = await olcumBaslat(ayar({ fetch: b.f, topluSinir: 10_000 }));
+  o.olay("seviye_basla", { n: 1 });
+  const bekleyen = o.gonder();
+  await o.ayarla(true); // izin değişmedi
+  b.yanitla(200);
+  await bekleyen;
+  assert.equal(o.kuyruk.length, 0, "onaylanan olay kuyrukta kalmamalı");
+  await o.gonder();
+  assert.equal(b.istekler.length, 1, "aynı olay ikinci kez gönderilmemeli");
+});
+
+test("D09: parti gövdesi keepalive sınırının altında kalır; tek başına sığmayan olay ötekileri bekletmez", async () => {
+  const b = bekleyenFetch();
+  const o = await olcumBaslat(ayar({ fetch: b.f, topluSinir: 10_000 }));
+  const iri = Object.fromEntries(Array.from({ length: 30 }, (_, i) => [`p${i}`, "x".repeat(200)]));
+  for (let i = 0; i < 20; i++) o.olay("seviye_basla", { ...iri, n: i }); // her biri ~6,5 KB: 20'si tek partiye sığmaz
+  const ilk = o.gonder();
+  b.yanitla(200);
+  await ilk;
+  assert.ok(b.istekler[0]!.bayt <= 60_000, `gövde ${b.istekler[0]!.bayt} bayt`);
+  const ilkSayi = b.istekler[0]!.govde.batch.length;
+  assert.ok(ilkSayi > 0 && ilkSayi < 20);
+  assert.equal(o.kuyruk.length, 20 - ilkSayi);
+  while (o.kuyruk.length) { const p = o.gonder(); b.yanitla(200); await p; }
+  assert.equal(b.istekler.reduce((n, i) => n + i.govde.batch.length, 0), 20, "hiç olay kaybolmadı");
+  // tek başına sınırı aşan olay (çok uzun yığın) düşer, arkasındaki gider
+  const e = new Error("iri");
+  e.stack = "Error: iri\n" + Array.from({ length: 50 }, (_, i) => `    at f${i} (https://a.com/${"y".repeat(1500)}.js:1:${i})`).join("\n");
+  o.hata(e); // hata() hemen gönder çağırır; parti boş kalınca istek atılmaz
+  o.olay("seviye_bitir", { n: 99 });
+  const son = o.gonder();
+  b.yanitla(200);
+  await son;
+  const gidenler = b.istekler.at(-1)!.govde.batch.map((x) => x.event);
+  assert.deepEqual(gidenler, ["seviye_bitir"]);
+  assert.equal(o.kuyruk.length, 0);
+});
+
 test("özellik temizliği", () => {
   assert.deepEqual(
     temizOzellikler({ a: "x".repeat(300), B: 1, n: Number.NaN, ok: true, z: null, d: {} as never }),

@@ -10,7 +10,7 @@ const IZINLI = {
   authenticated: [
     "acilis", "ad_anahtari", "ad_bicimi", "ad_degistir", "ad_uygun", "baglama_odulu_al", "ben", "bildirim_anahtari_sil",
     "bildirim_anahtari_yaz", "bugun", "devir_kodu_al",
-    "hakki_var", "haklarim", "hesap_devral", "iso_hafta", "kayit_oku", "kayit_yaz",
+    "hakki_var", "haklarim", "hesap_devral", "iso_hafta", "kayit_oku", "kayit_oku_hesapli", "kayit_yaz", "kayit_yaz_hesapli",
     "lig_durumu", "lig_gecmisi", "nabiz", "odul_kaydet", "odullerim", "otomatik_ad", "oyun_bayraklari", "oyun_verisini_sil", "panel_durumu", "panel_not_ekle", "panel_not_sil", "panel_notlar", "profil", "profil_ayari", "sakli_ad", "sikayet_et", "siralama", "yas_onayla", "yedek_kaydet",
   ],
 };

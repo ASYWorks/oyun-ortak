@@ -81,6 +81,13 @@ export interface Olcum {
 }
 
 const KUYRUK_SINIRI = 500;
+const PARTI_SINIRI = 100;
+/**
+ * Bir partinin gövdesi en çok bu kadar bayt (UTF-8). `keepalive: true` istek gövdesini tarayıcılarda 64 KiB ile sınırlar;
+ * aşan istek ağ hatası gibi reddedilir ve kuyruk hiç boşalmaz. Zarf (api_key, batch) için pay bırakılır.
+ */
+const GOVDE_SINIRI = 60_000;
+const bayt = (s: string): number => new TextEncoder().encode(s).length;
 const AD = /^[a-z][a-z0-9_]{0,39}$/;
 const OZELLIK_SINIRI = 30;
 
@@ -126,6 +133,8 @@ export async function olcumBaslat(a: OlcumAyari): Promise<Olcum> {
   const test = /^t-([a-z0-9]+)-/.exec(a.cihaz)?.[1] ?? null;
   let durdu = !a.anahtar;
   let gonderiliyor: Promise<void> | null = null;
+  /** İzin dönemi: `ayarla` her çağrıldığında artar; eski dönemden dönen yanıt yeni dönemin kuyruğuna dokunmaz. */
+  let donem = 0;
   const IZIN = `oyun-ortak:olcum-izin:${a.oyunId}`;
   let acik = (await a.depo.oku(IZIN).catch(() => null)) !== "kapali";
 
@@ -142,10 +151,36 @@ export async function olcumBaslat(a: OlcumAyari): Promise<Olcum> {
     a.depo.yaz(KEY, JSON.stringify(kuyruk)).catch(() => {});
   };
 
+  /**
+   * Kuyruğun başından sırayla en çok PARTI_SINIRI olay, gövde GOVDE_SINIRI baytı aşmayacak kadar. Tek başına sınırı aşan olay
+   * hiçbir partiye sığamaz; kuyruktan düşürülür ki arkasındakileri sonsuza dek bekletmesin.
+   */
+  const partiSec = (): Kuyruktaki[] => {
+    const zarf = bayt(JSON.stringify({ api_key: a.anahtar, batch: [] }));
+    const parti: Kuyruktaki[] = [];
+    const sigmaz = new Set<Kuyruktaki>();
+    let toplam = zarf;
+    for (const x of kuyruk) {
+      if (parti.length >= PARTI_SINIRI) break;
+      const n = bayt(JSON.stringify(x)) + 1; // +1: dizideki virgül
+      if (zarf + n > GOVDE_SINIRI) { sigmaz.add(x); continue; }
+      if (toplam + n > GOVDE_SINIRI) break;
+      parti.push(x);
+      toplam += n;
+    }
+    if (sigmaz.size) {
+      kuyruk = kuyruk.filter((x) => !sigmaz.has(x));
+      sakla();
+    }
+    return parti;
+  };
+
   const gonder = (): Promise<void> => {
     if (durdu || !acik || kuyruk.length === 0) return Promise.resolve();
     if (gonderiliyor) return gonderiliyor;
-    const parti = kuyruk.slice(0, 100);
+    const parti = partiSec();
+    if (parti.length === 0) return Promise.resolve();
+    const partiDonemi = donem;
     gonderiliyor = (async () => {
       try {
         const r = await f(`${adres}/batch/`, {
@@ -154,8 +189,12 @@ export async function olcumBaslat(a: OlcumAyari): Promise<Olcum> {
           body: JSON.stringify({ api_key: a.anahtar, batch: parti }),
           keepalive: true,
         });
+        // İstek beklerken izin kapatılıp açıldıysa yanıt eski döneme aittir: yeni kuyruğa dokunulmaz.
+        if (partiDonemi !== donem) return;
         if (r.ok) {
-          kuyruk = kuyruk.slice(parti.length);
+          // Yalnız gerçekten gönderilen nesneler çıkar; beklerken kuyruk kırpıldıysa ya da yeni olay geldiyse onlar kalır.
+          const gonderilen = new Set(parti);
+          kuyruk = kuyruk.filter((x) => !gonderilen.has(x));
           sakla();
         } else if (r.status >= 400 && r.status < 500 && r.status !== 429) {
           // Anahtar yanlış, kota kapalı ya da istek reddedildi: tekrar etmenin anlamı yok.
@@ -250,6 +289,8 @@ export async function olcumBaslat(a: OlcumAyari): Promise<Olcum> {
     hemenOlay: (ad, ozellik) => (acik ? tekGonder(ad, ozellik, false) : Promise.resolve()),
     acik: () => acik,
     async ayarla(v) {
+      // Dönem yalnız gerçek izin değişiminde artar; zaten açıkken ayarla(true) bekleyen partinin onayını geçersiz kılmasın.
+      if (v !== acik) donem++;
       acik = v;
       if (!v) {
         kuyruk = [];

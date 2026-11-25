@@ -8,15 +8,31 @@ Her oyun oturumu kendi oyununu `scripts/yayinla.mjs` ile yayınlar. Canlıya gid
 node C:/Projeler/oyunlar/_ortak/oyun-ortak/scripts/yayinla.mjs . <commit> [--islev] [--kuru]
 ```
 
-Oyun klasöründen çalıştırılır; `node_modules` kurulu olmalıdır (`npm ci`).
+Oyun klasöründen çalıştırılır. Oyun klasörünün `node_modules`'u kullanılmaz (gerekmez): bağımlılıklar arşivlenen commit'in kilit dosyasından temiz kopyanın içine kurulur (Bulgu 6, 23 Kasım):
+
+| Commit kökünde | Kurulum |
+|---|---|
+| `package-lock.json` | `npm ci --no-audit --no-fund` |
+| `pnpm-lock.yaml` (+ `pnpm-workspace.yaml`) | `corepack pnpm install --frozen-lockfile`; `package.json` `packageManager` alanı kilitli bir sürüm olmalı (ör. `pnpm@12.3.4`) |
+| hiçbiri, birden çoğu ya da başka (yarn, bun) | betik kurulumdan önce durur; hiçbir şey yüklenmez |
+
+Kurulum kuru koşuda da yapılır (derleme için gerekir). Başarılı yayından sonra çalışma klasörü yalnız `%TEMP%\oyun-yayin\<oyun>-…` ise silinir.
 
 | Bayrak | Ne yapar |
 |---|---|
 | (yok) | e2e (oyun-test) → canlı ortamla derleme → paket denetimi → Pages → canlı adreste yeni sürüm doğrulaması |
-| `--islev` | Önce `islevler` oyun-test'e yüklenir, `islevE2e` orada koşar, sonra oyun-canli'ya yüklenir; ardından istemci yayını |
-| `--kuru` | Derler ve denetler, hiçbir şey yüklemez. Kurucuya sormadan önce bununla dene |
+| `--islev` | Sıra: `islevler` oyun-test'e → `islevE2e` (oyun-test) → istemci e2e → derleme → paket denetimi → `islevler` oyun-canli'ya → Pages → canlı doğrulama. Canlıya hiçbir işlev denetimler bitmeden gitmez |
+| `--kuru` | Derler ve denetler, hiçbir şey yüklemez: ne oyun-test'e ne canlıya işlev, ne Pages. `--kuru --islev` yalnız `islevler`in dolu olduğunu denetler; `islevE2e` dağıtılmış test sürümüne dayandığı için atlanır (ekranda yazar). Kurucuya sormadan önce bununla dene |
 
 Betik `git archive <commit>` ile temiz kopyadan derler. Yerel `dist`, `.env.local` ve commit'lenmemiş değişiklik pakete girmez (ÖG-49). Bir adım düşerse betik durur. Durduğu yerden sonrası yapılmaz, günlüğe "durdu" yazılır.
+
+Yayın kanıtı (günlük satırında): `commit` (kısa, eski alan) ve `commitTam` (tam oyun commit'i); `paket.sha256` denetlenen paketin
+belirlenimci özeti (dosyaların göreli yol sırasıyla `yol\0sha256(içerik)\n` satırlarının SHA-256'sı; klasör adı ve zamandan
+bağımsız). `canliKanit`: canlı doğrulamanın neye baktığı. Yerel index.html'deki yerel `.js` betikleri (Vite `/assets/`, Next
+`/_next/static/`, Ezber `ana-<özet>.js`, sorgulu `app.js?v=`) canlı sayfada aranır; harici betikler kanıt sayılmaz. Hiç yerel
+betik yoksa canlı HTML yerel index.html ile aynı olmalı; boş liste başarı sayılmaz.
+
+Günlük satırı yarım kalan işlemi gösterir: `islevYuklenen: { test: [...], canli: [...] }` o ana kadar başarıyla yüklenen işlevler, `pagesYayin` Pages dağıtım kimliği. Canlı doğrulama geçmezse satır `yayinda-dogrulanamadi` olur ve betik **çıkış 1** ile biter; başarı yalnız `yayinda` + çıkış 0. Geri alma kendiliğinden yapılmaz; oyun-ortak oturumu günlüğe bakıp karar verir.
 
 ## yayin.json (oyun deposunun kökünde, commit'li)
 
@@ -44,7 +60,8 @@ Betik `git archive <commit>` ile temiz kopyadan derler. Yerel `dist`, `.env.loca
 - `supabaseSunucuda: true`: istemci Supabase adresini kendi sunucusundan alıyorsa (Sticky Ten); "canlı adres pakette" denetimi atlanır, test adresi yasağı sürer.
 - **ortak-sunucu adresi** (`supabase/functions/*/deno.json`): raw.githubusercontent adresi sürüm etiketinin **commit kimliğiyle** sabitlenir (`git rev-parse v0.x.y^{commit}`), etiketle değil: etiket taşınırsa sonraki --islev incelenmemiş kodu alır (Koz 23 Kasım). Denetimin sunucu_surum sütunu ikisini de kabul eder; etiketli oyunlar sonraki --islev yayınında commit'e geçer.
 - `sunucusuz: true`: oyunun arka ucu yok (Hop Koala); "canlı adres pakette" denetimi atlanır.
-- `baglantilar`: çalışma alanı paketlerinin kendi node_modules klasörleri (ör. `["apps/mobile/node_modules"]`, pnpm monorepo). Temiz kopyada depodaki aynı klasöre bağlanır, çıkışta kaldırılır. Derleyici önbelleği için her yayın kendi geçici klasörünü (TEMP) kullanır.
+- `baglantilar` (eski): artık kullanılmaz, varsa yok sayılır ve ekrana yazılır; çalışma alanı paketlerinin `node_modules`'u kurulumla gelir.
+- Derleyici önbelleği için her yayın kendi geçici klasörünü (TEMP) kullanır.
 - `dizinlenebilir: true`: yalnız yayın gününden sonra (noindex denetimini kapatır).
 - Yer tutucular: `{CANLI_URL} {CANLI_ANON} {POSTHOG_KEY} {TURNSTILE_SITE_KEY} {TEST_URL} {TEST_ANON} {TEST_SERVIS} {CIKTI} {KAYNAK}`. Anahtarları betik kendisi alır, ekrana yazmaz. Oyun deposuna hiçbir anahtar girmez.
 
