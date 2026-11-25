@@ -20,7 +20,7 @@ isaretle();
 
 // Oyun içinden ?oyun=<kimlik> ile açılınca yalnız o oyun anılır (hesaplar oyun oyun ayrı, A16); yasal sayfalar arası
 // bağlantılar kimliği taşır.
-const OYUN_ADLARI = { halka: "Halka Kelime", sticky: "Sticky Ten", sezgi: "Beat Greedy", ense: "Ense Nasıl Olsun", sahte: "Sahte Masası", remzle: "Remzle", ezber: "Ezber Bozan", koz: "Koz Hesabı", kapi: "Kapı Ustası", mahalle: "Mahalle Dönüşümü", ifade: "İfade Katı" };
+const OYUN_ADLARI = { halka: "Halka Kelime", sticky: "Sticky Ten", sezgi: "Beat Greedy", ense: "Ense Nasıl Olsun", sahte: "Sahte Masası", remzle: "Remzle", ezber: "Ezber Bozan", koz: "Koz Hesabı", kapi: "Kapı Ustası", mahalle: "Mahalle Dönüşümü", ifade: "İfade Katı", elbitir: "El Bitir", kayan: "Kayan Yük", kopru: "Kelime Köprüsü" };
 const oyunKimligi = new URLSearchParams(location.search).get("oyun");
 if (OYUN_ADLARI[oyunKimligi]) {
   for (const e of document.querySelectorAll("[data-genel]")) e.hidden = true;
