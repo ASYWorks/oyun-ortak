@@ -10,7 +10,7 @@
 // Her yayın ~/.oyun-ortak/yayin-gunlugu.jsonl dosyasına bir satır yazar; oyun-ortak oturumu son kontrolü buradan yapar.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { appendFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { appendFileSync, cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 
@@ -62,6 +62,19 @@ if (ayarIndeks >= 0) kayit.ayarDosyasi = resolve(arg[ayarIndeks + 1]);
 kayit.oyun = ayar.oyun;
 const adres = ayar.adres ?? `https://${ayar.pages}.asyworks.com`;
 const IS = join(tmpdir(), 'oyun-yayin', `${ayar.oyun}-${Date.now().toString(36)}`);
+// Önceki çalışmaların klasörleri (kuru koşu ve durunca inceleme için kalır): bir günden eskiler silinir, disk sınırsız dolmasın
+// (inceleme 3). Kurulum klasörün içinde; eski sürümün dışarıya bağlanan node_modules'u (junction) varsa dokunulmaz.
+{
+  const kok = join(tmpdir(), 'oyun-yayin');
+  for (const ad of existsSync(kok) ? readdirSync(kok) : []) {
+    const y = join(kok, ad), nm = join(y, 'kaynak', 'node_modules');
+    try {
+      if (!/^[a-z0-9-]+-[a-z0-9]+$/.test(ad) || Date.now() - statSync(y).birthtimeMs < 864e5) continue;
+      if (existsSync(nm) && lstatSync(nm).isSymbolicLink()) continue;
+      rmSync(y, { recursive: true, force: true });
+    } catch { /* kullanımda ya da silinemedi: sonraki çalışma dener */ }
+  }
+}
 const KAYNAK = join(IS, 'kaynak'), CIKTI = join(IS, 'cikti'), BOS = join(IS, 'bos');
 mkdirSync(KAYNAK, { recursive: true }); mkdirSync(BOS);
 // Her yayının kendi geçici klasörü: Metro gibi derleyiciler önbelleği %TEMP%'te tutar ve eski metni pakete koyabilir

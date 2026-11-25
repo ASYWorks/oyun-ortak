@@ -3,7 +3,7 @@
 // canlı ayardan kanıt toplar; tablo basar. Pazar listesinde (PERIYODIK 8f) koşulur.
 //   node scripts/ortak-yapi-denetim.mjs            → depo kanıtları
 //   node scripts/ortak-yapi-denetim.mjs --canli    → canlıdaki ayarlar.yayin ve yayin_tarihi de
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -40,11 +40,10 @@ const iceren = (dir, uz, re) => tumDosyalar(dir, uz).some((p) => re.test(oku(p))
 let canli = {};
 if (process.argv.includes('--canli')) {
   const sorgu = join(tmpdir(), 'ortak-yapi-denetim.sql');
-  require_fs_write(sorgu, "select id, ayarlar->>'yayin' as yayin, ayarlar->>'yayin_tarihi' as tarih from ortak.oyunlar;");
+  writeFileSync(sorgu, "select id, ayarlar->>'yayin' as yayin, ayarlar->>'yayin_tarihi' as tarih from ortak.oyunlar;");
   const r = spawnSync('npx', ['--prefix', ORTAK, 'supabase', 'db', 'query', '--remote=qzxchutjzhyzzaoxzroh', '-f', sorgu, '--yes', '-o', 'json'], { cwd: tmpdir(), encoding: 'utf8', shell: process.platform === 'win32' });
-  try { const j = JSON.parse(r.stdout); for (const s of (j.rows ?? j)) canli[s.id] = s; } catch { console.error('canlı okunamadı'); }
+  try { const j = JSON.parse(r.stdout.slice(r.stdout.search(/^[[{]/m))); for (const s of (j.rows ?? j)) canli[s.id] = s; } catch { console.error('canlı okunamadı'); }
 }
-function require_fs_write(p, t) { spawnSync(process.execPath, ['-e', `require('fs').writeFileSync(${JSON.stringify(p)}, ${JSON.stringify(t)})`]); }
 
 const satirlar = [];
 for (const [klasor, id] of OYUNLAR) {

@@ -61,7 +61,9 @@ select o.id as oyun,
 const dosya = join(tmpdir(), `haftalik-rapor-${process.pid}.sql`);
 writeFileSync(dosya, sorgu);
 const cikti = execSync(`npx --prefix "${ORTAK}" supabase db query --remote=${REF} -f "${dosya}" --yes -o json`, { cwd: tmpdir(), encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-const satirlar = JSON.parse(cikti.slice(cikti.indexOf('{'))).rows ?? [];
+// CLI çıktısı {rows:[...]} ya da düz dizi; baştaki JSON olmayan satırlar atlanır (saglik.ts ile aynı).
+const j = JSON.parse(cikti.slice(cikti.search(/^[[{]/m)));
+const satirlar = (Array.isArray(j) ? j : j.rows) ?? [];
 
 const yuzde = (a, b) => (b ? Math.round((100 * a) / b) : null);
 const goster = (v) => (v == null ? '–' : `%${v}`);

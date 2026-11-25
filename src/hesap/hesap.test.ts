@@ -118,6 +118,22 @@ test("D03: süre dolan kayıt ağa gitmeden temizlenir; eski ham kod ilk kullan�
   assert.equal(depo.veri.has("oyun-ortak:devir"), false);
 });
 
+test("D03 (inceleme 2): süresi dolan kayıt misafire ve başka kalıcı hesaba sahte 'devir başarısız' göstermez, sessizce silinir", async () => {
+  const { s, kalici, depo, h } = devirTaklidi();
+  const eski = (sahip: string | null) =>
+    depo.veri.set("oyun-ortak:devir", JSON.stringify({ id: "x", kod: "K", olusturma: Date.now() - 31 * 60_000, sahip }));
+  eski(null); // girişten vazgeçip misafir kaldı
+  assert.equal(await h.webDonusunuTamamla(), null);
+  assert.equal(depo.veri.has("oyun-ortak:devir"), false);
+  eski("A"); // A'nın kaydı, B açık
+  s.oturum = kalici("B");
+  assert.equal(await h.webDonusunuTamamla(), null);
+  assert.equal(depo.veri.has("oyun-ortak:devir"), false);
+  eski("B"); // kendi kaydı: bildirilir
+  assert.deepEqual(await h.webDonusunuTamamla(), { devredilen: [], devirBasarisiz: true });
+  assert.equal(s.cagri.length, 0);
+});
+
 test("D03: eşzamanlı dönüş tek devir atar; yanıt beklerken hesap değişirse sonuç kullanılmaz; yeni kayıt eski işlemce silinmez", async () => {
   const { s, kalici, depo, h } = devirTaklidi();
   await h.webIleGir("google", "https://x/");
@@ -188,7 +204,9 @@ test("MD-24: doğrulamalı çağrı reddedildiğinde eski çağrıya düşmez", 
     return { data: null, error: { message: "hesap_degisti" } };
   });
 
-  await assert.rejects(bulut.birlestir({ puan: 2 }, (yerel) => ({ kayit: yerel }), { kim }), /hesap_degisti/);
+  // inceleme 4: sunucunun hesap_degisti hatası da KayitHatasi olarak gelir (KZ-1: oyunlar kod'a bakar)
+  await assert.rejects(bulut.birlestir({ puan: 2 }, (yerel) => ({ kayit: yerel }), { kim }),
+    (e) => e instanceof KayitHatasi && e.kod === "hesap_degisti");
   assert.deepEqual(cagrilar, ["kayit_oku_hesapli", "kayit_yaz_hesapli"]);
 });
 

@@ -29,6 +29,11 @@ interface Bekleyen {
    * Eski kayıtta alan yok (sahipsiz): misafir kaydı gibi işlenir, kalıcı hesaba yazılmaz.
    */
   kullanici?: string | null;
+  /**
+   * Gönderim anında oturum okunamadı (süresi dolmuş anahtar çevrimdışı yenilenemedi: getSession { session: null, error }).
+   * Sahip bilinmez; ağ dönünce açılan ilk jetonlu oturuma (kalıcı ya da anonim) bağlanır. Gerçek misafirde alan yok.
+   */
+  belirsiz?: true;
 }
 
 /** Oturumun gönderim için gereken kısmı. anonim: Supabase `user.is_anonymous` (alan yoksa false: kalıcı sayılır, güvenli taraf). */
@@ -193,13 +198,13 @@ export function siralamaBaslat(a: SiralamaAyari) {
     // Jetonsuz oturumla hiç gönderilmez: SDK'nın örtük başka oturumuna geri düşülmesin.
     if (b.kullanici) return o && o.id === b.kullanici && o.jeton ? o : null;
     if (o) {
-      if (!o.anonim || !o.jeton) return null; // sahipsiz kayıt kalıcı hesaba gitmez
+      if (!o.jeton || (!o.anonim && !b.belirsiz)) return null; // sahipsiz misafir kaydı kalıcı hesaba gitmez
     } else {
       const captchaToken = a.captcha ? await a.captcha() : null;
       // captcha beklerken bir oturum açıldıysa ezilmez: kalıcıysa kayıt bekler, anonimse ona bağlanır
       const ara = await oturum();
       if (ara) {
-        if (!ara.anonim || !ara.jeton) return null;
+        if (!ara.jeton || (!ara.anonim && !b.belirsiz)) return null;
         o = ara;
       } else {
         const { data, error } = await sb.auth.signInAnonymously({ options: captchaToken ? { captchaToken } : {} });
@@ -211,7 +216,8 @@ export function siralamaBaslat(a: SiralamaAyari) {
         if (!o || !o.anonim || !o.jeton || !donen || o.id !== donen) return null;
       }
     }
-    b.kullanici = o.id; // misafir kaydı bu anonim hesaba bağlanır; yeniden denemeler aynı hesapla gider
+    b.kullanici = o.id; // misafir kaydı bu anonim hesaba (belirsiz kayıt ilk jetonlu oturuma) bağlanır; yeniden denemeler aynı hesapla gider
+    delete b.belirsiz;
     await sakla();
     // sahiplik yazılırken hesap değiştiyse gönderilmez (kayıt anonim sahibine bağlı kalır)
     const son = await oturum();
@@ -293,6 +299,7 @@ export function siralamaBaslat(a: SiralamaAyari) {
     async gonder(govde: Record<string, unknown>): Promise<GonderimSonucu> {
       const q = await yukle();
       const b: Bekleyen = { runId: crypto.randomUUID(), govde, eklendi: Date.now(), kullanici: await oturumKullanici() };
+      if (!b.kullanici && (await sb.auth.getSession().catch(() => null))?.error) b.belirsiz = true;
       q.push(b);
       if (q.length > KUYRUK_SINIRI) q.splice(0, q.length - KUYRUK_SINIRI);
       await sakla();

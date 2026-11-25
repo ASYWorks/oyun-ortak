@@ -137,9 +137,9 @@ export function hesapBaslat(a: HesapAyari) {
   const jeton = async () => (a.captcha ? { captchaToken: await a.captcha() } : {});
 
   /** Kalıcı girişin ortak gövdesi: anonimse devir kodu al, gir, devral. */
-  async function kaliciGiris(gir: () => Promise<{ error: unknown }>, kodHazir?: string | null): Promise<GirisSonucu> {
+  async function kaliciGiris(gir: () => Promise<{ error: unknown }>): Promise<GirisSonucu> {
     const s = await oturum();
-    const kod = kodHazir ?? (s?.user.is_anonymous ? await rpc<string>("devir_kodu_al") : null);
+    const kod = s?.user.is_anonymous ? await rpc<string>("devir_kodu_al") : null;
     const { error } = await gir();
     if (error) throw error instanceof Error ? error : new Error(String((error as { message?: string }).message ?? error));
     if (!kod) return { devredilen: [] };
@@ -176,12 +176,14 @@ export function hesapBaslat(a: HesapAyari) {
   async function webDevir(): Promise<GirisSonucu | null> {
     const k = await devirOku();
     if (!k) return null;
-    if (Date.now() - k.olusturma > DEVIR_OMRU) { // süre doldu: ağ yok, kayıt temizlenir
-      await devirSil(k.id);
-      return { devredilen: [], devirBasarisiz: true };
-    }
     const s = await oturum();
     const jetonu = typeof s?.access_token === "string" && s.access_token ? s.access_token : null;
+    if (Date.now() - k.olusturma > DEVIR_OMRU) { // süre doldu: ağ yok, kayıt temizlenir
+      await devirSil(k.id);
+      // Yalnız kaydın hesabına (ya da sahipsizse kalıcı hesaba) bildirilir; vazgeçip misafir kalana ya da başka hesaba değil.
+      const kendi = s && !s.user.is_anonymous && jetonu && (!k.sahip || k.sahip === s.user.id);
+      return kendi ? { devredilen: [], devirBasarisiz: true } : null;
+    }
     if (!s || s.user.is_anonymous || !jetonu) return null; // henüz uygun dönüş değil; kayıt kalır
     if (k.sahip && k.sahip !== s.user.id) return null; // başka kalıcı hesap: bu kayıt onda denenmez
     if (!k.sahip) {
@@ -338,6 +340,7 @@ export function hesapBaslat(a: HesapAyari) {
         catch (e) {
           const m = e instanceof Error ? e.message : String(e);
           if (/could not find the function|schema cache/i.test(m)) throw new KayitHatasi("kayit_hesapli_yok");
+          if (/hesap_degisti/.test(m)) throw new KayitHatasi("hesap_degisti"); // sunucu denetimi (göç 8440, 42501)
           throw e;
         }
       };

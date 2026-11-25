@@ -171,6 +171,25 @@ test("D02: misafir: oturumsuz gönderim anonim hesap açar ve ona bağlanır; ç
   assert.equal(await sir2.bekleyenSayisi(), 1);
 });
 
+test("D02 (inceleme 1): kalıcı hesap çevrimdışı, erişim anahtarı süresi dolmuş: kayıt ağ dönünce o hesapla gider, 7 gün bekleyip düşmez", async () => {
+  const { s, sb, kalici } = sahte2();
+  // auth-js 2.119: süresi dolmuş oturum çevrimdışı yenilenemez, getSession { session: null, error } döner
+  s.oturum = null;
+  const asil = sb.auth.getSession;
+  sb.auth.getSession = (async () => ({ data: { session: null }, error: { message: "Failed to fetch" } })) as never;
+  sb.auth.signInAnonymously = (async () => ({ data: { session: null, user: null }, error: { message: "Failed to fetch" } })) as never;
+  const sir = siralamaBaslat({ supabase: sb as never, oyunId: "o", depo: bellekDepo() });
+  assert.equal((await sir.gonder({ x: 1 })).bekliyor, true);
+  assert.equal(s.giden.length, 0);
+  // ağ döndü, oturum yenilendi
+  sb.auth.getSession = asil;
+  s.oturum = kalici("A");
+  await sir.bosalt();
+  assert.equal(s.giden.length, 1);
+  assert.equal(s.giden[0]!.yetki, "Bearer jeton-A");
+  assert.equal(await sir.bekleyenSayisi(), 0);
+});
+
 test("D02: captcha beklerken kalıcı hesap açılırsa anonim giriş yapılmaz (oturum ezilmez) ve misafir kaydı ona gitmez", async () => {
   const { s, sb, kalici } = sahte2();
   s.oturum = null;
