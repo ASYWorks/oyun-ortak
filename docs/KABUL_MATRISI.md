@@ -41,7 +41,7 @@ Push ve yayın her oyunun kendi oturumunda.
 | Hop Koala | | | | | | | | | çevrimiçi bayrak yok; K7 (full_unlock) mağaza paketinde |
 | Ense | ✓ 5f0df88 | | | | | | | | K2, K3 hataları düzeldi |
 | Sahte | ✓ a146f99 | | | | | | | | K2, K3 hataları düzeldi; 4–8 sürüyor |
-| Remzle | | | | | | | | | 1–3 sürüyor |
+| Remzle | ✓ 46fb65a | | | | | | | | K2, K3 hataları düzeldi; K4–K10 sürüyor |
 | Ezber | ✓ 030d02d | | | | | | | | 3 hata düzeldi; K9 ve 4–8 sürüyor |
 | Koz | ✓ 537d773 | | | | | | | | K2 hatası düzeldi |
 | Kapı | ✓ (D05, 42d375e) | | | | | | | | arşiv sunucuda (hata 4) |
