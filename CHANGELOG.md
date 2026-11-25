@@ -2,6 +2,11 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.23.3 (25 Kasım 2026)
+
+- KZ-1: bulut kaydı hataları `KayitHatasi` (`kod`: kayit_cakisma | hesap_degisti | kayit_hesapli_yok). `message` aynı; eski yakalayıcılar bozulmaz.
+- **Oyunlar ne yapmalı:** `birlestir` çağrısını yakalayın; `e instanceof KayitHatasi` ile koda bakın (Koz bunu yakalamıyordu, yakalanmamış söz reddi oluşuyordu).
+
 ## v0.23.2 (25 Kasım 2026)
 
 - Göç 8460 (D03 sunucu makbuzu): devir yapılıp yanıt kaybolursa aynı hesap aynı kodla yeniden çağırınca aynı sonuç döner (ikinci devir yok). Başka hesap için kod geçersiz. İstemcide değişiklik gerekmez.

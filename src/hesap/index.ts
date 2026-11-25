@@ -86,6 +86,21 @@ export interface HesapAyari {
   captcha?: () => Promise<string>;
 }
 
+/**
+ * Bulut kaydı hatası (KZ-1, Koz 25 Kasım): `kod` ile ayırt edilir, `message` eski düz Error ile aynıdır (eski yakalayıcılar bozulmaz).
+ * - kayit_cakisma: dört denemede iyimser kilit tutmadı (başka cihaz yazıyor); sonra yeniden denenebilir.
+ * - hesap_degisti: oturum beklenen hesap değil (MD-24).
+ * - kayit_hesapli_yok: göç 8440 bu projede yok.
+ */
+export class KayitHatasi extends Error {
+  readonly kod: "kayit_cakisma" | "hesap_degisti" | "kayit_hesapli_yok";
+  constructor(kod: KayitHatasi["kod"]) {
+    super(kod);
+    this.name = "KayitHatasi";
+    this.kod = kod;
+  }
+}
+
 const DEVIR = "oyun-ortak:devir";
 /** Web devir kaydının ömrü (D03): sunucudaki kısa ömürlü devir kodundan uzun tutulmaz. */
 const DEVIR_OMRU = 30 * 60_000;
@@ -322,7 +337,7 @@ export function hesapBaslat(a: HesapAyari) {
         try { return await rpc<R>(ad, arg); }
         catch (e) {
           const m = e instanceof Error ? e.message : String(e);
-          if (/could not find the function|schema cache/i.test(m)) throw new Error("kayit_hesapli_yok");
+          if (/could not find the function|schema cache/i.test(m)) throw new KayitHatasi("kayit_hesapli_yok");
           throw e;
         }
       };
@@ -344,7 +359,7 @@ export function hesapBaslat(a: HesapAyari) {
           }
           bulutBilinen = null;
         }
-        throw new Error("kayit_cakisma");
+        throw new KayitHatasi("kayit_cakisma");
       }
       return {
         oku,
@@ -357,7 +372,7 @@ export function hesapBaslat(a: HesapAyari) {
         async birlestir(yerel: T, birlestir: (yerel: T, uzak: T) => Birlesim<T>, secenek: { kim?: string } = {}): Promise<Birlesim<T>> {
           const kim = await oturumKimligi();
           // MD-24: yerel kayıt hangi hesaba aitse o verilir; oturum arada başka hesaba geçtiyse başkasının kaydına karışmasın.
-          if (secenek.kim !== undefined && secenek.kim !== kim) throw new Error("hesap_degisti");
+          if (secenek.kim !== undefined && secenek.kim !== kim) throw new KayitHatasi("hesap_degisti");
           if (secenek.kim !== undefined) return birlestirHesapli(secenek.kim, yerel, birlestir);
           for (let i = 0; i < 4; i++) {
             const bilinen = i === 0 && bulutBilinen && bulutBilinen.kim === kim ? bulutBilinen : null;
@@ -371,7 +386,7 @@ export function hesapBaslat(a: HesapAyari) {
             }
             bulutBilinen = null;
           }
-          throw new Error("kayit_cakisma");
+          throw new KayitHatasi("kayit_cakisma");
         },
       };
     },

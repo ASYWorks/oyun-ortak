@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { bellekDepo } from "../kayit/index.ts";
-import { adBicimiUygun, googleNonce, hesapBaslat, misafirAdi, MISAFIR_ADI } from "./index.ts";
+import { adBicimiUygun, googleNonce, hesapBaslat, KayitHatasi, misafirAdi, MISAFIR_ADI } from "./index.ts";
 
 test("Google nonce: özet ham değerin SHA-256'sı, her çağrıda yeni", async () => {
   const a = await googleNonce();
@@ -201,4 +201,18 @@ test("MD-24: göç eksikse eski RPC çağrılmadan hata döner", async () => {
 
   await assert.rejects(bulut.birlestir({ puan: 2 }, (yerel) => ({ kayit: yerel }), { kim }), /kayit_hesapli_yok/);
   assert.deepEqual(cagrilar, ["kayit_oku_hesapli"]);
+});
+
+test("KZ-1: kayıt hataları KayitHatasi (kod alanı) olarak atılır; mesaj aynı kalır", async () => {
+  // Her yazım çakışır (null döner): dört denemeden sonra kayit_cakisma.
+  const { kim, bulut } = bulutTaklidi(async (ad) =>
+    ad === "kayit_oku_hesapli" ? { data: { veri: { puan: 1 }, surum: 1 }, error: null } : { data: null, error: null });
+  const e = await bulut.birlestir({ puan: 2 }, (yerel) => ({ kayit: yerel }), { kim }).then(() => null, (x: unknown) => x);
+  assert.ok(e instanceof KayitHatasi);
+  assert.equal((e as KayitHatasi).kod, "kayit_cakisma");
+  assert.equal((e as Error).message, "kayit_cakisma");
+  // Beklenen hesap değilse: hesap_degisti
+  const e2 = await bulut.birlestir({ puan: 2 }, (yerel) => ({ kayit: yerel }), { kim: "baska" }).then(() => null, (x: unknown) => x);
+  assert.ok(e2 instanceof KayitHatasi);
+  assert.equal((e2 as KayitHatasi).kod, "hesap_degisti");
 });
