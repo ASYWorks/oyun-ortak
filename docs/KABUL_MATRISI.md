@@ -1,5 +1,7 @@
 # Kabul matrisi durumu (25 Kasım 2026)
 
+Kural hâline geldi: OYUN_DENETIMI 3c (K1–K10).
+
 Kaynak: Codex incelemesi `uc-senaryo-test-matrisi.md` (23 Kasım). Bu belge her satırın hangi testle kapandığını ve hangisinin
 oyunlarda açık olduğunu tutar.
 - **Ortak:** oyun-ortak testleri (`npm test`, `npm run test:sunucu`). 25 Kasım'da 84 birim ve 165 sunucu testi geçti.
@@ -26,14 +28,22 @@ oyunlarda açık olduğunu tutar.
 | Yarım yedek başarı sayılmaz, son iyi yedek | yedek.sh (D10), 25 Kasım gerçek test koşusu |
 | Panel notu oturuma ulaşır | 25 Kasım uçtan uca: oyun-test notu → Ense oturumu "alındı" → yapıldı |
 
-## Açık (oyunlarda istemci e2e gerekir)
+## Oyunlar: K1–K10 durumu
 
-Oyun oturumları sırayla, 2–3'er yapar. Push ve yayın oyunun kendi oturumunda yapılır.
-1. İlk açılışta bayrak yok, ağ yavaş ya da kapalı: menü açılır, doğrulanmamış özellik açılmaz (ÖG-58). Kapı, Ezber, Halka, Sahte ve Remzle'de bayrak e2e'si var; diğerlerinde eklenmeli.
-2. Testçi → çıkış → misafir ya da ikinci hesap: önceki hesabın bayrağı ve özel ekranı devredilmez. Kapı D05 dışında denenmedi.
-3. Oyun açıkken bayrak kapanıyor: istemci erişilebilir ekrana döner, geç gelen eski cevap ekranı yeniden açmaz.
-4. İki sekme ya da iki cihaz, yanıtlar ters sırada: eski yanıt yeni kutuyu değiştirmez.
-5. `ad_gerekli` ertesi güne sarkıyor: sonuç doğru güne bağlanır.
-6. Cihaz saati ileri ya da geri: istemci sunucu farkını anlaşılır gösterir.
-7. Ücretli hak iade edildi, cihazda indirilmiş içerik var: davranış ürün kararıyla uyumlu (Halka korumalı içerik, Remzle).
-8. Eski servis çalışanı ve önbellek: günlük cevap ve korumalı içerik yayında görünmez (paket denetimi bunun bir kısmını yapıyor).
+Ölçütler OYUN_DENETIMI 3c'de (kurucu 25 Kasım: bütün oyunlarda ortak; taşınan ve yeni oyunlar da geçer). ✓ geçti (eski kodda hata varsa düzeltildi), – yok (karşılığı yok, nedeni oyunun DENETIM'inde), boş = sırada.
+Push ve yayın her oyunun kendi oturumunda.
+
+| Oyun | K1–K3 bayrak | K4 | K5 | K6 | K7 | K8 | K9 | K10 | Not |
+|---|---|---|---|---|---|---|---|---|---|
+| Halka | ✓ 0bb13b5 | | | | | | | | K2 hatası düzeldi; 4–8 sürüyor |
+| Beat Greedy | ✓ 1aff480 | | | | | | | | K2, K3 hataları düzeldi; 4–8 sürüyor |
+| Sticky Ten | ✓ 57c5d4a | | | | | | | | K2 hatası düzeldi |
+| Hop Koala | | | | | | | | | çevrimiçi bayrak yok; K7 (full_unlock) mağaza paketinde |
+| Ense | ✓ 5f0df88 | | | | | | | | K2, K3 hataları düzeldi |
+| Sahte | ✓ a146f99 | | | | | | | | K2, K3 hataları düzeldi; 4–8 sürüyor |
+| Remzle | | | | | | | | | 1–3 sürüyor |
+| Ezber | ✓ 030d02d | | | | | | | | 3 hata düzeldi; K9 ve 4–8 sürüyor |
+| Koz | ✓ 537d773 | | | | | | | | K2 hatası düzeldi |
+| Kapı | ✓ (D05, 42d375e) | | | | | | | | arşiv sunucuda (hata 4) |
+| Mahalle | ✓ 615dbc6 | | | | | | | | 3 hata; hata 2 ve 4 (7825343) |
+| İfade | ✓ e7de7f9 | | | | | | | | K2 hatası düzeldi |
