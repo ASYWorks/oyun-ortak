@@ -46,4 +46,4 @@ Push ve yayın her oyunun kendi oturumunda.
 | Koz | ✓ 537d773 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 7cd2368, 37adc75: K6, K9, K10 hataları düzeldi; düello 403 testi geri, sıralama kapalıyken skor yazılmıyor; K7 yok (ödeme ertelendi) |
 | Kapı | ✓ (D05, 42d375e) | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 88b0b7a: K4, K5, K6, K9 hataları düzeldi; K7 yok (satış yok); arşiv sunucuda (hata 4) |
 | Mahalle | ✓ 615dbc6 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | a9dacd6: K4, K5, K6, K9, K10 hataları düzeldi; K7 yok (satın alma yok); hata 2 ve 4 (7825343) |
-| İfade | ✓ e7de7f9 | | | | | | | | K2 hatası düzeldi |
+| İfade | ✓ e7de7f9 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 89a5a78: K4, K5, K6, K8 (canlıda `?acik` bütün vakaları açıyordu), K9 hataları düzeldi; K7 yok (mağaza bağlı değil) |
