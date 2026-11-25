@@ -2,11 +2,13 @@
 // gelecek ve dün 03:00'ten önce verilmez), servis rolü yükleme kuralları.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
-import { istemci, sql, yonetici } from "./yardimci.ts";
+import { gunlukKoru, istemci, sql, yonetici } from "./yardimci.ts";
 
-after(() => sql.end());
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
+// ÖG-53: paylaşılan yerel yığında oyunun yakın gün satırları test sonunda aynen geri konur.
+const geriKoy = await gunlukKoru("sahte", [gun(-2), gun(-1), gun(0), gun(1)], { tablo: "desteler" });
+after(async () => { await geriKoy(); await sql.end(); });
 const saat = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Istanbul", hour: "2-digit", hour12: false }).format(new Date()));
 const deste = (g: string, no: number, ozet: string) => ({ gun: g, no, surum: 1, tam: { cevap: no }, acik: { soru: no }, ozet });
 // Yerel yığında oyunun gerçek desteleri de olabilir (oyun oturumu yükler): sınanan günler ve test numaraları temizlenir.

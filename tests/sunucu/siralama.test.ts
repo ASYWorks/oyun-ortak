@@ -87,17 +87,21 @@ test("gönderim kuyruğu: ağ yokken bekler, ağ gelince gider", async () => {
   assert.equal(r.bekliyor, true);
   assert.equal(await s1.bekleyenSayisi(), 1);
 
+  // D02 (25 Kasım): oturumsuzken kuyruğa giren (sahipsiz) kayıt kalıcı hesaba gitmez; kuyrukta bekler.
+  // Sahipli kaydın ağ gelince gitmesi src/siralama/kuyruk.test.ts'te sınanır.
   const { c } = await oyuncu();
   const s2 = siralamaBaslat({ supabase: c, oyunId: "deneme", depo });
-  const sonuc = await s2.bosalt();
-  assert.equal(sonuc[0]!.durum, 200);
-  assert.equal((sonuc[0]!.veri as { puan: number }).puan, 6);
-  assert.equal(await s2.bekleyenSayisi(), 0);
+  assert.deepEqual(await s2.bosalt(), []);
+  assert.equal(await s2.bekleyenSayisi(), 1);
 
-  // kalıcı ret kuyruktan düşer
-  const r2 = await s2.gonder(gunluk([1], { kuralSurumu: 99 }));
+  // kalıcı hesabın kendi gönderimi gider; kalıcı ret kuyruktan düşer
+  const s3 = siralamaBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
+  const ok = await s3.gonder(gunluk([3, 3]));
+  assert.equal(ok.durum, 200);
+  assert.equal((ok.veri as { puan: number }).puan, 6);
+  const r2 = await s3.gonder(gunluk([1], { kuralSurumu: 99 }));
   assert.deepEqual([r2.durum, r2.bekliyor], [426, false]);
-  assert.equal(await s2.bekleyenSayisi(), 0);
+  assert.equal(await s3.bekleyenSayisi(), 0);
 });
 
 test("tablo: eşit puana aynı sıra, ilk N + çevre, 50 altında yüzdelik yok", async () => {
@@ -224,6 +228,21 @@ test("nabız: süre yalnız ekrandayken birikir; duraklama sayılmaz; sık nabı
   assert.equal(await s.nabiz(anahtar), Number(d!.aktif_ms), "bitince süre artmaz");
   const m = istemci();
   assert.match((await m.schema("ortak").rpc("nabiz", { p_oyun: "deneme", p_anahtar: anahtar })).error?.message ?? "", /permission denied|JWT|yetki/i);
+});
+
+test("8420 nabız (MD-23): deneme nabızsız açıldıysa ilk nabız açılıştan bu yanki süreyi sayar; 90 sn'den uzunsa duraklama", async () => {
+  const c = istemci();
+  const h = hesapBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
+  const uid = await kaliciGir(h);
+  const s = siralamaBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
+  const kisa = `ilk:${crypto.randomUUID()}`, uzun = `ilk:${crypto.randomUUID()}`;
+  // Oyun denemeyi kendi işleminde (ör. basla) nabızsız açar; ilk nabız 20 sn sonra gelir.
+  await sql`insert into ortak.denemeler (oyun_id, kullanici_id, anahtar, olusturma) values ('deneme', ${uid}, ${kisa}, now() - interval '20 seconds')`;
+  assert.ok(Math.abs((await s.nabiz(kisa)) - 20_000) < 1000, "açılıştan ilk nabza kadar 20 sn sayılır");
+  await sql`insert into ortak.denemeler (oyun_id, kullanici_id, anahtar, olusturma) values ('deneme', ${uid}, ${uzun}, now() - interval '5 minutes')`;
+  assert.ok((await s.nabiz(uzun)) < 1000, "5 dk boşluk süreye eklenmez");
+  const [d] = await sql`select durak_ms from ortak.denemeler where kullanici_id = ${uid} and anahtar = ${uzun}`;
+  assert.ok(Math.abs(Number(d!.durak_ms) - 300_000) < 1500, `duraklama sayılır: ${d!.durak_ms}`);
 });
 
 test("nabız durdur: duraklatma süreye eklenmez; teslimde durdu yok sayılır", async () => {

@@ -20,7 +20,7 @@ const webhook = async (event: Record<string, unknown>, sir = SIR) => {
 };
 const satinAlma = (kullanici: string, ek: Record<string, unknown> = {}) => ({
   id: crypto.randomUUID(), type: "NON_RENEWING_PURCHASE", app_user_id: kullanici, product_id: "deneme_tam",
-  store: "PLAY_STORE", transaction_id: "GPA.1234", expiration_at_ms: null, ...ek,
+  store: "PLAY_STORE", transaction_id: `GPA.${crypto.randomUUID()}`, expiration_at_ms: null, ...ek, // gerçekte her alım ayrı işlem (8450)
 });
 
 const oyuncu = async () => {
@@ -47,12 +47,40 @@ test("webhook: yanlış sır 401; TEST olayı; satın alma hakkı verir, aynı o
 
 test("iade: tek seferlik üründe CANCELLATION hakkı düşürür; istemci önbelleği de düşer", async () => {
   const { c, id } = await oyuncu();
-  await webhook(satinAlma(id));
+  const transaction_id = `GPA.${crypto.randomUUID()}`;
+  await webhook(satinAlma(id, { transaction_id }));
   const o = odemeBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
   assert.deepEqual([...(await o.yenile())], ["tam"]);
-  await webhook(satinAlma(id, { type: "CANCELLATION", cancel_reason: "CUSTOMER_SUPPORT" }));
+  await webhook(satinAlma(id, { type: "CANCELLATION", cancel_reason: "CUSTOMER_SUPPORT", transaction_id }));
   assert.deepEqual(await haklarim(c), [{ hak: "tam", durum: "iade" }]);
   assert.deepEqual([...(await o.yenile())], []);
+});
+
+test("8450 (D08): eşzamanlı aynı olay tek kez; eski alımın gecikmiş iadesi yeni alıma dokunmaz; ters sıra hak vermez", async () => {
+  // Eşzamanlı aynı olay: yalnız biri işler.
+  const a = await oyuncu();
+  const olay = satinAlma(a.id, { transaction_id: `GPA.${crypto.randomUUID()}` });
+  const sonuclar = (await Promise.all(Array.from({ length: 5 }, () => webhook(olay)))).map((r) => r.veri.sonuc).sort();
+  assert.deepEqual(sonuclar, ["ok", "tekrar", "tekrar", "tekrar", "tekrar"]);
+
+  // Eski alım (T1) iade edildi, yeniden alındı (T2); T1'in geç gelen ikinci iadesi T2'nin hakkına dokunmaz.
+  const b = await oyuncu();
+  const t1 = `GPA.${crypto.randomUUID()}`, t2 = `GPA.${crypto.randomUUID()}`;
+  await webhook(satinAlma(b.id, { transaction_id: t1 }));
+  await webhook(satinAlma(b.id, { transaction_id: t2 }));
+  const gec = await webhook(satinAlma(b.id, { type: "CANCELLATION", transaction_id: t1 }));
+  assert.equal(gec.veri.sonuc, "eski_islem");
+  assert.deepEqual(await haklarim(b.c), [{ hak: "tam", durum: "aktif" }]);
+  // Aynı işlemin iadesi düşürür.
+  assert.equal((await webhook(satinAlma(b.id, { type: "CANCELLATION", transaction_id: t2 }))).veri.sonuc, "ok");
+  assert.deepEqual(await haklarim(b.c), [{ hak: "tam", durum: "iade" }]);
+
+  // Ters sıra: iadesi önce gelen işlemin satın alması hak vermez.
+  const c = await oyuncu();
+  const t3 = `GPA.${crypto.randomUUID()}`;
+  assert.equal((await webhook(satinAlma(c.id, { type: "CANCELLATION", transaction_id: t3 }))).veri.sonuc, "ok");
+  assert.equal((await webhook(satinAlma(c.id, { transaction_id: t3 }))).veri.sonuc, "iade_edilmis");
+  assert.deepEqual(await haklarim(c.c), []);
 });
 
 test("TRANSFER: yalnız gönderen uygulamanın oyunundaki haklar geçer", async () => {

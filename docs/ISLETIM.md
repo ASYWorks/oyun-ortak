@@ -21,8 +21,16 @@ içerik yönetimi için tek başvuru yeridir. Ölçümler 19–20 Kasım; gerçe
 - Veri kaybı en çok 24 saat. Yedek günlük alınır: Windows görevi "oyun-ortak gunluk" her gün 11:00'de (bilgisayar kapalıysa açılınca) `scripts/gunluk.sh` çalıştırır: canlı yedek + canlı sağlık denetimi, günlük `~/.oyun-ortak/yedek/gunluk.log`, sorunda ekrana uyarı penceresi (20 Kasım kuruldu, görevden çalıştırma denendi); oyuncu sayısı büyüyünce Pro'nun günlük yedeği ya da 6 saatte bir yedek.
 - Toparlanma en çok 4 saat: yeni proje, geri yükleme, yayın.
 
+**Yedeğin bütünlüğü (D10, 23 Kasım):**
+- Döküm önce aynı üst dizinde `.hazirlik-<zaman>-<pid>` dizinine yazılır. Çıktılar doğrulanır: roller, sema, veri ve ozet boş olamaz, cron.sql var olmalı. Sıfır cron işi geçerlidir (`[]`); cron sorgusunun başarısızlığı boru hattında yutulmaz, her satırı `select cron.schedule(` ile başlayan bir metin olmayan yanıt reddedilir.
+- Doğrulanan dökümde `.tamam` işareti konur ve tek bir aynı-disk yeniden adlandırmasıyla `<zaman>` adına yayımlanır. Yarım döküm hiçbir zaman `<zaman>` klasörü olarak görünmez; hata çıkışında hazırlık dizini silinir.
+- Aynı adda yedek varsa üzerine yazılmaz, betik çıkış 1 ile durur (aynı saniye ya da ikinci çalıştırıcı).
+- **Geçerli yedek:** adı `YYYYAAGGTssddssZ`, gerçek dizin (symlink değil), roller/sema/veri.sql ve ozet.txt boş değil, cron.sql gerçek dosya (boş olabilir). `.tamam` varsa gerçek dosya olmalı ve içeriği klasör adıyla eşleşmeli; 23 Kasım öncesi işaretsiz yedekler bu dosyalar tamsa geçerlidir.
+- Geçersiz ya da tanınmayan girişler (hazırlık dizinleri dahil) sayılmaz ve silinmez.
+- `sh scripts/yedek.sh son canli` ağ kullanmadan son geçerli yedeğin yolunu yazar. `gunluk.sh` panele yalnız bu çalıştırmada başarıyla tamamlanan yedeğin boyutunu bildirir, yedek başarısızsa 0.
+
 **Saklama:**
-- Son 14 yedek (betik eskisini siler).
+- Son 14 geçerli yedek (betik daha eskisini siler; yalnız geçerli yedekler sayılır ve silinir).
 - Yedekler yalnız kullanıcının klasöründe, Supabase'den bağımsız.
 - Öneri: haftada bir kopya harici diske ya da kullanıcının bulut sürücüsüne. Şifreli zip; içinde e-posta ve oturum kayıtları var.
 

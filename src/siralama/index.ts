@@ -23,9 +23,16 @@ interface Bekleyen {
   runId: string;
   govde: Record<string, unknown>;
   eklendi: number;
-  /** Gönderimi yapan hesap (O15): başka hesabın oturumuyla gitmez, o hesap dönünce gider. Eski kayıtta yok. */
+  /**
+   * Gönderimi yapan hesap (O15, D02): yalnız o hesabın oturumuyla gider, sonucu yalnız o oturumda uygulanır.
+   * null: oturumsuz (misafir) gönderim; ilk gönderimde açılan anonim hesaba bağlanır. Kalıcı bir hesaba hiç gitmez.
+   * Eski kayıtta alan yok (sahipsiz): misafir kaydı gibi işlenir, kalıcı hesaba yazılmaz.
+   */
   kullanici?: string | null;
 }
+
+/** Oturumun gönderim için gereken kısmı. anonim: Supabase `user.is_anonymous` (alan yoksa false: kalıcı sayılır, güvenli taraf). */
+interface OturumBilgisi { id: string; anonim: boolean; jeton: string | null }
 
 export interface Satir {
   sira: number;
@@ -136,6 +143,7 @@ export function siralamaBaslat(a: SiralamaAyari) {
   const sb = a.supabase;
   const fn = a.fonksiyon ?? `dogrula-${a.oyunId}`;
   const KEY = `oyun-ortak:gonderim:${a.oyunId}`;
+  const BEKLEME_SINIRI = 7 * 86_400_000;
   let kuyruk: Bekleyen[] | null = null;
   let bosaltiliyor: Promise<GonderimSonucu[]> | null = null;
   let cihaz: string | null = null;
@@ -163,36 +171,82 @@ export function siralamaBaslat(a: SiralamaAyari) {
     }
     return kuyruk;
   };
-  const oturumKullanici = async (): Promise<string | null> => {
+  const oturum = async (): Promise<OturumBilgisi | null> => {
     try {
-      return (await sb.auth.getSession()).data.session?.user.id ?? null;
+      const s = (await sb.auth.getSession()).data.session as
+        | { user: { id: string; is_anonymous?: boolean }; access_token?: string } | null;
+      return s ? { id: s.user.id, anonim: s.user.is_anonymous === true, jeton: typeof s.access_token === "string" && s.access_token ? s.access_token : null } : null;
     } catch {
       return null;
     }
   };
+  const oturumKullanici = async (): Promise<string | null> => (await oturum())?.id ?? null;
   const sakla = () => a.depo.yaz(KEY, JSON.stringify(kuyruk ?? [])).catch(() => {});
 
-  async function cagir(b: Bekleyen): Promise<{ durum: number; veri: unknown }> {
+  /**
+   * Kaydın sahibine ait oturum: sahipli kayıtta oturum o hesap olmalı; sahipsiz (misafir ya da eski) kayıt yalnız oturumsuzken
+   * (anonim giriş açılır) ya da anonim oturumda gider ve o anonim hesaba bağlanır. Kalıcı hesaba sahipsiz kayıt gitmez.
+   * null: bu kayıt şimdi gönderilemez (kuyrukta bekler).
+   */
+  async function sahipOturumu(b: Bekleyen): Promise<OturumBilgisi | null | "anonim_giris"> {
+    let o = await oturum();
+    // Jetonsuz oturumla hiç gönderilmez: SDK'nın örtük başka oturumuna geri düşülmesin.
+    if (b.kullanici) return o && o.id === b.kullanici && o.jeton ? o : null;
+    if (o) {
+      if (!o.anonim || !o.jeton) return null; // sahipsiz kayıt kalıcı hesaba gitmez
+    } else {
+      const captchaToken = a.captcha ? await a.captcha() : null;
+      // captcha beklerken bir oturum açıldıysa ezilmez: kalıcıysa kayıt bekler, anonimse ona bağlanır
+      const ara = await oturum();
+      if (ara) {
+        if (!ara.anonim || !ara.jeton) return null;
+        o = ara;
+      } else {
+        const { data, error } = await sb.auth.signInAnonymously({ options: captchaToken ? { captchaToken } : {} });
+        if (error) return "anonim_giris";
+        const d = data as { session?: { user?: { id?: string } } | null; user?: { id?: string } | null } | null;
+        const donen = d?.session?.user?.id ?? d?.user?.id ?? null;
+        o = await oturum();
+        // SDK'nın döndürdüğü kimlik ile yeniden okunan etkin anonim oturum eşleşmeli
+        if (!o || !o.anonim || !o.jeton || !donen || o.id !== donen) return null;
+      }
+    }
+    b.kullanici = o.id; // misafir kaydı bu anonim hesaba bağlanır; yeniden denemeler aynı hesapla gider
+    await sakla();
+    // sahiplik yazılırken hesap değiştiyse gönderilmez (kayıt anonim sahibine bağlı kalır)
+    const son = await oturum();
+    return son && son.id === o.id && son.jeton ? son : null;
+  }
+
+  type Cagri = { tur: "bekle" } | { tur: "sonuc"; durum: number; veri: unknown } | { tur: "sustur" };
+
+  async function cagir(b: Bekleyen): Promise<Cagri> {
     try {
-      if (!(await sb.auth.getSession()).data.session) {
-        const { error } = await sb.auth.signInAnonymously({ options: a.captcha ? { captchaToken: await a.captcha() } : {} });
-        if (error) return { durum: 0, veri: { error: "anonim_giris" } };
+      const kimlik = await cihazKimligi(); // cihaz kimliği yüklenirken hesap değişebilir: sahiplik bundan sonra denetlenir
+      const o = await sahipOturumu(b);
+      if (o === "anonim_giris") return { tur: "sonuc", durum: 0, veri: { error: "anonim_giris" } };
+      if (!o) return { tur: "bekle" };
+      // Gönderim doğrulanmış oturumun jetonuna sabitlenir; yanıt beklerken oturum değişse de istek sahibi adına gider.
+      const { data, error } = await sb.functions.invoke(fn, {
+        body: { ...b.govde, runId: b.runId, cihaz: kimlik },
+        headers: { Authorization: `Bearer ${o.jeton}` },
+      });
+      let r: { durum: number; veri: unknown };
+      if (!error) r = { durum: 200, veri: data };
+      else {
+        const yanit = (error as { context?: unknown }).context;
+        if (yanit instanceof Response) {
+          let veri: unknown = null;
+          try { veri = await yanit.json(); } catch { veri = null; }
+          r = { durum: yanit.status, veri };
+        } else r = { durum: 0, veri: { error: "ag" } };
       }
-      const { data, error } = await sb.functions.invoke(fn, { body: { ...b.govde, runId: b.runId, cihaz: await cihazKimligi() } });
-      if (!error) return { durum: 200, veri: data };
-      const yanit = (error as { context?: unknown }).context;
-      if (yanit instanceof Response) {
-        let veri: unknown = null;
-        try {
-          veri = await yanit.json();
-        } catch {
-          veri = null;
-        }
-        return { durum: yanit.status, veri };
-      }
-      return { durum: 0, veri: { error: "ag" } };
+      // Yanıt döndüğünde hesap değişmişse sonuç yeni oturumda uygulanmaz; kayıt kuyrukta kalır ve sahibi dönünce
+      // aynı runId ile yeniden gider (sunucu tek skor üretir, gerçek sonuç o oturumda işlenir).
+      if ((await oturumKullanici()) !== o.id) return { tur: "sustur" };
+      return { tur: "sonuc", ...r };
     } catch {
-      return { durum: 0, veri: { error: "ag" } };
+      return { tur: "sonuc", durum: 0, veri: { error: "ag" } };
     }
   }
 
@@ -201,10 +255,15 @@ export function siralamaBaslat(a: SiralamaAyari) {
     bosaltiliyor = (async () => {
       const q = await yukle();
       const sonuclar: GonderimSonucu[] = [];
-      const simdiki = await oturumKullanici();
       for (const b of [...q]) {
-        if (b.kullanici && b.kullanici !== simdiki) continue; // başka hesabın gönderimi kuyrukta bekler
         const r = await cagir(b);
+        if (r.tur === "bekle" && Date.now() - b.eklendi > BEKLEME_SINIRI) {
+          // Sahibi 7 gündür dönmeyen ya da kalıcı hesapta bekleyen misafir kaydı: sunucu kapanmış güne zaten almaz, kuyruk şişmesin.
+          kuyruk = (kuyruk ?? []).filter((x) => x.runId !== b.runId);
+          await sakla();
+          continue;
+        }
+        if (r.tur === "bekle" || r.tur === "sustur") continue; // başka hesabın kaydı ya da hesap değişti: kuyrukta bekler
         const bekliyor = yenidenDenenir(r.durum);
         const s = { runId: b.runId, durum: r.durum, veri: r.veri, bekliyor };
         sonuclar.push(s);

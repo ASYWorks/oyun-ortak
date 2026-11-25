@@ -8,3 +8,9 @@ supabase/.branches/
 *.env
 *.env.*
 client_secret*.json
+
+# Codex kalıntıları (25 Kasım): kişisel ad içerir, depo npm kullanır
+AGENTS.md
+pnpm-lock.yaml
+.agents/
+.codex/

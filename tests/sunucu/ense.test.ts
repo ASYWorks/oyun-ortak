@@ -1,11 +1,12 @@
 // Göç 7800 (Ense Nasıl Olsun): oyun satırı, gizli günlük tablo yalnız servis rolüne, açılmış gün koruması.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
-import { sql, yonetici } from "./yardimci.ts";
-
-after(() => sql.end());
+import { gunlukKoru, sql, yonetici } from "./yardimci.ts";
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
+// ÖG-53: paylaşılan yerel yığında Ense'nin dün/bugün/yarın satırları test sonunda aynen geri konur (Ense 23 Kasım).
+const geriKoy = await gunlukKoru("ense", [gun(-1), gun(0), gun(1)]);
+after(async () => { await geriKoy(); await sql.end(); });
 
 test("7800 ense: oyun satırı, lig yok, büyük puan önde, eşitlik ikincil", async () => {
   const [o] = await sql`select ayarlar from ortak.oyunlar where id = 'ense'`;

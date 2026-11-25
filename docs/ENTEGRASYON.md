@@ -10,6 +10,7 @@ Okuyucu: oyun deposunda çalışan oturum (Aşama 1'e gelmiş oyun). Önce `_ort
 4. **`src/altyapi/`.** İnce uyarlama katmanını yaz. Oyun kodu paketi yalnız buradan çağırır.
 5. **`dogrula-<oyun>`.** `sablon/dogrula/` klasörünü oyun deposunda `supabase/functions/dogrula-<oyun>/` altına kopyala, motoru bağla.
 6. **Testler** geçince eski altyapıyı ve servisleri kaldır. Vercel bağlantısını kopar, Cloudflare Pages'e taşı.
+7. **Kabul senaryoları.** Yayından önce OYUN_DENETIMI 3c (K1–K10) geçilir; K1–K3 bayrak denetimi `yayin.json` e2e zincirine bağlanır (örnek: Koz `tools/bayrak-denetimi.mjs`, boş port). Oyunun durumu `docs/KABUL_MATRISI.md` tablosuna yazılır.
 7. Canlı kullanıcısı olan oyunda veri taşıma planı ayrı yazılır (Halka için `docs/GECIS.md`).
 
 ## Eşleme tablosu

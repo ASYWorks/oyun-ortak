@@ -2,6 +2,31 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.23.3 (25 Kasım 2026)
+
+- KZ-1: bulut kaydı hataları `KayitHatasi` (`kod`: kayit_cakisma | hesap_degisti | kayit_hesapli_yok). `message` aynı; eski yakalayıcılar bozulmaz.
+- **Oyunlar ne yapmalı:** `birlestir` çağrısını yakalayın; `e instanceof KayitHatasi` ile koda bakın (Koz bunu yakalamıyordu, yakalanmamış söz reddi oluşuyordu).
+
+## v0.23.2 (25 Kasım 2026)
+
+- Göç 8460 (D03 sunucu makbuzu): devir yapılıp yanıt kaybolursa aynı hesap aynı kodla yeniden çağırınca aynı sonuç döner (ikinci devir yok). Başka hesap için kod geçersiz. İstemcide değişiklik gerekmez.
+
+## v0.23.1 (25 Kasım 2026)
+
+- Skor kuyruğu: 7 günden eski ve gönderilemeyen kayıt (sahibi dönmeyen ya da kalıcı hesapta bekleyen misafir kaydı) kuyruktan düşer.
+- Göç 8450 (D08): ödeme hakkı mağaza işlemine bağlı. Eşzamanlı aynı olay tek kez işlenir. Eski alımın gecikmiş iadesi yeni alıma dokunmaz (`eski_islem`). İadesi önce gelen işlem hak vermez (`iade_edilmis`).
+- **Oyunlar ne yapmalı:** bir şey gerekmez; v0.23.0 ile birlikte bir sonraki işte geçin.
+
+## v0.23.0 (25 Kasım 2026)
+
+Codex incelemesi (D02, D03, D09, MD-24) ve Opus 5.5 uygulaması.
+- `kayitDeposu().birlestir(yerel, fn, { kim })` hesap doğrulamalı işlevlerle çalışır (göç 8440: `kayit_oku_hesapli`, `kayit_yaz_hesapli`). Oturum iki istek arasında başka hesaba geçerse `hesap_degisti` fırlatır; başka hesabın kaydı okunmaz ve yazılmaz. Göç uygulanmamışsa `kayit_hesapli_yok` fırlatır; eski işlevlere düşmez.
+- Skor kuyruğu (D02): her kayıt gönderen hesaba bağlanır ve yalnız o hesabın jetonuyla gider. Misafir kaydı kalıcı hesaba gitmez.
+- Web devri (D03): devir kaydı geçici hatada silinmez, aynı hesapta yeniden denenir. 30 dakika sonra düşer. Aynı anda gelen çağrılar tek devri paylaşır.
+- Ölçüm (D09): parti 60 KB'ı aşmaz (`keepalive` sınırı). Sığmayan olay kuyruktan düşer. İzin kapatılıp açılınca eski yanıt yeni kuyruğa dokunmaz.
+- Yayın betiği: paket SHA-256, tam commit ve dağıtım kimliği günlüğe yazılır; kilitli npm/pnpm kurulumu. Yedek betiği: hazırlık dizini, doğrulama, atomik yayımlama ve yalnız geçerli yedeklerin rotasyonu. Günlük görev Docker kapalıysa açar.
+- **Oyunlar ne yapmalı:** `birlestir` çağrısında `kim` veriyorsanız (MD-24) bu sürüme geçin. Davranış değişikliği yoktur; yalnız sunucu da hesabı doğrular.
+
 ## v0.22.3 (22 Kasım 2026)
 
 - ortak-sunucu `c.testciMi()`: testçiye özel örnek içerik için.

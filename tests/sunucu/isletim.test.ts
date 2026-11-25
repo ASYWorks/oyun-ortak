@@ -4,11 +4,13 @@ import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import { hesapBaslat } from "../../src/hesap/index.ts";
 import { bellekDepo } from "../../src/kayit/index.ts";
-import { istemci, kaliciGir, kaliciKullanici, sql } from "./yardimci.ts";
+import { gunlukKoru, istemci, kaliciGir, kaliciKullanici, sql } from "./yardimci.ts";
 
-after(() => sql.end());
 
 const gun = (fark: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + fark * 864e5));
+// ÖG-53: paylaşılan yerel yığında oyunun yakın gün satırları test sonunda aynen geri konur.
+const geriKoy = await gunlukKoru("halka", [gun(-1), gun(0), gun(5)], { tablo: "gunluk_bulmacalar", kolon: "tarih" });
+after(async () => { await geriKoy(); await sql.end(); });
 
 test("isletim_durumu: işler, içerik, bekleyen, son 24 saat; istemciye kapalı", async () => {
   const [{ v }] = await sql`select ortak.isletim_durumu() as v`;

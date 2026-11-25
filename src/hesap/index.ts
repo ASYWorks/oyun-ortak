@@ -86,7 +86,29 @@ export interface HesapAyari {
   captcha?: () => Promise<string>;
 }
 
+/**
+ * Bulut kaydı hatası (KZ-1, Koz 25 Kasım): `kod` ile ayırt edilir, `message` eski düz Error ile aynıdır (eski yakalayıcılar bozulmaz).
+ * - kayit_cakisma: dört denemede iyimser kilit tutmadı (başka cihaz yazıyor); sonra yeniden denenebilir.
+ * - hesap_degisti: oturum beklenen hesap değil (MD-24).
+ * - kayit_hesapli_yok: göç 8440 bu projede yok.
+ */
+export class KayitHatasi extends Error {
+  readonly kod: "kayit_cakisma" | "hesap_degisti" | "kayit_hesapli_yok";
+  constructor(kod: KayitHatasi["kod"]) {
+    super(kod);
+    this.name = "KayitHatasi";
+    this.kod = kod;
+  }
+}
+
 const DEVIR = "oyun-ortak:devir";
+/** Web devir kaydının ömrü (D03): sunucudaki kısa ömürlü devir kodundan uzun tutulmaz. */
+const DEVIR_OMRU = 30 * 60_000;
+/**
+ * Web yönlendirmeli girişin yerel devir kaydı (D03). `sahip`: ilk uygun (kalıcı, jetonlu) OAuth dönüşündeki hesap; kayıt yalnız
+ * o hesapta denenir. `id`: kaydı ayırır, eski işlem daha yeni bir kaydı silemez. Eski sürümde depoda ham kod metni durur.
+ */
+interface DevirKaydi { id: string; kod: string; olusturma: number; sahip: string | null }
 
 /** jsonb gibi karşılaştırır: anahtar sırası ve undefined alanlar sayılmaz. */
 const sirali = (v: unknown): unknown =>
@@ -109,7 +131,9 @@ export function hesapBaslat(a: HesapAyari) {
   const oturum = async () => (await sb.auth.getSession()).data.session;
   const oturumKimligi = async (): Promise<string | null> => (await oturum())?.user.id ?? null;
   /** Bulut kaydının bu oturumda son bilinen hâli (hesaba bağlı; başka hesapta kullanılmaz). */
-  let bulutBilinen: { kim: string | null; veri: unknown; surum: number } | null = null;
+  // `dogrulandi`: girdi hesap doğrulamalı çağrıdan geldi (MD-24); doğrulamalı birleştirme yalnız bunlara güvenir, çünkü eski yolda
+  // `kim` yanıttan sonra okunur ve arada oturum değişirse yanlış hesaba bağlanabilir.
+  let bulutBilinen: { kim: string | null; veri: unknown; surum: number; dogrulandi?: true } | null = null;
   const jeton = async () => (a.captcha ? { captchaToken: await a.captcha() } : {});
 
   /** Kalıcı girişin ortak gövdesi: anonimse devir kodu al, gir, devral. */
@@ -125,6 +149,76 @@ export function hesapBaslat(a: HesapAyari) {
     } catch {
       return { devredilen: [], devirBasarisiz: true };
     }
+  }
+
+  // ---- web devir kaydı (D03) ----
+  const devirOku = async (): Promise<DevirKaydi | null> => {
+    const ham = await a.depo.oku(DEVIR).catch(() => null);
+    if (!ham) return null;
+    try {
+      const v = JSON.parse(ham) as Partial<DevirKaydi>;
+      if (v && typeof v === "object" && typeof v.kod === "string" && typeof v.id === "string" && typeof v.olusturma === "number")
+        return { id: v.id, kod: v.kod, olusturma: v.olusturma, sahip: typeof v.sahip === "string" ? v.sahip : null };
+    } catch { /* eski biçim: ham kod */ }
+    // Eski sürümün ham kodu: ilk kullanımda bugünkü biçime çevrilir, ömrü bu andan başlar.
+    const yeni: DevirKaydi = { id: crypto.randomUUID(), kod: ham.trim(), olusturma: Date.now(), sahip: null };
+    if (!yeni.kod) return null;
+    await a.depo.yaz(DEVIR, JSON.stringify(yeni)).catch(() => {});
+    return yeni;
+  };
+  /** Kayıt hâlâ aynıysa (id) siler; arada yazılmış daha yeni bir devir kaydına dokunmaz. */
+  const devirSil = async (id: string) => {
+    const simdi = await devirOku();
+    if (simdi?.id === id) await a.depo.sil(DEVIR).catch(() => {});
+  };
+  let devirSuruyor: Promise<GirisSonucu | null> | null = null;
+
+  async function webDevir(): Promise<GirisSonucu | null> {
+    const k = await devirOku();
+    if (!k) return null;
+    if (Date.now() - k.olusturma > DEVIR_OMRU) { // süre doldu: ağ yok, kayıt temizlenir
+      await devirSil(k.id);
+      return { devredilen: [], devirBasarisiz: true };
+    }
+    const s = await oturum();
+    const jetonu = typeof s?.access_token === "string" && s.access_token ? s.access_token : null;
+    if (!s || s.user.is_anonymous || !jetonu) return null; // henüz uygun dönüş değil; kayıt kalır
+    if (k.sahip && k.sahip !== s.user.id) return null; // başka kalıcı hesap: bu kayıt onda denenmez
+    if (!k.sahip) {
+      const simdi = await devirOku();
+      if (simdi?.id !== k.id) return null; // arada yeni bir devir başladı
+      // Sahiplik yazılamazsa çağrı yapılmaz: yoksa geçici hatadan sonra kayıt sahipsiz kalır ve başka hesapta denenebilir.
+      try {
+        await a.depo.yaz(DEVIR, JSON.stringify({ ...k, sahip: s.user.id }));
+      } catch {
+        return null;
+      }
+      k.sahip = s.user.id;
+    }
+    // Çağrı, hedef hesabın o anki doğrulanmış jetonuna sabitlenir; SDK'nın değişen oturumunun örtük jetonuna düşülmez.
+    const istek = ortak().rpc("hesap_devral", { p_kod: k.kod }) as unknown as {
+      setHeader?: (ad: string, deger: string) => PromiseLike<{ data: unknown; error: { message?: string } | null }>;
+    };
+    if (typeof istek.setHeader !== "function") return { devredilen: [], devirBasarisiz: true }; // jeton sabitlenemiyor: kayıt kalır
+    let data: unknown, error: { message?: string } | null;
+    try {
+      ({ data, error } = await istek.setHeader("Authorization", `Bearer ${jetonu}`));
+    } catch {
+      // ağ: kayıt kalır, aynı hesapta yeniden denenir. Arada hesap değiştiyse eski sonuç yeni oturuma dönmez.
+      if ((await oturumKimligi()) !== s.user.id) return null;
+      return { devredilen: [], devirBasarisiz: true };
+    }
+    // Yanıt döndüğünde hesap değiştiyse sonuç bu oturumda kullanılmaz; kayıt sahibine bağlı kalır.
+    if ((await oturumKimligi()) !== s.user.id) return null;
+    if (!error) {
+      await devirSil(k.id);
+      const r = data as { oyunlar: string[]; skorlar_tasindi: boolean };
+      return { devredilen: r.oyunlar, skorlarTasindi: r.skorlar_tasindi };
+    }
+    // Kesin ret: kod geçersiz ya da süresi dolmuş. Önceki denemenin yanıtı kaybolmuş ve sunucu devri yapmışsa sunucu aynı
+    // hesaba saklı sonucu döner (göç 8460, devir makbuzu); o durum yukarıda başarı olarak işlenir.
+    if (/devir_kodu_gecersiz/.test(String(error.message ?? ""))) await devirSil(k.id);
+    return { devredilen: [], devirBasarisiz: true }; // öteki hatalar geçici: kayıt kalır
   }
 
   return {
@@ -155,18 +249,23 @@ export function hesapBaslat(a: HesapAyari) {
     /** Web'de yönlendirmeli giriş. Dönüşte `webDonusunuTamamla` çağrılır. */
     async webIleGir(saglayici: Saglayici, donusAdresi: string): Promise<void> {
       const s = await oturum();
-      if (s?.user.is_anonymous) await a.depo.yaz(DEVIR, await rpc<string>("devir_kodu_al"));
+      if (s?.user.is_anonymous) {
+        const k: DevirKaydi = { id: crypto.randomUUID(), kod: await rpc<string>("devir_kodu_al"), olusturma: Date.now(), sahip: null };
+        await a.depo.yaz(DEVIR, JSON.stringify(k));
+      }
       const { error } = await sb.auth.signInWithOAuth({ provider: saglayici, options: { redirectTo: donusAdresi } });
       if (error) throw error;
     },
 
     /** Yönlendirmeden dönünce (oturum supabase-js tarafından kurulduktan sonra) devri tamamlar. */
-    async webDonusunuTamamla(): Promise<GirisSonucu | null> {
-      const kod = await a.depo.oku(DEVIR).catch(() => null);
-      const s = await oturum();
-      if (!kod || !s || s.user.is_anonymous) return null;
-      await a.depo.sil(DEVIR).catch(() => {});
-      return kaliciGiris(async () => ({ error: null }), kod);
+    /**
+     * D03: kayıt yalnız başarı, kesin `devir_kodu_gecersiz` ya da süre dolunca (30 dk) silinir; geçici hatada kalır ve aynı
+     * hesapta yeniden denenir. Aynı anda gelen çağrılar tek devir işlemini paylaşır.
+     */
+    webDonusunuTamamla(): Promise<GirisSonucu | null> {
+      if (devirSuruyor) return devirSuruyor;
+      devirSuruyor = webDevir().finally(() => { devirSuruyor = null; });
+      return devirSuruyor;
     },
 
     /**
@@ -229,6 +328,39 @@ export function hesapBaslat(a: HesapAyari) {
         bulutBilinen = r ? { kim: await oturumKimligi(), veri: r.veri, surum: r.surum } : null;
         return r;
       };
+      /**
+       * MD-24, göç 8440: beklenen hesap verilince okuma ve yazma hesap doğrulamalı işlevlerle yapılır; sunucu her çağrıda
+       * oturumdaki kullanıcının `kim` olduğunu denetler ('hesap_degisti'). Bellek girdisi yalnız aynı `kim` için kullanılır ve
+       * `kim` ile yazılır. İşlevler yoksa (göç uygulanmamış) ya da çağrı reddedilirse eski işlevlere düşülmez.
+       */
+      const hesapliRpc = async <R>(ad: string, arg: Record<string, unknown>): Promise<R> => {
+        try { return await rpc<R>(ad, arg); }
+        catch (e) {
+          const m = e instanceof Error ? e.message : String(e);
+          if (/could not find the function|schema cache/i.test(m)) throw new KayitHatasi("kayit_hesapli_yok");
+          throw e;
+        }
+      };
+      async function birlestirHesapli(kim: string, yerel: T, birlestir: (yerel: T, uzak: T) => Birlesim<T>): Promise<Birlesim<T>> {
+        for (let i = 0; i < 4; i++) {
+          const bilinen = i === 0 && bulutBilinen?.dogrulandi && bulutBilinen.kim === kim ? bulutBilinen : null;
+          let uzak: { veri: T; surum: number } | null;
+          if (bilinen) uzak = { veri: bilinen.veri as T, surum: bilinen.surum };
+          else {
+            uzak = await hesapliRpc<{ veri: T; surum: number } | null>("kayit_oku_hesapli", { p_oyun: a.oyunId, p_kim: kim });
+            bulutBilinen = uzak ? { kim, veri: uzak.veri, surum: uzak.surum, dogrulandi: true } : null;
+          }
+          const b = uzak ? birlestir(yerel, uzak.veri) : { kayit: yerel };
+          if (uzak && ayniJson(b.kayit, uzak.veri)) return b; // değişmeyen kayıt yazılmaz (GC-2)
+          const s = await hesapliRpc<number | null>("kayit_yaz_hesapli", { p_oyun: a.oyunId, p_veri: b.kayit, p_surum: uzak?.surum ?? 0, p_kim: kim });
+          if (s != null) {
+            bulutBilinen = { kim, veri: b.kayit, surum: s, dogrulandi: true };
+            return b;
+          }
+          bulutBilinen = null;
+        }
+        throw new KayitHatasi("kayit_cakisma");
+      }
       return {
         oku,
         /**
@@ -237,8 +369,11 @@ export function hesapBaslat(a: HesapAyari) {
          * tutulur: ilk deneme okumadan yapılır, sürüm tutmazsa (başka cihaz yazdı) okunur. `acilis()` bulut damgası
          * bilinenle farklıysa belleği düşürür.
          */
-        async birlestir(yerel: T, birlestir: (yerel: T, uzak: T) => Birlesim<T>): Promise<Birlesim<T>> {
+        async birlestir(yerel: T, birlestir: (yerel: T, uzak: T) => Birlesim<T>, secenek: { kim?: string } = {}): Promise<Birlesim<T>> {
           const kim = await oturumKimligi();
+          // MD-24: yerel kayıt hangi hesaba aitse o verilir; oturum arada başka hesaba geçtiyse başkasının kaydına karışmasın.
+          if (secenek.kim !== undefined && secenek.kim !== kim) throw new KayitHatasi("hesap_degisti");
+          if (secenek.kim !== undefined) return birlestirHesapli(secenek.kim, yerel, birlestir);
           for (let i = 0; i < 4; i++) {
             const bilinen = i === 0 && bulutBilinen && bulutBilinen.kim === kim ? bulutBilinen : null;
             const uzak = bilinen ? { veri: bilinen.veri as T, surum: bilinen.surum } : await oku();
@@ -251,7 +386,7 @@ export function hesapBaslat(a: HesapAyari) {
             }
             bulutBilinen = null;
           }
-          throw new Error("kayit_cakisma");
+          throw new KayitHatasi("kayit_cakisma");
         },
       };
     },

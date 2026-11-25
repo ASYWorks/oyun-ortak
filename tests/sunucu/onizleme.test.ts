@@ -42,14 +42,21 @@ test("8280 önizleme: halka kapalı (eski kapali korunur), testçi açık; yayı
   assert.equal(tb.onizleme, true);
   assert.equal(tb.testci, true);
   assert.equal(tb.lig_acik, true);
-  assert.deepEqual(tb.kapali, ["turnuva"], "testçiye yalnız elle kapatılanlar kapalı");
+  assert.equal(tb.kapali, undefined, "8360: testçiye elle kapatılanlar da açık");
 
   const [{ b }] = await sql`select ortak.etkin_bayraklar(${OYUN}, ${a.id}::uuid) as b`;
   assert.ok(b.kapali.includes("gunluk"), "sunucu yardımcısının sorduğu işlev aynı sonucu verir");
 
   await ayarla("acik", { kapali: [] });
   assert.deepEqual((await a.h.acilis()).bayraklar, { kapali: [] });
-  assert.deepEqual((await t.h.acilis()).bayraklar, { kapali: [], testci: true }, "8300: yayından sonra da testçi");
+  assert.deepEqual((await t.h.acilis()).bayraklar, { testci: true }, "8300: yayından sonra da testçi");
+
+  // 8360: kademeli açılış. Yayından sonra açılmamış özellik oyuncuya kapalı, testçiye açık; önizleme listesi eklenmez.
+  await ayarla("acik", { kapali: ["etkinlik", "lig"] });
+  assert.deepEqual((await a.h.acilis()).bayraklar, { kapali: ["etkinlik", "lig"] });
+  assert.deepEqual((await t.h.acilis()).bayraklar, { testci: true });
+  await ayarla("onizleme", {});
+  assert.ok((await a.h.acilis()).bayraklar.kapali!.includes("turnuva"), "8360: önizlemede turnuva kapalı");
 
   // 8310: oturumsuz ziyaretçi de halka açık bayrakları alır (önizlemede kilitli görünüm)
   await ayarla("onizleme", { kapali: ["turnuva"] });

@@ -212,8 +212,14 @@ test("anonim hesap ödül alamaz; devir kodu tek kullanımlık", async () => {
   const kod = await rpc<string>(h.supabase, "devir_kodu_al");
   const k = await kaliciKullanici();
   await h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola });
-  await rpc(h.supabase, "hesap_devral", { p_kod: kod });
-  await assert.rejects(rpc(h.supabase, "hesap_devral", { p_kod: kod }), /devir_kodu_gecersiz/);
+  const ilk = await rpc(h.supabase, "hesap_devral", { p_kod: kod });
+  // 8460 (D03 makbuzu): yanıt kaybolup aynı hesap yeniden çağırırsa ikinci devir olmaz, aynı sonuç döner.
+  assert.deepEqual(await rpc(h.supabase, "hesap_devral", { p_kod: kod }), ilk);
+  // Başka hesap aynı kodu kullanamaz.
+  const b = await kaliciKullanici();
+  const h2 = yeniHesap();
+  await h2.supabase.auth.signInWithPassword({ email: b.eposta, password: b.parola });
+  await assert.rejects(rpc(h2.supabase, "hesap_devral", { p_kod: kod }), /devir_kodu_gecersiz/);
   // kalıcı hesap devir kodu alamaz
   await assert.rejects(rpc(h.supabase, "devir_kodu_al"), /anonim_degil/);
 });
@@ -361,4 +367,50 @@ test("silinen hesabın ad kilidi: yeniden açınca ad ve kilit geri gelir, ad ba
   await sql`update ortak.oyuncular set ad_degisti = now() - interval '31 days' where oyun_id = 'deneme' and ad = ${ad}`;
   await h2.hesabiSil();
   assert.equal((await sql`select count(*)::int as n from ortak.silinen_adlar where ad = ${ad}`)[0]!.n, 0);
+});
+
+test("MD-24 bulutKaydi.birlestir({ kim }): beklenen hesap değilse yazmaz, hesap_degisti fırlatır", async () => {
+  const k = await kaliciKullanici();
+  const h = yeniHesap();
+  await h.disGiris(() => h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
+  const b = h.bulutKaydi<{ a: number }>();
+  await assert.rejects(b.birlestir({ a: 1 }, (y) => ({ kayit: y }), { kim: crypto.randomUUID() }), /hesap_degisti/);
+  assert.equal(await b.oku(), null, "başka hesabın kaydı yazılmadı");
+  const r = await b.birlestir({ a: 2 }, (y) => ({ kayit: y }), { kim: k.id });
+  assert.deepEqual(r.kayit, { a: 2 }, "doğru hesapla yazar");
+});
+
+test("8440 kayit_*_hesapli: sunucu beklenen hesabı her çağrıda doğrular; eski kayit_oku/kayit_yaz aynen çalışır", async () => {
+  const a = yeniHesap(), b = yeniHesap();
+  const idA = await kaliciGir(a), idB = await kaliciGir(b);
+  await rpc(b.supabase, "kayit_yaz", { p_oyun: "deneme", p_veri: { b: 1 }, p_surum: 0 }); // eski tüketici: imza aynı
+  // A oturumu B'yi beklerse (arada hesap değişmiş gibi) okuma da yazma da reddedilir; B'nin kaydı ne okunur ne değişir.
+  await assert.rejects(rpc(a.supabase, "kayit_oku_hesapli", { p_oyun: "deneme", p_kim: idB }), /hesap_degisti/);
+  await assert.rejects(rpc(a.supabase, "kayit_yaz_hesapli", { p_oyun: "deneme", p_veri: { a: 9 }, p_surum: 1, p_kim: idB }), /hesap_degisti/);
+  await assert.rejects(rpc(a.supabase, "kayit_oku_hesapli", { p_oyun: "deneme", p_kim: null }), /hesap_degisti/);
+  assert.deepEqual((await rpc<{ veri: unknown; surum: number }>(b.supabase, "kayit_oku", { p_oyun: "deneme" })).veri, { b: 1 });
+  assert.equal(await rpc(a.supabase, "kayit_oku_hesapli", { p_oyun: "deneme", p_kim: idA }), null);
+  // doğru hesapta eski uygulamaya devreder: iyimser kilit ve sürüm aynı
+  assert.equal(await rpc(a.supabase, "kayit_yaz_hesapli", { p_oyun: "deneme", p_veri: { a: 1 }, p_surum: 0, p_kim: idA }), 1);
+  assert.equal(await rpc(a.supabase, "kayit_yaz_hesapli", { p_oyun: "deneme", p_veri: { a: 2 }, p_surum: 0, p_kim: idA }), null);
+  // oturumsuz ve misafir aynı biçimde reddedilir
+  await assert.rejects(rpc(istemci(), "kayit_oku_hesapli", { p_oyun: "deneme", p_kim: idA }));
+  const m = yeniHesap();
+  const idM = await m.anonimGir();
+  await assert.rejects(rpc(m.supabase, "kayit_yaz_hesapli", { p_oyun: "deneme", p_veri: { a: 1 }, p_surum: 0, p_kim: idM }), /kalici_hesap_gerekli/);
+});
+
+test("MD-24 istemci: kim verilince doğrulamalı işlevler kullanılır, eski yola düşülmez", async () => {
+  const h = yeniHesap();
+  const id = await kaliciGir(h);
+  const cagrilar: string[] = [];
+  const asil = h.supabase.schema.bind(h.supabase);
+  (h.supabase as unknown as { schema: typeof asil }).schema = ((s: string) => {
+    const sc = asil(s);
+    const rpcAsil = sc.rpc.bind(sc);
+    return Object.assign(Object.create(sc), { rpc: (ad: string, arg?: object) => { cagrilar.push(ad); return rpcAsil(ad, arg); } });
+  }) as typeof asil;
+  const r = await h.bulutKaydi<{ a: number }>().birlestir({ a: 3 }, (y) => ({ kayit: y }), { kim: id });
+  assert.deepEqual(r.kayit, { a: 3 });
+  assert.deepEqual(cagrilar, ["kayit_oku_hesapli", "kayit_yaz_hesapli"]);
 });
