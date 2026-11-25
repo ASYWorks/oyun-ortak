@@ -1,6 +1,6 @@
 # ARAYÜZ · asyworks.com
 
-Yayın: Cloudflare Pages projesi `asyworks`. Bu deponun `site/` klasörü yayınlanır, derleme adımı yoktur. `main`'e her push siteyi günceller. Adresler: asyworks.com ve www.asyworks.com. Alan adı Search Console'da doğrulandı; DNS'teki `google-site-verification` TXT kaydı silinmez. Google giriş onay ekranı "ASYWorks" adıyla doğrulanmış ve yayında (2026-11-14).
+Yayın: Cloudflare Pages projesi `asyworks`. Bu deponun `site/` klasörü yayınlanır, derleme adımı yoktur. Git bağlantısı yok (doğrudan yükleme): değişiklikten sonra `npx wrangler pages deploy site --project-name asyworks --branch main` (25 Kasım'da doğrulandı). Adresler: asyworks.com ve www.asyworks.com. Alan adı Search Console'da doğrulandı; DNS'teki `google-site-verification` TXT kaydı silinmez. Google giriş onay ekranı "ASYWorks" adıyla doğrulanmış ve yayında (2026-11-14).
 
 ASYWorks sitesinin (`site/`) tek doğruluk kaynağı bu belge ve `site/ana.css`'tir. Oyunların arayüz belgeleriyle (ör. Beat Greedy `docs/ARAYUZ.md`) aynı düzende yazıldı. Gizlilik ve hesap silme sayfaları (`site/stil.css`) aynı renk ve yazıyı kullanır, aynı tek ekran kabuğundadır (§4.1).
 
