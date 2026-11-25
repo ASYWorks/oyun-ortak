@@ -18,6 +18,9 @@ mkdir -p "$(dirname "$GUNLUK")"
   sh scripts/yedek.sh canli > "$GUNLUK.yedek" 2>&1 && Y=0 || { Y=$?; tail -n 5 "$GUNLUK.yedek"; }
   rm -f "$GUNLUK.yedek"
   echo "yedek: çıkış $Y"
+  # Makine dışı şifreli kopya (Google Drive asyworks0, son 7); parola ~/.oyun-ortak/yedek-parola.txt.
+  D=0; if [ "$Y" = 0 ]; then sh scripts/disari-yedek.sh > "$GUNLUK.disari" 2>&1 || D=$?; grep -v NOTICE "$GUNLUK.disari" | tail -n 3; rm -f "$GUNLUK.disari"; fi
+  echo "dışarı yedek: çıkış $D"
   # Panel (panel.asyworks.com) son yedeği buradan görür: ~/.oyun-ortak/panel.env'de PANEL_ANAHTAR_CANLI ve SB_ANON_CANLI.
   # Anahtar ekrana ve günlüğe yazılmaz; çağrı başarısızsa yedek başarısız sayılmaz.
   if [ -f "$HOME/.oyun-ortak/panel.env" ]; then
@@ -35,8 +38,8 @@ mkdir -p "$(dirname "$GUNLUK")"
   echo "sağlık: çıkış $S"
   if [ "$DOCKER_ACTIK" = 1 ]; then docker desktop stop >/dev/null 2>&1 || taskkill.exe //IM "Docker Desktop.exe" //F >/dev/null 2>&1; echo "docker: kapatıldı"; fi
 } >> "$GUNLUK" 2>&1
-if [ "$Y" != 0 ] || [ "$S" != 0 ]; then
-  msg.exe "$USERNAME" "oyun-ortak günlük denetim: yedek çıkış $Y, sağlık çıkış $S. Ayrıntı: $GUNLUK" 2>/dev/null || true
+if [ "$Y" != 0 ] || [ "$S" != 0 ] || [ "${D:-0}" != 0 ]; then
+  msg.exe "$USERNAME" "oyun-ortak günlük denetim: yedek çıkış $Y, dışarı yedek $D, sağlık çıkış $S. Ayrıntı: $GUNLUK" 2>/dev/null || true
 fi
 # Günlük dosyası şişmesin: son 2000 satır.
 tail -n 2000 "$GUNLUK" > "$GUNLUK.tmp" && mv "$GUNLUK.tmp" "$GUNLUK"
