@@ -11,7 +11,7 @@ Yayın tarihi kesinleşmemiş her oyun canlıda **önizleme** kipindedir. Bu, b�
 | `hesap.acilis().bayraklar` | Testçi olmayana `onizleme: true` döner; `kapali` listesine `gunluk`, `lig`, `etkinlik`, `siralama`, `duello` eklenir. Testçiye `onizleme: true, testci: true, lig_acik: true` döner; elle kapatılanlar dışında her şey açık. Yayından sonra da testçiye `testci: true` döner (göç 8300): bütün seviyeler her zaman açık. |
 | `hesap.oyunBayraklari()` (göç 8310) | Oturum gerekmez. Testçi olmayan birinin göreceği bayraklar. Oturumu olmayan misafir (ilk açılış) önizleme kilidini ve gizlemeyi buradan uygular; oturum açılınca `acilis().bayraklar` geçerlidir (testçi bilgisi orada). |
 | `c.ozellikAcik(ad)` (ortak-sunucu) | `dogrula-<oyun>` aynı kuralı sunucuda sorar: kapalıysa `c.hata(403, "kapali")`. |
-| `scripts/yayin-temizligi.ts` | Yayın günü yayından önceki ortak skor, deneme, kurulum ve lig satırlarını siler (yalnız testçiler yazmış olur) ve `yayin`'ı `"acik"` yapar. Önce kuru koşu, sonra kurucu onayıyla `uygula`. |
+| `scripts/yayin-temizligi.ts` | Yayın günü yayından önce testçilerin yazdığı ortak skor, deneme, kurulum ve lig satırlarını siler (normal oyuncuya dokunmaz; oyun önizlemede değilse ya da yayin_tarihi Y ile uyuşmazsa durur) ve `yayin`'ı `"acik"` yapar. Önce kuru koşu, sonra kurucu onayıyla `uygula`. |
 
 ## Yayın tarihi ve günlük takvim (göç 8290, v0.22.1)
 
