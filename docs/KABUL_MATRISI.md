@@ -40,7 +40,7 @@ Push ve yayın her oyunun kendi oturumunda.
 | Sticky Ten | ✓ 57c5d4a | | | | | | | | K2 hatası düzeldi |
 | Hop Koala | | | | | | | | | çevrimiçi bayrak yok; K7 (full_unlock) mağaza paketinde |
 | Ense | ✓ 5f0df88 | | | | | | | | K2, K3 hataları düzeldi |
-| Sahte | ✓ a146f99 | | | | | | | | K2, K3 hataları düzeldi; 4–8 sürüyor |
+| Sahte | ✓ a146f99 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 89b9b47, 071c7a1: K5, K6, K9 hataları düzeldi; K7 yok (ücretli hak yok) |
 | Remzle | ✓ 46fb65a | | | | | | | | K2, K3 hataları düzeldi; K4–K10 sürüyor |
 | Ezber | ✓ 030d02d | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | f75ca33: K6, K7, K9, K10 hataları düzeldi (K10: yanıt kaybında −5 iki kez) |
 | Koz | ✓ 537d773 | | | | | | | | K2 hatası düzeldi |
