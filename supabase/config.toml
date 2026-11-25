@@ -475,7 +475,6 @@ additional_redirect_urls = [
   "https://ifade-kati.asyworks.com/**",
   "https://el-bitir.asyworks.com/**",
   "https://kayan-yuk.asyworks.com/**",
-  "https://kayan-yuk.pages.dev/**",
   "https://kelime-koprusu.asyworks.com/**",
 ]
 
