@@ -1,6 +1,6 @@
 {
   "name": "@oyun/ortak",
-  "version": "0.23.4",
+  "version": "0.23.5",
   "description": "ASYWorks'ün mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum, odeme, etkinlik, geri-bildirim, bildirim.",
   "type": "module",
   "license": "UNLICENSED",
@@ -19,6 +19,10 @@
     "./olcum": {
       "types": "./dist/olcum/index.d.ts",
       "default": "./dist/olcum/index.js"
+    },
+    "./bayrak": {
+      "types": "./dist/bayrak/index.d.ts",
+      "default": "./dist/bayrak/index.js"
     },
     "./hesap": {
       "types": "./dist/hesap/index.d.ts",
@@ -70,6 +74,7 @@
     "@types/node": "^24.19.2",
     "postgres": "^3.4.9",
     "supabase": "^3.1.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.168.0"
   }
 }
