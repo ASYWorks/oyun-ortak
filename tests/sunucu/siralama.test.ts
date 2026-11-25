@@ -87,17 +87,21 @@ test("gönderim kuyruğu: ağ yokken bekler, ağ gelince gider", async () => {
   assert.equal(r.bekliyor, true);
   assert.equal(await s1.bekleyenSayisi(), 1);
 
+  // D02 (25 Kasım): oturumsuzken kuyruğa giren (sahipsiz) kayıt kalıcı hesaba gitmez; kuyrukta bekler.
+  // Sahipli kaydın ağ gelince gitmesi src/siralama/kuyruk.test.ts'te sınanır.
   const { c } = await oyuncu();
   const s2 = siralamaBaslat({ supabase: c, oyunId: "deneme", depo });
-  const sonuc = await s2.bosalt();
-  assert.equal(sonuc[0]!.durum, 200);
-  assert.equal((sonuc[0]!.veri as { puan: number }).puan, 6);
-  assert.equal(await s2.bekleyenSayisi(), 0);
+  assert.deepEqual(await s2.bosalt(), []);
+  assert.equal(await s2.bekleyenSayisi(), 1);
 
-  // kalıcı ret kuyruktan düşer
-  const r2 = await s2.gonder(gunluk([1], { kuralSurumu: 99 }));
+  // kalıcı hesabın kendi gönderimi gider; kalıcı ret kuyruktan düşer
+  const s3 = siralamaBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
+  const ok = await s3.gonder(gunluk([3, 3]));
+  assert.equal(ok.durum, 200);
+  assert.equal((ok.veri as { puan: number }).puan, 6);
+  const r2 = await s3.gonder(gunluk([1], { kuralSurumu: 99 }));
   assert.deepEqual([r2.durum, r2.bekliyor], [426, false]);
-  assert.equal(await s2.bekleyenSayisi(), 0);
+  assert.equal(await s3.bekleyenSayisi(), 0);
 });
 
 test("tablo: eşit puana aynı sıra, ilk N + çevre, 50 altında yüzdelik yok", async () => {

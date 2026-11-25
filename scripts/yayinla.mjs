@@ -122,11 +122,12 @@ if (islevYayini && kuru) {
   console.log(`▸ işlev (kuru): ${ayar.islevler.join(', ')} yüklenmez${ayar.islevE2e ? '; islevE2e atlandı (dağıtılmış test sürümüne dayanır)' : ''}`);
 } else if (islevYayini) {
   islevYukle('test', TEST);
-  if (ayar.islevE2e) { console.log('▸ işlev e2e (oyun-test)'); calis(ayar.islevE2e, { cwd: KAYNAK, env: ortam(ayar.e2eOrtam) }); }
+  if (ayar.islevE2e) { console.log('▸ işlev e2e (oyun-test)'); calis(ayar.islevE2e, { cwd: KAYNAK, env: { ...ortam(ayar.e2eOrtam), OYUN_KLASOR: KLASOR } }); }
 }
 
 // 4) İstemci e2e (oyun-test)
-if (ayar.e2e) { console.log('▸ e2e (oyun-test)'); calis(ayar.e2e, { cwd: KAYNAK, env: ortam(ayar.e2eOrtam) }); }
+// OYUN_KLASOR: asıl oyun klasörü; temiz kopyada olmayan, git dışı veriyi (ör. Halka tam veri) e2e oradan okur (Halka, 25 Kasım).
+if (ayar.e2e) { console.log('▸ e2e (oyun-test)'); calis(ayar.e2e, { cwd: KAYNAK, env: { ...ortam(ayar.e2eOrtam), OYUN_KLASOR: KLASOR } }); }
 
 // 5) Canlı ortamla derleme
 console.log('▸ derleme (canlı ortam)');
