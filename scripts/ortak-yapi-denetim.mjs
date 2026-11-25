@@ -58,7 +58,10 @@ for (const [klasor, id] of OYUNLAR) {
   const yj = yayinJson ? JSON.parse(oku(join(d, 'yayin.json'))) : {};
   const fnDir = join(d, 'supabase/functions');
   const pinler = [...new Set(tumDosyalar(fnDir, /deno\.json$/).flatMap((p) => [...oku(p).matchAll(/oyun-ortak\/([^/"]+)\/sunucu\//g)].map((m) => m[1])))];
-  const sunucuSurum = !pinler.length ? '–' : pinler.every((p) => p === `v${GEREKLI_PAKET}` || p === GEREKLI_COMMIT) ? '✓' : `✗ ${pinler.map((p) => p.slice(0, 8)).join(',')}`;
+  // Sabitleme en son sürüm olmak zorunda değil: sunucu/ klasörü gerekli sürümle aynıysa yeterli (gereksiz işlev yüklemesi olmasın).
+  const sunucuAyni = (p) => p === `v${GEREKLI_PAKET}` || p === GEREKLI_COMMIT
+    || spawnSync('git', ['-C', ORTAK, 'diff', '--quiet', p, GEREKLI_COMMIT, '--', 'sunucu/']).status === 0;
+  const sunucuSurum = !pinler.length ? '–' : pinler.every(sunucuAyni) ? '✓' : `✗ ${pinler.map((p) => p.slice(0, 8)).join(',')}`;
   const ozellik = iceren(fnDir, /\.ts$/, /ozellikAcik|etkin_bayraklar/) || iceren(join(d, 'server'), /\.(ts|js)$/, /etkin_bayraklar/) || iceren(join(d, 'supabase'), /\.sql$/, /etkin_bayraklar/)
     || (id !== null && tumDosyalar(join(ORTAK, 'supabase/migrations'), /\.sql$/).some((p) => oku(p).includes(`etkin_bayraklar('${id}'`)));
   const src = ['src', 'app', 'apps', 'client', 'web'].map((s) => join(d, s));
