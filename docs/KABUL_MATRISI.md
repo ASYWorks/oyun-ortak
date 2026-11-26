@@ -48,3 +48,4 @@ Push ve yayın her oyunun kendi oturumunda.
 | Mahalle | ✓ 615dbc6 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | a9dacd6: K4, K5, K6, K9, K10 hataları düzeldi; K7 yok (satın alma yok); hata 2 ve 4 (7825343) |
 | İfade | ✓ e7de7f9 | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | 89a5a78: K4, K5, K6, K8 (canlıda `?acik` bütün vakaları açıyordu), K9 hataları düzeldi; K7 yok (mağaza bağlı değil) |
 | El Bitir | ✓ 8d031ca | ✓ | ✓ | ✓* | – | ✓ | ✓ | ✓ | eeafb11: `tools/bayrak-denetimi.mjs` (22 kontrol, e2e) ve `tools/dogrula-e2e.ts` (oyun-test, 15 adım, islevE2e); K4 eşzamanlı ipucu tek kayıp, K10 yinelenen teslim tek skor; *K6 gün sunucuda ve uyuşmazlık oyuncuya söyleniyor, saat taklidi e2e'si yok; K7 yok (ödeme yok); bayrak denetiminde kurulum yarışı (çalışan uygulama kaydı eziyordu) 8d031ca'da giderildi |
+| Kulis | kod ✓, e2e yok | kısmen | kısmen | ✓ | kısmen | ✓ | ✓ | ✓ | Aşama 2; kod incelemesi 26 Kasım (d3fac2d, 80c1cfc); tarayıcı e2e ve site ad kesinleşince (alan adı yok) |
