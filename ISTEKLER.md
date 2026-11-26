@@ -524,5 +524,5 @@ Karar (Beat Greedy, kurucu onayı, `sezgi/docs/YENI_YAPI.md`, K141): oyun başı
 | # | Paket | İstek | Neden | Kabul ölçütü |
 |---|---|---|---|---|
 | BG-12 / RZ-9 | `siralama` (lig), göç | `lig(oyun, { alt })`: haftalık lig tablosu puanı yalnız verilen alt oyunun skorlarından hesaplanır; `alt` verilmezse bugünkü sonuç. Skorda alt oyun etiketi (ör. `ayrinti.alt` ya da ayrı sütun) | Oyunun Lig sekmesi süzülmüş görünüm; tek lig, tek istek | Süzgeçli ve süzgeçsiz sonuç testli; süzgeç sunucuda |
-| BG-13 | göç (`ortak.urunler`) | Beat Greedy için 17 satır: 16 × `beatgreedy_<oyun>` → `alt_<oyun>`, `beatgreedy_paket_tam` → `paket_tam` (alt oyun kimlik listesi BG'den) | Alt oyun başına satış | Satırlar test ve canlıda; hak eşlemesi testli |
+| BG-13 | göç (`ortak.urunler`) | Beat Greedy için 17 satır: 16 × `beatgreedy_<oyun>` → `alt_<oyun>`, `beatgreedy_paket_tam` → `paket_tam` (alt oyun kimlik listesi BG'den) | Alt oyun başına satış | Satırlar test ve canlıda; hak eşlemesi testli Tamam: göç 8540 test+canlı (17 satır, 26 Kasım) |
 | RZ-7…RZ-10 | `odeme`, korumalı kova, günlük | Remzle taslağı onaylanınca ayrıntı (alt oyun başına hak, kova yolu hak başına, alt oyun günlükleri) | Alt oyun başına satış | Kurucu onayından sonra |
