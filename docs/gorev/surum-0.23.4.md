@@ -10,7 +10,7 @@ Kurucu kararı: her oyun, sıradaki işiyle birlikte geçer. Ayrı oturum açıl
 API değişmedi. `sunucu/` değişmedi, `--islev` gerekmez. v0.23.3'ten eski oyunlar için `surum-0.23.3.md` dosyasındaki notlar da geçerli.
 
 **Adımlar**
-1. `package.json`: `"@oyun/ortak": "github:ASYWorks/oyun-ortak#v0.23.5"` (v0.23.5 yalnız `@oyun/ortak/bayrak` alt yolunu ekler; Kapı ve Kayan kendi bayrak.ts kopyalarını ona bağlar).
+1. `package.json`: `"@oyun/ortak": "github:ASYWorks/oyun-ortak#v0.23.6"` (v0.23.6 yalnız `@oyun/ortak/bayrak` alt yolunu ekler; Kapı ve Kayan kendi bayrak.ts kopyalarını ona bağlar).
 2. `npm install` (ya da pnpm); kilit dosyası güncellensin.
 3. Tip denetimi, testler, derleme. Bir şey kırılırsa dur ve oyun-ortak'a yaz.
 4. Asıl işin yayınıyla birlikte yayınla.

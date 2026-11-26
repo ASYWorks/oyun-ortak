@@ -2,6 +2,11 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.23.6 (26 Kasım 2026)
+
+- KK-7: `hesap.cikis()` ağ yokken oturumu cihazda bırakıyordu (sunucu iptali düşünce auth-js oturumu silmez). Artık hata dönerse `signOut({ scope: "local" })` ile bu cihazdan silinir.
+- **Oyunlar ne yapmalı:** sıradaki işleriyle v0.23.6'ya geçsin. Kelime Köprüsü kendi `cikisYap` içindeki geçici `scope: 'local'` satırını kaldırsın. Öbür oyunlar için değişiklik yok.
+
 ## v0.23.5 (25 Kasım 2026)
 
 - KY-3: yeni alt yol `@oyun/ortak/bayrak`. Kapı ve Kayan'ın elle kopyaladığı saklı bayrak modülü artık pakette: `bayrakDeposu(depo, oyunId, { varsayilanKapali?, eskiAnahtar? })` → `ilkBayraklar(id)`, `cevapKaydet(istekId, simdi[], ham)`, `bilinmeyen()`; ayrıca `kimlikUyar`, `yerelDepo`, `CEVRIMICI_OZELLIKLER`. Kayıtlar `{ sahip, b }` (O30, ÖG-61); anahtarlar `<oyunId>:bayraklar:genel|hesap`, oyunların bugünkü anahtarlarıyla aynı.

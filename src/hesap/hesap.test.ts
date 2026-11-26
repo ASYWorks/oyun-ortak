@@ -234,3 +234,17 @@ test("KZ-1: kayıt hataları KayitHatasi (kod alanı) olarak atılır; mesaj ayn
   assert.ok(e2 instanceof KayitHatasi);
   assert.equal((e2 as KayitHatasi).kod, "hesap_degisti");
 });
+
+test("KK-7: ağsız çıkışta oturum cihazdan silinir", async () => {
+  const kapsamlar: (string | undefined)[] = [];
+  const supabase = {
+    auth: {
+      signOut: async (o?: { scope?: string }) => {
+        kapsamlar.push(o?.scope);
+        return { error: o?.scope === "local" ? null : new Error("Failed to fetch") };
+      },
+    },
+  } as unknown as Parameters<typeof hesapBaslat>[0]["supabase"];
+  await hesapBaslat({ oyunId: "deneme", supabase, depo: bellekDepo() }).cikis();
+  assert.deepEqual(kapsamlar, [undefined, "local"]);
+});

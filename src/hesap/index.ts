@@ -289,8 +289,10 @@ export function hesapBaslat(a: HesapAyari) {
     /** Başka bir giriş yöntemi (ör. testlerde parola) için genel kapı; devir aynı biçimde işler. */
     disGiris: (gir: () => Promise<{ error: unknown }>) => kaliciGiris(gir),
 
+    /** Çıkış (KK-7): sunucu iptali ağ hatasıyla düşerse oturum yine bu cihazdan silinir. */
     async cikis() {
-      await sb.auth.signOut();
+      const { error } = await sb.auth.signOut();
+      if (error) await sb.auth.signOut({ scope: "local" });
     },
 
     ben: () => rpc<Ben>("ben", { p_oyun: a.oyunId }),
