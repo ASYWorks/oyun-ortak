@@ -2,6 +2,11 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.23.7 (26 Kasım 2026)
+
+- KY-7: `@oyun/ortak/bayrak` `asgari_surum` alanını artık saklıyor ve geri veriyor (`Bayraklar` türüne eklendi); önceden `temizle()` bu alanı düşürüyordu.
+- **Oyunlar ne yapmalı:** sıradaki işleriyle v0.23.7'ye geçsin. Kayan Yük taze yanıttan okuduğu geçici çözümü kaldırabilir. Öbür oyunlar için değişiklik yok.
+
 ## v0.23.6 (26 Kasım 2026)
 
 - KK-7: `hesap.cikis()` ağ yokken oturumu cihazda bırakıyordu (sunucu iptali düşünce auth-js oturumu silmez). Artık hata dönerse `signOut({ scope: "local" })` ile bu cihazdan silinir.

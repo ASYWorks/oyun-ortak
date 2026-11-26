@@ -7,7 +7,7 @@
  * Geç ya da başka hesaba ait yanıt uygulanmaz. DOM'suz; depo eşzamanlıdır (ilk çizim beklemesin diye localStorage).
  */
 
-export type Bayraklar = { kapali?: string[]; duyuru?: string; onizleme?: boolean; testci?: boolean; yayin_tarihi?: string };
+export type Bayraklar = { kapali?: string[]; duyuru?: string; onizleme?: boolean; testci?: boolean; yayin_tarihi?: string; asgari_surum?: string };
 export const CEVRIMICI_OZELLIKLER = ["gunluk", "siralama", "etkinlik", "lig", "turnuva", "duello"];
 export interface BayrakDepo { al(k: string): string | null; yaz(k: string, v: string): void; sil(k: string): void }
 
@@ -22,6 +22,7 @@ function temizle(x: unknown, testciDahil: boolean): Bayraklar | null {
   if (typeof x.onizleme === "boolean") b.onizleme = x.onizleme;
   if (typeof x.yayin_tarihi === "string") b.yayin_tarihi = x.yayin_tarihi;
   if (typeof x.duyuru === "string") b.duyuru = x.duyuru;
+  if (typeof x.asgari_surum === "string") b.asgari_surum = x.asgari_surum;
   if (testciDahil && x.testci === true) b.testci = true;
   return b;
 }

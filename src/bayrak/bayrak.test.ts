@@ -86,3 +86,11 @@ test("iki oyun aynı depoda birbirinin kaydını görmez", () => {
   bayrakDeposu(d, "kapi").cevapKaydet("a", ["a", "a"], TESTCI);
   assert.equal(bayrakDeposu(d, "kayan").ilkBayraklar("a").testci, undefined);
 });
+
+test("KY-7: asgari_surum saklanır ve geri okunur (halka açık kayıtta da)", () => {
+  const { d } = depo();
+  const b = { kapali: [], asgari_surum: "1.4.0", duyuru: "x" };
+  assert.deepEqual(kaydet(d, "", "", b), b);
+  assert.equal(kur(d).ilkBayraklar("").asgari_surum, "1.4.0");
+  assert.equal(kur(d).ilkBayraklar("a").asgari_surum, "1.4.0");
+});
