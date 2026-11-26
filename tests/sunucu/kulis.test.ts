@@ -15,11 +15,11 @@ geriKoy = await gunlukKoru("kulis", [gun(-1), gun(1), pazartesi()]);
 
 const satir = (g: string, n: number, tur = "gunluk") => ({ gun: g, tur, seviye: { n }, cevap: { usta: 3 }, kural_surumu: "r1", icerik_ozeti: `h${n}` });
 
-test("8500 kulis: oyun satırı (önizleme, eşitlik ikincil, 5 kademe); tablo ve uçlar istemciye kapalı", async () => {
+test("8500 kulis: oyun satırı (önizleme, eşitlik ortak (8530), 5 kademe); tablo ve uçlar istemciye kapalı", async () => {
   const [o] = await sql`select ad, ayarlar from ortak.oyunlar where id = 'kulis'`;
   assert.ok(o, "satır var");
   assert.equal(o!.ayarlar.yayin, "onizleme");
-  assert.equal(o!.ayarlar.siralama.esitlik, "ikincil");
+  assert.equal(o!.ayarlar.siralama.esitlik, "ortak", "göç 8530");
   assert.equal(o!.ayarlar.lig.kademeler.length, 5);
   assert.equal(o!.ayarlar.lig.en_iyi_gun, 5);
   for (const rol of ["anon", "authenticated"]) {
