@@ -11,6 +11,7 @@ export const SITES = {
   mahalle: 'https://mahalle-donusumu.asyworks.com/',
   ifade: 'https://ifade-kati.asyworks.com/',
   hopkoala: 'https://hopkoala.com/',
+  elbitir: 'https://el-bitir.asyworks.com/',
 };
 
 // Playwright yalnız ölçüm başlarken yüklenir (--help yüklemez). Öncelik: PLAYWRIGHT_MODULE (mutlak yol ya da file: URL), sonra
