@@ -34,7 +34,7 @@ const SPEC = {
   mahalle: { hazir: ['button.dugme.ana', 'Başla'], gec: [['ayarlar', 'button.gez', '^Ayarlar$'], ['mahalle', 'button.gez', '^Mahalle$']] },
   ifade: { hazir: ['button', 'Başla|Start'], gec: [['dil English', 'role:button', '^English$'], ['başla (öğretici girişi)', 'button.dugme.ana', 'Başla|Start']] },
   hopkoala: { hazir: ['button', 'Hop Koala'], gec: [['resimli kitaplar', 'role:button', 'Resimli Kitaplar'], ['basit oyunlar', 'role:button', 'Basit Oyunlar']] },
-  elbitir: { hazir: ['button', 'Biliyorum|Geç'], gec: [['öğreticiyi geç', 'button', '^Geç$'], ['ayarlar', 'a', '^Ayarlar$']] },
+  elbitir: { hazir: ['button', 'Biliyorum|Geç'], gec: [['öğreticiyi geç', 'button', '^Geç$'], ['ayarlar penceresi', 'role:button', '^Ayarlar$']] },
 };
 
 const site = argv[0];
