@@ -1,6 +1,6 @@
 {
   "name": "@oyun/ortak",
-  "version": "0.23.7",
+  "version": "0.24.0",
   "description": "ASYWorks'ün mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum, odeme, etkinlik, geri-bildirim, bildirim.",
   "type": "module",
   "license": "UNLICENSED",
@@ -23,6 +23,10 @@
     "./bayrak": {
       "types": "./dist/bayrak/index.d.ts",
       "default": "./dist/bayrak/index.js"
+    },
+    "./his": {
+      "types": "./dist/his/index.d.ts",
+      "default": "./dist/his/index.js"
     },
     "./hesap": {
       "types": "./dist/hesap/index.d.ts",

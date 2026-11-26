@@ -2,6 +2,11 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.24.0 (26 Kasım 2026)
+
+- Yeni alt yol `@oyun/ortak/his` (kurucu 26 Kasım; OYUN_DENETIMI A32–A35): `esne`, `titre`, `dalga`, `hisVer` (ses, görüntü ve titreşim aynı karede), `parcacik` (tek canvas, havuz), `hisAyarla` (oyunun süre/eğri token'ları ve oyun içi "Hareketi azalt"), `hareketAzaltildi`. Yalnız `transform`/`opacity`, Web Animations API, kütüphane yok. Hareket azaltmada animasyon yerine `his-dogru`/`his-hata` sınıfı kısa süre eklenir; oyun bu sınıflara çerçeve ya da ton verir.
+- **Oyunlar ne yapmalı:** zorunlu değil. Bir sonraki büyük sürümde his tablosunu (A32) yazarken kendi animasyon kodunun yerine bu modülü kullanabilir; `hisAyarla`'ya kendi token'larını verir, `his-dogru`/`his-hata` sınıflarına stil yazar.
+
 ## v0.23.7 (26 Kasım 2026)
 
 - KY-7: `@oyun/ortak/bayrak` `asgari_surum` alanını artık saklıyor ve geri veriyor (`Bayraklar` türüne eklendi); önceden `temizle()` bu alanı düşürüyordu.
