@@ -516,3 +516,13 @@ Bağlam: `sandik-ustasi/docs/SUNUCU.md`, `sandik-ustasi/docs/ENTEGRASYON.md`, `s
 | KI-2 | `siralama` (`dogrula-koku`, oyun deposunda) | Gövde, yeniden oynatma (biçimsiz eylem `kural_disi`), puan (−2/−20, tavan 100), `ayrinti` (`puan_surumu` ve ham girdiler), ipucu hakkı | Puanı yalnız sunucu yazar (O22) | Puan istemciyle aynı; geçersiz kayıt reddedilir |
 | KI-3 | `odeme` / korumalı kova | Ana paket hakkı: vitrin dışı 1.485 seviyenin hepsi (S1–S3'ün 31–200'ü dahil, A-14) | Ücretli içerik pakette durmaz | Satın almadan indirilemez; kova mağaza yaklaşınca |
 | KI-4 | `olcum` | `uzantiOlaylar`: `kart_oynandi`, `yakalandi`, `geri_al`, `geri_yukle`; seviye ve satın alma olayları çekirdek adlarıyla (`seviye_bitir`, `seviye_kaybet`, `gunluk_bitir`, `satin_alma_*`) | Ölçüm ortak | Olaylar PostHog'da |
+
+## Alt oyunlu yapı: Beat Greedy ve Remzle ortak istekleri (2026-11-26; kurucu panel notları 5 ve 9)
+
+Karar (Beat Greedy, kurucu onayı, `sezgi/docs/YENI_YAPI.md`, K141): oyun başına 99 TL, hepsi paketi 499 TL; ana sayfada Devam + Bugün şeridi + alt oyunlar; tek haftalık lig, oyunun Lig sekmesi süzülmüş görünüm; alt çubuk Oyunlar · Sıralama · Ligler · Profil. Remzle aynı yapıyı tasarlıyor (`sifre-burosu/docs/superpowers/specs/2026-11-26-yeni-yapi-ve-sanat-yonu.md`, RZ-7…RZ-10 taslağı).
+
+| # | Paket | İstek | Neden | Kabul ölçütü |
+|---|---|---|---|---|
+| BG-12 / RZ-9 | `siralama` (lig), göç | `lig(oyun, { alt })`: haftalık lig tablosu puanı yalnız verilen alt oyunun skorlarından hesaplanır; `alt` verilmezse bugünkü sonuç. Skorda alt oyun etiketi (ör. `ayrinti.alt` ya da ayrı sütun) | Oyunun Lig sekmesi süzülmüş görünüm; tek lig, tek istek | Süzgeçli ve süzgeçsiz sonuç testli; süzgeç sunucuda |
+| BG-13 | göç (`ortak.urunler`) | Beat Greedy için 17 satır: 16 × `beatgreedy_<oyun>` → `alt_<oyun>`, `beatgreedy_paket_tam` → `paket_tam` (alt oyun kimlik listesi BG'den) | Alt oyun başına satış | Satırlar test ve canlıda; hak eşlemesi testli |
+| RZ-7…RZ-10 | `odeme`, korumalı kova, günlük | Remzle taslağı onaylanınca ayrıntı (alt oyun başına hak, kova yolu hak başına, alt oyun günlükleri) | Alt oyun başına satış | Kurucu onayından sonra |
