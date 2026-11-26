@@ -20,7 +20,7 @@ Kurucu panel notları 8, 13, 14, 15, 16. İki Opus araştırması (web kaynaklı
 | Alt sekme çubuğu | Hedef sayısına göre: ≤2 hedefte yok, 3–4 hedefte var, en fazla 5; oyun sırasında gizli (A29) |
 | Geri tuşu | Sessizce kaydet ve çık; yalnız kaydedilemeyen bir şey kaybolacaksa sor (A30) |
 | Kör test | Öneri düzeyinde (A26) |
-| Animasyon | Yalnız CSS ve WAAPI; oyun-ortak'ta küçük ortak `his` modülü (esneme, titreme, dalga, ses-titreşim eşzamanı) ve parçacık için canvas; görünümü her oyun kendi token'larıyla verir |
+| Animasyon | Varsayılan CSS ve WAAPI; kütüphane gerekirse profesyonel olan (GSAP ya da karakterli oyunda Rive), tembel yüklenir ve ölçülür (kurucu, aynı gün); oyun-ortak'ta küçük ortak `his` modülü (esneme, titreme, dalga, ses-titreşim eşzamanı) ve parçacık için canvas; görünümü her oyun kendi token'larıyla verir |
 | Süs tavanı | Oyun başına, his tablosunda (A32) |
 | Ses aracı | ElevenLabs Creator 1 ay: efekt, müzik ve Hop Koala seslendirmesi birlikte üretilir, plan adı ve tarihi lisans dosyalarına, sonra iptal; beta etiketli model kullanılmaz |
 | Görsel aracı | Türe göre: illüstrasyon ve doku Gemini Nano Banana 2 (referanslı), ikon/rozet/simge Recraft (SVG), GPT Sol 6.2 yalnız mevcut referanslı seriler (Ezber karakterleri, Koz albümü) |
