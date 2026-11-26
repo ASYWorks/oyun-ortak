@@ -71,6 +71,8 @@ Testçi hesabında seviyeler dışında oyunda bulunan her oyun tipinden en az b
 5. **Kademeli açılış (ilk yayın).** Önizleme yapısı ilk yayında da kullanılabilir: yayın `acik` olunca `ayarlar.bayraklar.kapali` listesinde kalan özellikler (ör. etkinlik, lig) oyuncuya kapalı kalır; oyuncu sayısı arttıkça kurucu kararıyla listeden çıkarılır, oyunun yeni sürüm yayınlaması gerekmez. Testçi listeye takılmaz (göç 8360). Bunun için oyun her özelliği ayrı ayrı `bayraklar.kapali`'ya bağlar (istemci ve sunucu), hepsini tek "onizleme" bayrağına bağlamaz.
 6. **Kapalı özellik her zaman hiç yokmuş gibi** (kurucu, 23 Kasım): önizlemede de yayından sonra da `kapali`'daki özelliğin sekmesi, düğmesi ve metni görünmez; adresi açılırsa seviyelere dönülür; ona bağlı alt özellik de kapanır (ör. günlük kapalıysa arşivi). "Kısa süre kapalı" kartı kullanılmaz. Geçici arızada oyuncuya bilgi `bayraklar.duyuru` metniyle verilir. `onizleme` bayrağı yalnız satış kilidini ("Tam sürümde açılacak") ve küçük "Önizleme" işaretini yönetir, özellik gizlemeyi değil.
 
+7. **Sıralamaya yazmayan alıştırma kendi bayrağına bağlanır** (26 Kasım). Önizlemede `gunluk` testçi olmayan herkese zorla kapalıdır (göç 8360). Sıralamaya, lige ya da sunucuya skor yazmayan bir günlük alıştırma vitrinde açık kalabilir (madde 1); bunun için `gunluk` yerine oyuna özgü bir bayrağa bağlanır (ör. Kayan Yük `antrenman`, 86dd8f8). Kademeli açılış için kurucu bu adı `bayraklar.kapali`'ya ekleyerek kapatabilir (madde 5–6). Skor yazan günlük her zaman `gunluk`'a bağlıdır.
+
 ## İstisna: Hop Koala
 
 Hop Koala'da (çocuk oyunu; günlük, lig ve sıralama yok) önizlemede de bütün içerik açık kalır. Vitrin ve kilit, mağazalara yüklenince kurulur (kurucu, 22 Kasım).
