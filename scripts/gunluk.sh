@@ -9,11 +9,11 @@ mkdir -p "$(dirname "$GUNLUK")"
   # db dump Docker ister (25 Kasım: Docker kapalıyken yedek sessizce düşüyordu). Kapalıysa açılır, en çok 4 dk beklenir,
   # iş bitince yalnız bu betik açtıysa kapatılır (bellek).
   DOCKER_ACTIK=0
-  if ! docker info >/dev/null 2>&1; then
+  if ! timeout 20 docker info >/dev/null 2>&1; then
     "/c/Program Files/Docker/Docker/Docker Desktop.exe" >/dev/null 2>&1 &
     DOCKER_ACTIK=1
-    i=0; until docker info >/dev/null 2>&1 || [ $i -ge 48 ]; do sleep 5; i=$((i+1)); done
-    echo "docker: açıldı ($((i*5)) sn)"
+    i=0; until timeout 20 docker info >/dev/null 2>&1 || [ $i -ge 48 ]; do sleep 5; i=$((i+1)); done
+    if [ $i -ge 48 ]; then echo "docker: açılamadı (4 dk)"; else echo "docker: açıldı ($((i*5)) sn)"; fi
   fi
   sh scripts/yedek.sh canli > "$GUNLUK.yedek" 2>&1 && Y=0 || { Y=$?; tail -n 5 "$GUNLUK.yedek"; }
   rm -f "$GUNLUK.yedek"
