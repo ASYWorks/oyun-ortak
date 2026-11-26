@@ -41,3 +41,20 @@ test("8400 panel notları: anahtarla ekle, listele, yeni notu sil; durum servis 
 
   assert.ok((await anon.from("panel_notlar").select("*").limit(1)).error, "tablo istemciye kapalı");
 });
+
+test("8520 panel notu düzenleme: yeni ve gönderilmiş not düzenlenir ve yeniden 'yeni' olur; yapılmış not değişmez", async () => {
+  await sql`delete from ortak.panel_ayar`;
+  await sql`insert into ortak.panel_ayar (anahtar_ozet) values (extensions.digest('test-anahtar', 'sha256'))`;
+  const anon = istemci().schema("ortak");
+  const { data: id } = await anon.rpc("panel_not_ekle", { p_anahtar: "test-anahtar", p_oyun: "halka-kelime", p_metin: "test-ilk" });
+  assert.equal((await anon.rpc("panel_not_guncelle", { p_anahtar: "yanlis", p_id: id, p_metin: "test-x" })).data, null);
+  await sql`update ortak.panel_notlar set durum = 'gonderildi', gonderildi = now() where id = ${id}`;
+  assert.equal((await anon.rpc("panel_not_guncelle", { p_anahtar: "test-anahtar", p_id: id, p_metin: " test-düzeltildi " })).data, true);
+  const [n] = await sql`select metin, durum, gonderildi from ortak.panel_notlar where id = ${id}`;
+  assert.equal(n!.metin, "test-düzeltildi");
+  assert.equal(n!.durum, "yeni");
+  assert.equal(n!.gonderildi, null);
+  assert.ok((await anon.rpc("panel_not_guncelle", { p_anahtar: "test-anahtar", p_id: id, p_metin: "  " })).error, "boş olmaz");
+  await sql`update ortak.panel_notlar set durum = 'yapildi' where id = ${id}`;
+  assert.equal((await anon.rpc("panel_not_guncelle", { p_anahtar: "test-anahtar", p_id: id, p_metin: "test-geç" })).data, false, "yapılmış not değişmez");
+});
