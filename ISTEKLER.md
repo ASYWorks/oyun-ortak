@@ -507,3 +507,12 @@ Bağlam: `sandik-ustasi/docs/SUNUCU.md`, `sandik-ustasi/docs/ENTEGRASYON.md`, `s
 | KU-5 | `odeme` / korumalı kova | Ana paket `paket_tam`: S1–S8'in vitrin dışı 1361 seviyesi `korumali/kulis/paket_tam/S1.json` … `S8.json`. Vitrin (kurucu S-6, 26 Kasım): S1–S4 ilk 40 + S5–S8 ilk 10 = 200; sınıf eşiği vitrin sayısı. | Ücretli içerik pakette durmaz | Satın almadan indirilemez; korumalı kova mağaza yaklaşınca (kurucu 25 Kasım) Ürün satırı `kulis_paket_tam` → paket_tam: göç 8510 test+canlı (26 Kasım) |
 | KU-6 | `olcum` | `uzantiOlaylar`: `jeton_hamlesi`, `anket`, `sandik_acildi`, `numara_etiketi`, `ipucu`. | Plan §14 | Olaylar PostHog'da |
 | KU-7 | bilgi (OGRENILENLER) | (a) Seyrek numaralı seviyeler (Ters Etki: rastgele profilde 40 000 hedefte 7) ret örneklemesiyle üretilemez; kalıp yerleştirme + çözücü doğrulaması gerekir. (b) Çözücüde bütçe dışı hamleyi hata atarak elemek aramayı ~50 kat yavaşlattı (Error yığın izi); önden bedel kontrolü. (c) "Bariz sezgi" botu (ikinci olduğu en büyük blokta öne al) klasik açgözlünün kaçırdığı ezber seviyeleri yakaladı; çeşitlilik denetiminde ikinci bot önerilir. | Öğrenilenler | Kanıt: `sandik-ustasi/docs/KAPASITE.md`, `docs/olcum-cozucu.md`, Fable 5.2 çeşitlilik incelemesi (25 Kasım) |
+
+## Koku İzi: Aşama 1 istekleri (2026-11-26; ön çalışma inceleme sonrası, Aşama 0 kurucunun sanat yönü onayından sonra)
+
+| # | Paket | İstek | Neden | Kabul ölçütü |
+|---|---|---|---|---|
+| KI-1 | göç (`ortak.oyunlar`, `koku` şeması) | `koku` satırı; lig 5 kademe (İz Arayan, İz Süren, Koku Bilen, Rüzgâr Okuyan, Orman Ustası), en iyi 5 gün; `siralama.esitlik` `ortak` (ADIL_PUAN Koku notu); `yayin` önizleme; günlük tablo (cevapsız seviye, cevap gizli, açılmış gün koruması) | Sıralama ve lig ortak | Satır test ve canlıda; günlük istemciye cevapsız |
+| KI-2 | `siralama` (`dogrula-koku`, oyun deposunda) | Gövde, yeniden oynatma (biçimsiz eylem `kural_disi`), puan (−2/−20, tavan 100), `ayrinti` (`puan_surumu` ve ham girdiler), ipucu hakkı | Puanı yalnız sunucu yazar (O22) | Puan istemciyle aynı; geçersiz kayıt reddedilir |
+| KI-3 | `odeme` / korumalı kova | Ana paket hakkı: vitrin dışı 1.485 seviyenin hepsi (S1–S3'ün 31–200'ü dahil, A-14) | Ücretli içerik pakette durmaz | Satın almadan indirilemez; kova mağaza yaklaşınca |
+| KI-4 | `olcum` | `uzantiOlaylar`: `kart_oynandi`, `yakalandi`, `geri_al`, `geri_yukle`; seviye ve satın alma olayları çekirdek adlarıyla (`seviye_bitir`, `seviye_kaybet`, `gunluk_bitir`, `satin_alma_*`) | Ölçüm ortak | Olaylar PostHog'da |
