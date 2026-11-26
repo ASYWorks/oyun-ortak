@@ -19,13 +19,18 @@ type Durum = {
   bekleyen: { kapanmamis_gecmis_lig_grubu: number; odulsuz_turnuva: number };
   son_24s: Record<string, number>;
   boyut: { veritabani_mb: number; hiz_sinirlari_satir: number };
+  gunluk_kalan: Record<string, number | null>;
 };
 
 let d: Durum;
 try {
   const dizin = mkdtempSync(join(tmpdir(), "saglik-"));
   const dosya = join(dizin, "s.sql");
-  writeFileSync(dosya, "select ortak.isletim_durumu() as v;");
+  // Taşınan ve yeni oyunların günlük içeriği (O22): açılmamış kalan gün sayısı. Oyun eklendikçe buraya bir satır.
+  writeFileSync(dosya, `select ortak.isletim_durumu() || jsonb_build_object('gunluk_kalan', jsonb_build_object(
+    'El Bitir', (select max(gun) - (now() at time zone 'Europe/Istanbul')::date from elbitir.gunluk),
+    'Kelime Köprüsü', (select max(gun) - (now() at time zone 'Europe/Istanbul')::date from kopru.gunluk),
+    'Kulis', (select max(gun) - (now() at time zone 'Europe/Istanbul')::date from kulis.gunluk where tur = 'gunluk'))) as v;`);
   // Depodaki sabit sürüm (package.json'daki supabase) doğrudan Node ile, kabuksuz; npx ağdan sürüm çekmesin.
   // cwd yapılandırmasız geçici klasör: config.toml'daki env(...) gizli değerleri gerekmesin.
   const cli = fileURLToPath(new URL("../node_modules/supabase/dist/supabase.js", import.meta.url));
@@ -54,6 +59,10 @@ if (!k.halka_bugun_var) ekle("Halka'da bugünün bulmacası YOK", "Hemen Halka o
 else if ((k.halka_gunluk_kalan_gun ?? 0) < 14) ekle(`Halka'da yalnız ${k.halka_gunluk_kalan_gun} günlük bulmaca kaldı`, "Halka oturumu yeni günleri üretip yüklesin (hedef: en az 30 gün ileri).");
 if (k.halka_turnuva_son_bitis && gunFarki(k.halka_turnuva_son_bitis, d.bugun) < 7) ekle(`Halka'da gelecek hafta sonu turnuvası yok (son bitiş ${k.halka_turnuva_son_bitis})`, "Halka oturumu turnuva bulmacalarını yüklesin.");
 if (k.sezgi_gunluk_son && gunFarki(k.sezgi_gunluk_son, d.bugun) < 7) ekle(`Beat Greedy'de ${gunFarki(k.sezgi_gunluk_son, d.bugun)} günlük bulmaca kaldı`, "Beat Greedy oturumu günlük bulmacaları üretsin.");
+for (const [oyun, kalan] of Object.entries(d.gunluk_kalan ?? {})) {
+  if (kalan === null || kalan < 0) ekle(`${oyun}: günlük içerik yok ya da bitti`, `${oyun} oturumu günlük içeriği yüklesin (önce test, sonra canlı).`);
+  else if (kalan < 14) ekle(`${oyun}: yalnız ${kalan} günlük içerik kaldı`, `${oyun} oturumu yeni günleri yüklesin (hedef: en az 30 gün ileri).`);
+}
 if (d.bekleyen.kapanmamis_gecmis_lig_grubu > 0 && !pazartesiSabah) ekle(`${d.bekleyen.kapanmamis_gecmis_lig_grubu} geçmiş hafta lig grubu kapanmamış`, "select ortak.lig_kapat(); (tekrar çağrılması zararsız)");
 if (d.bekleyen.odulsuz_turnuva > 0) ekle(`${d.bekleyen.odulsuz_turnuva} biten turnuvanın Şampiyon ödülü verilmemiş`, "select halka.turnuva_odul_ver(); (çift ödül üretmez)");
 if (d.boyut.veritabani_mb > 400) ekle(`Veritabanı ${d.boyut.veritabani_mb} MB (ücretsiz sınır 500 MB)`, "docs/ISLETIM.md §7 saklama politikasını uygula ya da Pro'ya geç.");
