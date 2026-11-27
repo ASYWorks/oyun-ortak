@@ -247,6 +247,14 @@ test("PU-8 + PU-7 b/e/f: puan ayarı Pazartesi kuralı; tablolar kapıdan önce 
   // puan sürüm 3 (kapı 23 Kasım, göç 8430): kapı açıkken ilk kayıt kalıcı, geçmese de (daha iyisi yazılmaz); kapı kapalıyken en iyisi
   assert.equal((await sql`select sezgi.puan_v3('2026-11-22') as v`)[0]!.v, false);
   assert.equal((await sql`select sezgi.puan_v3('2026-11-23') as v`)[0]!.v, true);
+  // puan sürüm 4 (BG-14, göç 8590): kapı 30 Kasım; sürüm 4'te de puan_v3 doğru (ilk kayıt kalıcı)
+  assert.deepEqual((await sql`select sezgi.puan_surumu('2026-11-22') a, sezgi.puan_surumu('2026-11-29') b, sezgi.puan_surumu('2026-11-30') c, sezgi.puan_v3('2026-12-01') d`).map((r) => ({ ...r })),
+    [{ a: 2, b: 3, c: 4, d: true }]);
+  // BG-12 doldurma (8590): bu testin teslimleri tur 'alt' satırı olur (Keşif lig puanlı); ikinci çağrı yeni satır yazmaz
+  await sql`select sezgi.alt_skor_doldur()`;
+  const alt = await sql`select donem, lig_puani from ortak.skorlar where oyun_id = 'sezgi' and tur = 'alt' and donem like ${"%:pu" + n + ":kesif"}`;
+  assert.ok(alt.length > 0 && alt.every((r) => r.lig_puani !== null), "Keşif teslimi alt skor oldu");
+  assert.equal((await sql`select sezgi.alt_skor_doldur() as n`)[0]!.n, 0);
 
   await bulmacaSil((tx) => tx`delete from sezgi.daily_puzzles where id in (${eski}, ${yeni})`);
   await sql.begin(async (t) => { await t`set local ortak.puan_ayar_serbest = 'acik'`; await t`delete from ortak.puan_ayar where oyun_id = 'sezgi'`; });
