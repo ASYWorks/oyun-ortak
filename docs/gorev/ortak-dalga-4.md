@@ -25,6 +25,8 @@ Kaynaklar: `_ortak/OYUN_DENETIMI.md` (A5, A22–A35, M1, 3d Z1–Z9), `_ortak/AD
 14. **Puan ve sıralama (ADIL_PUAN §0):** yeni puan sürümü: süre cömert bant (medyan×2, aşım en çok −20), hız ödülü yok; eşitlik bozucu oyun oyun, süreyse görünür (§6); genel günlük tablo yerine arkadaş tablosu + 20–30 kişilik lig (paket hazır olunca); ücretliye rekabete girmeyen ek arşiv/alıştırma; bot raporu tavan yığılması ve hileci oranı.
 
 ## Sıra
+**Kurucu kararı (27 Kasım öğlen):** önce 8 oyun biter: Beat Greedy, Remzle, Sahte Masası, Koku İzi, El Bitir, Kayan Yük, Kelime Köprüsü, Kulis. Bunlar bitmeden başka oyuna geçilmez; sonra diğer eski oyunlar ortak yapıya geçirilir. Aşağıdaki eski sıra bu karardan sonra geçerli.
+
 Önce paket işleri (oyun-ortak: arkadaş tablosu, lig grubu 20–30, süzülmüş lig BG-12/RZ-9). Oyunlar: Halka Kelime, Sahte Masası, Beat Greedy → Kelime Köprüsü, El Bitir, Kayan Yük, Kapı Ustası, Koz Hesabı, Mahalle Dönüşümü, İfade Katı, Ezber Bozan, Ense, Remzle → Kulis, Koku İzi (geliştirmede, baştan uyar). Aynı anda en çok 2–3 oyun.
 
 ## Rapor
