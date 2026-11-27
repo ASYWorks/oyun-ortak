@@ -2,6 +2,14 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.25.0 (27 Kasım 2026)
+
+- Arkadaş tablosu ve lig (ORT-ARK, ADIL_PUAN §0.3–0.4; göç 8570 test ve canlıda): `siralama.arkadasKodum()`, `arkadasEkle(kod)` (karşılıklı, en çok 100, dakikada 20), `arkadasCikar(profil)`, `arkadasTablosu(tur, donem)` (`tur`: gunluk, etkinlik, alt ya da `hafta` = haftalık lig puanı). Kalıcı hesap ve seçilmiş ad gerekir; misafir arkadaş ekleyemez.
+- Lig grubu en çok 30 kişi (30'dan büyük ayarlar 30'a indi; yeni atamalardan geçerli). Benzer etkinlik eşleşmesi: önceki 7 günde 0–2 / 3–5 / 6–7 gün oynayanlar ayrı grupta (`ayarlar.lig.etkinlik_esles = false` kapatır). Terfi sınırında eşit puanlıların hepsi çıkar (testli).
+- Alt oyun skoru (BG-12/RZ-9): `skor_yaz` `tur = 'alt'`, dönem `<gün>:<alt_id>[:<kip>]`. `siralama.lig({ alt })` aynı grubu yalnız o alt oyunun Keşif ya da kipsiz skorlarıyla sıralar; grup, kademe ve terfi değişmez. `tablo("alt", donem)` alt oyun günlük tablosu.
+- Sahte Masası `sahte_deste_kirp` (SM-8, göç 8560); Beat Greedy davet ligi üyeleri arkadaş oldu (BG-15, göç 8580).
+- **Oyunlar ne yapmalı:** dalga 4 C14'te genel günlük tablo yerine arkadaş tablosu ve lig göster; arkadaş kodu ekranı (kodu göster, kopyala, kodla ekle). Alt oyunlu oyunlar (BG, Remzle) alt skoru `tur: 'alt'` ile yazar, Lig sekmesinde `lig({ alt })` kullanır.
+
 ## v0.24.0 (26 Kasım 2026)
 
 - Yeni alt yol `@oyun/ortak/his` (kurucu 26 Kasım; OYUN_DENETIMI A32–A35): `esne`, `titre`, `dalga`, `hisVer` (ses, görüntü ve titreşim aynı karede), `parcacik` (tek canvas, havuz), `hisAyarla` (oyunun süre/eğri token'ları ve oyun içi "Hareketi azalt"), `hareketAzaltildi`. Yalnız `transform`/`opacity`, Web Animations API, kütüphane yok. Hareket azaltmada animasyon yerine `his-dogru`/`his-hata` sınıfı kısa süre eklenir; oyun bu sınıflara çerçeve ya da ton verir.

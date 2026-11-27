@@ -1,6 +1,6 @@
 {
   "name": "@oyun/ortak",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "description": "ASYWorks'ün mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum, odeme, etkinlik, geri-bildirim, bildirim.",
   "type": "module",
   "license": "UNLICENSED",
