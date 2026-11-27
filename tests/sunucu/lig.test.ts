@@ -24,13 +24,13 @@ async function sahteOyuncu(kademe = 0, seviye = 0) {
 const skor = (id: string, gun: string, lig: number) =>
   sql`select ortak.skor_yaz('deneme', ${id}, 'gunluk', ${gun}, ${lig * 10}, gen_random_uuid(), 1, ${lig})`;
 
-test("eş zamanlı 60 katılım: hiçbir grup 50'yi aşmaz", async () => {
+test("eş zamanlı 60 katılım: hiçbir grup 30'u aşmaz (8570)", async () => {
   const idler = await Promise.all(Array.from({ length: 60 }, () => sahteOyuncu(2)));
   await Promise.all(idler.map((id) => skor(id, gunu(bu, 0), 3)));
   const gruplar = await sql`
     select g.id, count(u.*)::int as n from ortak.lig_gruplari g join ortak.lig_uyeleri u on u.grup_id = g.id
     where g.oyun_id = 'deneme' and g.hafta = ${bu} and g.kademe = 2 group by g.id order by g.id`;
-  assert.deepEqual(gruplar.map((g) => g.n), [50, 10]);
+  assert.deepEqual(gruplar.map((g) => g.n), [30, 30]);
 });
 
 test("haftalık puan en iyi 5 gün; seviye bandı ayrı grup (KH-4)", async () => {

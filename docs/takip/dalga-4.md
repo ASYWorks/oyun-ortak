@@ -12,7 +12,7 @@ Son güncelleme: 27 Kasım 2026.
 | El Bitir | dalga 3 tamam | — | — | |
 | Kayan Yük | dalga 3 tamam | sanat yönetmeni önerileri yayında | — | |
 | Kulis | dalga 3 tamam | A23–A35 tamam (pafta onaylı) | — | geliştirmede |
-| Koku İzi | — | — | — | ön çalışma bitti (bba3b96: S7–S8 520, puan botu); 27 Kasım Aşama 0 oturumu açıldı, dalga 4'e baştan uyar; Günün İzi'nde 100 yığılması %54–86 (kurucuya) |
+| Koku İzi | — | — | — | ön çalışma bitti (bba3b96: S7–S8 520, puan botu); 27 Kasım Aşama 0 oturumu açıldı, dalga 4'e baştan uyar; d9c7e52: çerçeve s.13'e eşitlendi; fiyat 199 TL, A-20 tavan yığılması kabul (esitlik ortak, ayrım lig + arkadaş tablosu); 806ff7c: iskelet Z3 ihlal 0, Başlangıç 4, Aşama 0 belgeleri (A27–A30, his, §0.5b); A-22 (24 yeni öğe, RULES_VERSION 2) kurucu onayında, sonra S1–S2 üretimi sırayla |
 | Kapı Ustası | — | — | — | |
 | Koz Hesabı | — | — | — | |
 | Mahalle Dönüşümü | — | — | — | |

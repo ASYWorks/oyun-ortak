@@ -314,7 +314,8 @@ export function siralamaBaslat(a: SiralamaAyari) {
     bosalt,
     bekleyenSayisi: async () => (await yukle()).length,
 
-    async tablo(tur: "gunluk" | "etkinlik", donem: string, o: { ilk?: number; cevre?: number } = {}): Promise<Tablo> {
+    /** Alt oyun skoru için `tur: "alt"`, dönem `<gün>:<alt_id>[:<kip>]` (BG-12/RZ-9). */
+    async tablo(tur: "gunluk" | "etkinlik" | "alt", donem: string, o: { ilk?: number; cevre?: number } = {}): Promise<Tablo> {
       const { data, error } = await sb.schema("ortak").rpc("siralama", {
         p_oyun: a.oyunId, p_tur: tur, p_donem: donem, p_ilk: o.ilk ?? 10, p_cevre: o.cevre ?? 3,
       });
@@ -322,10 +323,46 @@ export function siralamaBaslat(a: SiralamaAyari) {
       return data as Tablo;
     },
 
-    async lig(): Promise<LigDurumu> {
-      const { data, error } = await sb.schema("ortak").rpc("lig_durumu", { p_oyun: a.oyunId });
+    /**
+     * Haftalık lig. `{ alt }` verilirse aynı grup yalnız o alt oyunun skorlarıyla (kipsiz ya da Keşif, en iyi N gün)
+     * sıralanır; grup, kademe ve terfi değişmez (BG-12/RZ-9).
+     */
+    async lig(o: { alt?: string } = {}): Promise<LigDurumu & { alt?: string }> {
+      const { data, error } = o.alt
+        ? await sb.schema("ortak").rpc("lig_durumu", { p_oyun: a.oyunId, p_alt: o.alt })
+        : await sb.schema("ortak").rpc("lig_durumu", { p_oyun: a.oyunId });
       if (error) throw new Error(error.message);
       return data as LigDurumu;
+    },
+
+    /** Kendi arkadaş kodu (6 karakter; yoksa üretilir). Kalıcı hesap ve ad gerekir. */
+    async arkadasKodum(): Promise<string> {
+      const { data, error } = await sb.schema("ortak").rpc("arkadas_kodum", { p_oyun: a.oyunId });
+      if (error) throw new Error(error.message);
+      return data as string;
+    },
+
+    /** Kodla arkadaş ekler (karşılıklı; en çok 100). Hata: kod_yok, kendi_kodun, arkadas_siniri, cok_istek. */
+    async arkadasEkle(kod: string): Promise<{ ad: string | null; profil: string }> {
+      const { data, error } = await sb.schema("ortak").rpc("arkadas_ekle", { p_oyun: a.oyunId, p_kod: kod });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+
+    /** Arkadaşlığı iki yönden siler (profil kimliğiyle). */
+    async arkadasCikar(profil: string): Promise<void> {
+      const { error } = await sb.schema("ortak").rpc("arkadas_cikar", { p_oyun: a.oyunId, p_profil: profil });
+      if (error) throw new Error(error.message);
+    },
+
+    /**
+     * Arkadaş tablosu (ADIL_PUAN §0.3): oyuncu ve arkadaşları. `tur: "hafta"` için dönem hafta başıdır (lig puanı).
+     * Skoru olmayan arkadaşın `sira`'sı null, sonda.
+     */
+    async arkadasTablosu(tur: "gunluk" | "etkinlik" | "alt" | "hafta", donem: string): Promise<{ satirlar: (Omit<Satir, "sira" | "puan"> & { sira: number | null; puan: number | null })[] }> {
+      const { data, error } = await sb.schema("ortak").rpc("arkadas_tablosu", { p_oyun: a.oyunId, p_tur: tur, p_donem: donem });
+      if (error) throw new Error(error.message);
+      return data;
     },
 
     /**
